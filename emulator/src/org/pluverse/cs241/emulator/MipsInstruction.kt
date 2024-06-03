@@ -642,8 +642,9 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
     }
 
     /**
-     * A word that isn't an instruction has no value
+     * A word that isn't an instruction has no instruction and won't run.
      *
+     * Throws an error
      */
     override fun execute(
         getReg: (index: Int) -> Int,
@@ -651,7 +652,9 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
         setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
-    ) {}
+    ) {
+        throw WordWithNoInstructionException()
+    }
 
 }
 

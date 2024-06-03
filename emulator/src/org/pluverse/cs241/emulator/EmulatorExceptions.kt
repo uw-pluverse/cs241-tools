@@ -8,7 +8,8 @@ open class MissingByteException : BadMipsFileException("Partial double word read
 /**
  * Exceptions related to running the emulator
  */
-open class EmulatorHasReturnedOS : Throwable("Program already returned to OS, finished successfully")
+open class EmulatorHasReturnedOSException : Throwable("Program already returned to OS, finished successfully")
+open class WordWithNoInstructionException : Throwable("Executing a non-instruction is not allowed")
 
 /**
  * Exceptions related to the Memory class

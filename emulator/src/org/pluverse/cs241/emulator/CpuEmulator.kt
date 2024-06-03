@@ -63,7 +63,7 @@ class CpuEmulator(fp: String) {
      * 6: end while
      */
     fun runFetchExecuteLoop() {
-        if (hasReturnedOS) throw EmulatorHasReturnedOS()
+        if (hasReturnedOS) throw EmulatorHasReturnedOSException()
 
         val instruction = memory.getData(pc)
         pc += 1
@@ -92,10 +92,13 @@ class CpuEmulator(fp: String) {
         memory[address].update(value)
     }
 
+    /**
+     * init: takes the current PC and returns the NEW PC based on the old one
+     */
     private fun setPC(init: ((currentPC: MemoryCompanion.Address) -> MemoryCompanion.Address)) {
-        val newAddress = init(pc)
+        pc = init(pc) // We return the new PC based on the function
 
-        if (newAddress.address.toLong() == RETURN_OS) {
+        if (pc.address.toLong() == RETURN_OS) {
             hasReturnedOS = true
         }
     }

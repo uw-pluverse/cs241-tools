@@ -40,7 +40,7 @@ abstract class EmulatorMemoryData(override var doubleWord: Int) : MemoryData {
     override fun getBinary(): String = Integer.toBinaryString(doubleWord).padStart(Int.SIZE_BITS, '0')
 
     // Returns a hex string of the doubleWord
-    override fun getHex(): String = Integer.toHexString(doubleWord)
+    override fun getHex(): String = "0x${Integer.toHexString(doubleWord).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
 
     override fun update(doubleWord: Int) {
         // Use the custom set methods to modify it

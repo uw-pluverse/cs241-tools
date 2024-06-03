@@ -44,6 +44,7 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
     companion object {
         // Assign the static variables
         const val DEFAULT_MAX_MEM_SIZE = 20000
+        const val DOUBLE_WORD_HEX_LENGTH = 8
 
         // Correlated classes
 
@@ -77,6 +78,10 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
                 return Address(address + (numOfFourBytes * 4).toUInt())
             }
 
+            operator fun plus(other: Address): Address {
+                return this + other() // Add the index or # of 4 bytes
+            }
+
             operator fun minus(numOfFourBytes: Int): Address {
                 if (numOfFourBytes < 0) return this + abs(numOfFourBytes)
 
@@ -86,6 +91,10 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
                     throw OutsideMemoryRangeException()
 
                 return Address(address - (numOfFourBytes * 4).toUInt())
+            }
+
+            operator fun minus(other: Address): Address {
+                return this - other() // Add the index or # of 4 bytes
             }
 
             init {
@@ -112,8 +121,8 @@ class Registers : Memory<RegisterData>(34) {
     override val data: Array<RegisterData> = Array<RegisterData>(maxSize) { index -> RegisterData(index) }
 
     companion object {
-        const val HI_INDEX = 33
-        const val LO_INDEX = 34
+        const val HI_INDEX = 32
+        const val LO_INDEX = 33
 
         const val STACK_POINTER = 30 // Stack pointer
         const val JUMP_REGISTER = 31 // By convention to use this register for return also for specific semantics
