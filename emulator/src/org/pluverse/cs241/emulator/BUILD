@@ -10,10 +10,10 @@ kt_jvm_library(
     name = "emulator_lib",
     srcs = [
         "MipsEmulatorMain.kt",
-        "Memory.kt",
         "CpuEmulator.kt",
         "Memory.kt",
         "MemoryData.kt",
-        "MipsInstruction.kt"
+        "MipsInstruction.kt",
+        "EmulatorExceptions.kt"
     ]
 )

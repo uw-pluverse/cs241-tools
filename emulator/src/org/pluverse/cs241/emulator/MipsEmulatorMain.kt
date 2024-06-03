@@ -1,8 +1,5 @@
 package org.pluverse.cs241.emulator
 
-import kotlin.io.path.Path
-import kotlin.io.path.absolute
-import kotlin.io.path.readBytes
 
 class MipsEmulatorMain {
 
@@ -14,18 +11,12 @@ class MipsEmulatorMain {
          */
         @JvmStatic
         fun main(args: Array<String>) {
-            val testMemory = Memory<MipsInstructionData>()
+            if (args.size == 0) throw Error("Need file input")
+            val emulator = CpuEmulator(args[0])
 
-            testMemory.getData(Memory.Companion.Address(8u)).test()
-
-//            println(Path(args[0]).absolute())
-//            val data = Path(args[0]).readBytes()
-//
-//            var doubleWord: Int = (data[0].toInt() and 0xff shl 24) or (data[1].toInt() and 0xff shl 16) or
-//                    (data[2].toInt() and 0xff shl 8)  or (data[3].toInt() and 0xff)
-//
-//            println(doubleWord)
-
+            for (i in 0..10) {
+                println(emulator.memory[i]().getSyntax())
+            }
         }
     }
 
