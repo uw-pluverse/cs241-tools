@@ -1,4 +1,4 @@
-package org.pluverse.cs241.emulator
+package org.pluverse.cs241.emulator.cpumodel
 
 /**
 An abstract class that provides functionality for an instruction based on the given doubleWord
@@ -11,18 +11,19 @@ abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expect
      */
 
     // opcode: the first 6 bits - identifies the type
-    val opcode: Int = (doubleWord shr 26)
+    val opcode: Int = (doubleWord shr 26) and MemoryData.SIX_BITS
 
     // operand: the last 11 bits - identifies the specific operation
-    val operand: Int = doubleWord and (0b11111111111).toInt()
+    val operand: Int = doubleWord and MemoryData.ELEVEN_BITS
 
-    // these are the register values
-    val regS = (doubleWord shr 21) and (0b11111).toInt()
-    val regT = (doubleWord shr 16) and (0b11111).toInt()
-    val regD = (doubleWord shr 11) and (0b11111).toInt()
+    // these are the register values. 5 digit values
+    val regS = (doubleWord shr 21) and MemoryData.FIVE_BITS
+    val regT = (doubleWord shr 16) and MemoryData.FIVE_BITS
+    val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
 
-    // immediate value
-    val immediate = (doubleWord and 0xffff)
+    // immediate value - we want it to be in two's complement - 16 bits
+    // Get the 16th bit, if it's true then add -2^15 to the first 15 bits
+    val immediate = (if (doubleWord shr 15 and 0x1 == 1) -(1 shl 15) else 0) + (doubleWord and MemoryData.FIFTEEN_BITS)
 
     abstract fun getSyntax(): String // Returns the mips syntax for the operation
     abstract fun execute(
@@ -386,10 +387,6 @@ abstract class DataInstruction(
         return "${identifier} $${regT}, ${immediate}($${regS})"
     }
 
-    init {
-        // Verify that first 16 digits are 0
-        if (opcode != 0 || regS != 0 || regT != 0) throw BadCodeException("Data instruction")
-    }
 }
 
 class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
@@ -397,7 +394,7 @@ class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCOD
     /**
      * $t = MEM [$s + i]:4
      *
-     * Read from memory into the $t
+     * Read from memory into the $t. Make sure we get the UNSIGNED value of s.
      */
     override fun execute(
         getReg: (index: Int) -> Int,
@@ -407,10 +404,10 @@ class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCOD
         setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
     ) {
         val valS: UInt = getReg(regS).toUInt() // We want the unsigned version
-        val loadAddress = Memory.Companion.Address(valS) + immediate
+        val loadAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
 
         // If it's the input address, read in the next address
-        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read() else getMem(loadAddress)
+        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read()else getMem(loadAddress)
 
         updateReg(regT, data) // Mutate regT
     }
@@ -440,12 +437,12 @@ class SaveInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCOD
         val valS: UInt = getReg(regS).toUInt()
         val valT = getReg(regT)
 
-        val saveAddress = Memory.Companion.Address(valS) + immediate
+        val saveAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
 
         if (saveAddress.address.toLong() == STD_OUTPUT) {
             // We want to print the least sig byte to stdout
             val leastSigByte: Byte = valT.toByte()
-            print(leastSigByte)
+            print(leastSigByte.toInt().toChar()) // Cast it back to a char
         } else {
             // Update the value at memory index
             updateMem(saveAddress, valT)
@@ -491,6 +488,11 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
         const val OPCODE: Int = 0
         const val OPERAND: Int = (0b00000010000)
     }
+
+    init {
+        // Verify that first 16 digits are 0
+        if (opcode != 0 || regS != 0 || regT != 0) throw BadCodeException("Move High Instruction")
+    }
 }
 
 class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
@@ -517,6 +519,11 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
     companion object {
         const val OPCODE: Int = 0
         const val OPERAND: Int = (0b00000010010)
+    }
+
+    init {
+        // Verify that first 16 digits are 0
+        if (opcode != 0 || regS != 0 || regT != 0) throw BadCodeException("Move Low Instruction")
     }
 }
 

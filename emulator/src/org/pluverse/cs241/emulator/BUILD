@@ -9,11 +9,10 @@ kt_jvm_binary(
 kt_jvm_library(
     name = "emulator_lib",
     srcs = [
-        "MipsEmulatorMain.kt",
-        "CpuEmulator.kt",
-        "Memory.kt",
-        "MemoryData.kt",
-        "MipsInstruction.kt",
-        "EmulatorExceptions.kt"
+        "MipsEmulatorMain.kt"
+    ],
+    deps = [
+        "//emulator/src/org/pluverse/cs241/emulator/controllers:controllers_lib",
+        "@maven//:org_jetbrains_kotlinx_kotlinx_cli_jvm",
     ]
 )

@@ -1,4 +1,4 @@
-package org.pluverse.cs241.emulator
+package org.pluverse.cs241.emulator.cpumodel
 
 /**
 This is a general data type for the Memory class.
@@ -17,13 +17,20 @@ interface MemoryData {
         // Static methods for conversions
         @JvmStatic
         fun convertFourByteToInteger(c1: Int, c2: Int, c3: Int, c4: Int): Int {
-            return ((c1 and 0xff shl 24) or (c2 and 0xff shl 16) or (c3 and 0xff shl 8) or (c4 and 0xff))
+            return ((c1 and BYTE_BITS shl 24) or (c2 and BYTE_BITS shl 16) or (c3 and BYTE_BITS shl 8) or (c4 and BYTE_BITS))
         }
 
         @JvmStatic
         fun convertFourByteToInteger(b1: Byte, b2: Byte, b3: Byte, b4: Byte): Int {
             return convertFourByteToInteger(b1.toInt(), b2.toInt(), b3.toInt(), b4.toInt())
         }
+
+        const val BYTE_BITS = 0xFF
+        const val FIVE_BITS = 0x1F
+        const val SIX_BITS = 0x3F
+        const val ELEVEN_BITS = 0x7FF
+        const val FIFTEEN_BITS = 0x7FFF
+        const val SIXTEEN_BITS = 0xFFFF
     }
 }
 
@@ -48,6 +55,8 @@ abstract class EmulatorMemoryData(override var doubleWord: Int) : MemoryData {
 
         this.doubleWord = doubleWord
     }
+
+
 }
 
 
@@ -107,18 +116,18 @@ class MipsInstructionData(doubleWord: Int, val address: Memory.Companion.Address
          */
         @JvmStatic
         fun getMipsInstruction(doubleWord: Int): MipsInstruction {
-            val opcode: Int = doubleWord shr 26
-            val operand: Int = doubleWord and (0b11111111111).toInt()
+            val opcode: Int = (doubleWord shr 26) and MemoryData.SIX_BITS // First 6 digits
+            val operand: Int = doubleWord and MemoryData.ELEVEN_BITS // Last 11 digits
 
             // these are the register values
-            val regS = (doubleWord shr 21) and (0b11111).toInt()
-            val regT = (doubleWord shr 16) and (0b11111).toInt()
-            val regD = (doubleWord shr 11) and (0b11111).toInt()
+            val regS = (doubleWord shr 21) and MemoryData.FIVE_BITS
+            val regT = (doubleWord shr 16) and MemoryData.FIVE_BITS
+            val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
             val defaultRegisterOpCode = 0b000000;
 
             // Check edge cases first, mfhi, mflo, lis, jr, jalr
             if (opcode == MoveHighInstruction.OPCODE && regT == 0) {
-                if (regS == 0 ) {
+                if (regS == 0) {
                     if (operand == MoveHighInstruction.OPERAND) return MoveHighInstruction(doubleWord)
                     else if (operand == MoveLowInstruction.OPERAND) return MoveLowInstruction(doubleWord)
                     else if (operand == LisInstruction.OPERAND) return LisInstruction(doubleWord)
