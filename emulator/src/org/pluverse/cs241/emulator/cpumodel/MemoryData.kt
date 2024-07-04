@@ -149,8 +149,8 @@ class MipsInstructionData(doubleWord: Int, val address: Memory.Companion.Address
                     SetLessThanUInstruction.OPERAND -> SetLessThanUInstruction(doubleWord)
                     else -> WordInstruction(doubleWord)
                 }
-                LoadInstruction.OPCODE -> LoadInstruction(doubleWord)
-                SaveInstruction.OPCODE -> SaveInstruction(doubleWord)
+                LoadWordInstruction.OPCODE -> LoadWordInstruction(doubleWord)
+                StoreWordInstruction.OPCODE -> StoreWordInstruction(doubleWord)
                 BranchEqualInstruction.OPCODE -> BranchEqualInstruction(doubleWord)
                 BranchNotEqualInstruction.OPCODE -> BranchNotEqualInstruction(doubleWord)
                 else -> WordInstruction(opcode)

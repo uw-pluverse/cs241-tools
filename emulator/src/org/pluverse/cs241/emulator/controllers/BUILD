@@ -6,6 +6,18 @@ kt_jvm_binary(
     runtime_deps = [":controllers_lib"],
 )
 
+kt_jvm_binary(
+    name = "mips.array",
+    main_class = "org.pluverse.cs241.emulator.controllers.ArrayController",
+    runtime_deps = [":controllers_lib"],
+)
+
+kt_jvm_binary(
+    name = "mips.stdin",
+    main_class = "org.pluverse.cs241.emulator.controllers.StdinController",
+    runtime_deps = [":controllers_lib"],
+)
+
 kt_jvm_library(
     name = "controllers_lib",
     srcs = [

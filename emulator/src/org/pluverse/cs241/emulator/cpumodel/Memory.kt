@@ -53,12 +53,17 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
         Address holds info on the address. instance() returns the index
          */
         data class Address(val address: UInt = 0u) {
+            /**
+             * Gets the memory array index given this address (address / 4)
+             */
             private val index: UInt = address / 4u
 
             /**
              * Return the address as an int
              */
             fun getAddressBits(): Int = address.toInt()
+
+            fun getMemoryIndex(): Int = this()
 
             // Returns the array index i.e. address / 4
             operator fun invoke(): Int = index.toInt()
@@ -75,8 +80,7 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
 
                 // Check if the increase will put it fast 0xfffffffff
                 val increase = numOfFourBytes.toLong() * 4
-                if (increase + address.toLong() > UInt.MAX_VALUE.toLong())
-                    throw OutsideAddressRangeException()
+                if (increase + address.toLong() > UInt.MAX_VALUE.toLong()) throw OutsideAddressRangeException()
 
                 return Address(address + (numOfFourBytes * 4).toUInt())
             }
@@ -88,10 +92,9 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
             operator fun minus(numOfFourBytes: Int): Address {
                 if (numOfFourBytes < 0) return this + abs(numOfFourBytes)
 
-                // Check if the decrease will put the address below 0
+                // Check if the decrease will put the address below 0.
                 val decrease = numOfFourBytes.toLong() * 4
-                if (decrease > address.toLong())
-                    throw OutsideAddressRangeException()
+                if (decrease > address.toLong()) throw OutsideAddressRangeException()
 
                 return Address(address - (numOfFourBytes * 4).toUInt())
             }
@@ -105,6 +108,9 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
              *
              */
             fun shiftBytes(numOfBytes: Int): Address {
+                // Assert that we are moving it by a multiple of 4
+                if (numOfBytes % 4 != 0) throw InvalidAddressException()
+
                 return this + (numOfBytes / 4)
             }
 

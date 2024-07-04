@@ -19,8 +19,8 @@ open class ArrayOutsideMemoryRangeException : Throwable("Array has too many elem
  *
 */
 open class OutsideMemoryRangeException : Throwable("Data is outside memory range.")
-open class OutsideAddressRangeException : Throwable("Address is outside memory range.")
-open class InvalidAddressException : Throwable("Address must be a multiple of four and positive")
+open class OutsideAddressRangeException : Throwable("Address is outside memory range (< 0 or > 0x10000000).")
+open class InvalidAddressException : Throwable("Address must be a multiple of four")
 
 /**
  * Internal errors

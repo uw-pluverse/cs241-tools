@@ -22,8 +22,7 @@ abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expect
     val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
 
     // immediate value - we want it to be in two's complement - 16 bits
-    // Get the 16th bit, if it's true then add -2^15 to the first 15 bits
-    val immediate = (if (doubleWord shr 15 and 0x1 == 1) -(1 shl 15) else 0) + (doubleWord and MemoryData.FIFTEEN_BITS)
+    val immediate = doubleWord.toShort().toInt()
 
     abstract fun getSyntax(): String // Returns the mips syntax for the operation
     abstract fun execute(
@@ -165,6 +164,11 @@ abstract class TwoRegisterInstruction(
 
     override fun getSyntax(): String {
         return "${identifier} $${regS}, $${regT}"
+    }
+
+    init {
+        // Verify bit 12-22 are all 0
+        if (regD != 0) throw BadCodeException(identifier)
     }
 }
 
@@ -389,12 +393,12 @@ abstract class DataInstruction(
 
 }
 
-class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
+class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
 
     /**
      * $t = MEM [$s + i]:4
      *
-     * Read from memory into the $t. Make sure we get the UNSIGNED value of s.
+     * Read from memory into the $t. We will add the immediate to the valS to get the memory addr.
      */
     override fun execute(
         getReg: (index: Int) -> Int,
@@ -403,11 +407,13 @@ class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCOD
         updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
         setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
     ) {
-        val valS: UInt = getReg(regS).toUInt() // We want the unsigned version
-        val loadAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
+        val valS = getReg(regS)
+
+        // Covers edge cases - must be POS and % 4.
+        val loadAddress = Memory.Companion.Address().shiftBytes(valS + immediate)
 
         // If it's the input address, read in the next address
-        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read()else getMem(loadAddress)
+        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read() else getMem(loadAddress)
 
         updateReg(regT, data) // Mutate regT
     }
@@ -420,7 +426,7 @@ class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCOD
     }
 }
 
-class SaveInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCODE, null) {
+class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCODE, null) {
 
     /**
      * MEM [$s + i]:4 = $t
@@ -434,10 +440,11 @@ class SaveInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCOD
         updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
         setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
     ) {
-        val valS: UInt = getReg(regS).toUInt()
+        val valS: Int = getReg(regS)
         val valT = getReg(regT)
 
-        val saveAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
+        // Covers edge cases - must be POS and % 4.
+        val saveAddress = Memory.Companion.Address().shiftBytes(immediate + valS)
 
         if (saveAddress.address.toLong() == STD_OUTPUT) {
             // We want to print the least sig byte to stdout
