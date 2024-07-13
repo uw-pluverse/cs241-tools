@@ -8,6 +8,8 @@ Stores general info about the register and/or mips instruction such as the detai
 interface MemoryData {
     var doubleWord: Int
 
+    operator fun invoke(): Any = doubleWord // Get the doubleWord
+
     fun getBinary(): String // Get the binary printout of doubleWord
     fun getHex(): String // Get the hexadecimal printout of doubleWord
     fun getDetails(): String // Print additional info and the binary and hex
@@ -66,6 +68,8 @@ Class to represent a register instruction. Just a straight implementation
 
 class RegisterData(private val regNumber: Int) : EmulatorMemoryData() {
 
+    override operator fun invoke(): Int = doubleWord
+
     /**
      * We want to only mutate doubleWord if it's a non-zero register
      */
@@ -90,7 +94,7 @@ Note: CpuEmulator is the Controller, Memory is the Model, Views TBD.
         MipsInstruction(s) run can mutate the Memory(s).
 
  */
-class MipsInstructionData(doubleWord: Int, val address: Memory.Companion.Address) : EmulatorMemoryData(doubleWord) {
+class MipsInstructionData(doubleWord: Int, val address: Address) : EmulatorMemoryData(doubleWord) {
 
     override var doubleWord: Int
         get() = super.doubleWord
@@ -102,9 +106,9 @@ class MipsInstructionData(doubleWord: Int, val address: Memory.Companion.Address
     var instruction: MipsInstruction = getMipsInstruction(doubleWord)
         private set
 
-    operator fun invoke(): MipsInstruction = instruction
+    override operator fun invoke(): MipsInstruction = instruction
 
-    constructor(address: Memory.Companion.Address) : this(0, address)
+    constructor(address: Address) : this(0, address)
 
     override fun getDetails(): String {
         return ""

@@ -42,3 +42,16 @@ kt_jvm_test(
         ":TestResources"
     ]
 )
+
+kt_jvm_test(
+    name = "AddressTest",
+    srcs = [
+        "AddressTest.kt"
+    ],
+    deps = [
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//:truth",
+        "//:guava",
+        "@maven//:junit_junit",
+    ]
+)

@@ -18,7 +18,8 @@ kt_jvm_library(
         "Memory.kt",
         "MemoryData.kt",
         "MipsInstruction.kt",
-        "EmulatorExceptions.kt"
+        "EmulatorExceptions.kt",
+        "Address.kt",
     ],
     visibility = ["//visibility:public"]
 )

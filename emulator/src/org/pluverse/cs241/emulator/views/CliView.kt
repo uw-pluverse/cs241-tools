@@ -2,7 +2,7 @@ package org.pluverse.cs241.emulator.views
 
 import org.pluverse.cs241.emulator.cpumodel.Registers
 import org.pluverse.cs241.emulator.cpumodel.RamMemory
-import org.pluverse.cs241.emulator.cpumodel.Memory.Companion.Address
+import org.pluverse.cs241.emulator.cpumodel.Address
 
 /**
  * This class is a simple view which only needs the registers and PC

@@ -6,8 +6,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.pluverse.cs241.emulator.cpumodel.*
-import org.pluverse.cs241.emulator.cpumodel.Memory.Companion
-import org.pluverse.cs241.emulator.cpumodel.Memory.Companion.Address;
 
 @RunWith(JUnit4::class)
 class MipsInstructionExecuteTests {
@@ -21,10 +19,10 @@ class MipsInstructionExecuteTests {
     private var pc: Address = Address()
 
     private fun getReg(register: Int): Int = if (register == 0) 0 else registers[register]
-    private fun getMem(address: Memory.Companion.Address): Int = memory[address()]
+    private fun getMem(address: Address): Int = memory[address()]
     private fun updateReg(register: Int, value: Int) { registers[register] = value }
-    private fun updateMem(address: Memory.Companion.Address, value: Int) { memory[address()] = value }
-    private fun setPC(init: ((currentPC: Companion.Address) -> Companion.Address)) {
+    private fun updateMem(address: Address, value: Int) { memory[address()] = value }
+    private fun setPC(init: ((currentPC: Address) -> Address)) {
         pc = init(pc) // We return the new PC based on the function
     }
 
