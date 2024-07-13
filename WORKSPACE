@@ -69,6 +69,7 @@ maven_install(
         "junit:junit:4.13.2",
         # Do not include org.jgrapht:jgrapht-io. It depends on antlr4-runtime:4.7.1
         "org.jetbrains.kotlinx:kotlinx-cli-jvm:0.3.6",
+        "com.googlecode.lanterna:lanterna:3.1.2",
     ],
     fetch_sources = True,
     repositories = [

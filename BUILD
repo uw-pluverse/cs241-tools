@@ -70,6 +70,10 @@ alias(
     actual = "@maven//:com_google_guava_guava",
 )
 
+alias(
+    name = "lanterna",
+    actual = "@maven//:com_googlecode_lanterna_lanterna",
+)
 
 java_library(
     name = "jackson",

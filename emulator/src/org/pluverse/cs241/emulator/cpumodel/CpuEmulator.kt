@@ -1,7 +1,6 @@
 package org.pluverse.cs241.emulator.cpumodel
 
 import org.pluverse.cs241.emulator.views.EmulatorView
-import org.pluverse.cs241.emulator.cpumodel.Memory.Companion as MemoryCompanion
 
 /**
 CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retrieves from the memory.
@@ -19,7 +18,7 @@ class CpuEmulator {
     private val registers: Registers = Registers()
     private val memory : RamMemory = RamMemory(MAX_ARRAY_SIZE)
 
-    private var pc = MemoryCompanion.Address(0u) // Start the PC at 0x0
+    private var pc = Address(0u) // Start the PC at 0x0
 
     var hasReturnedOS = false // This tracks to ensure we haven't returned to OS yet
 
@@ -42,7 +41,7 @@ class CpuEmulator {
 
         // Insert the instruction into the memory
         for (i in mipsInputData.indices step 4) {
-            val byteAddress = MemoryCompanion.Address(i.toUInt())
+            val byteAddress = Address(i.toUInt())
 
             // This sets the data to the instruction
             memory.getData(byteAddress).update(
@@ -71,7 +70,7 @@ class CpuEmulator {
         // Want to load it in after the instructions.
         // Add a buffer of 2 instructions from the last instruction
 
-        var insertAddress = Memory.Companion.Address((instructionsCount.toUInt() + 8u) * 4u)
+        var insertAddress = Address((instructionsCount.toUInt() + 8u) * 4u)
 
         // Set Register 1 to the array start address
         // Set Register 2 to the array length
@@ -118,7 +117,7 @@ class CpuEmulator {
      *
      */
     enum class ExecutionType {REGISTER, MEMORY, PC}
-    private val executionStack: MutableList<MutableList<Triple<ExecutionType, MemoryCompanion.Address, Int>>> = mutableListOf()
+    private val executionStack: MutableList<MutableList<Triple<ExecutionType, Address, Int>>> = mutableListOf()
 
     /**
      * Functions for executionStack below:
@@ -131,7 +130,7 @@ class CpuEmulator {
      */
     fun getNumExecutions(): Int = executionStack.size
 
-    fun recordExecution(mutation: Triple<ExecutionType, MemoryCompanion.Address, Int>) {
+    fun recordExecution(mutation: Triple<ExecutionType, Address, Int>) {
         executionStack.last().add(mutation)
     }
 
@@ -211,18 +210,18 @@ class CpuEmulator {
         registers[index].update(value)
     }
 
-    private fun getMem(address: MemoryCompanion.Address): Int {
+    private fun getMem(address: Address): Int {
         return memory[address].doubleWord
     }
 
-    private fun updateMem(address: MemoryCompanion.Address, value: Int) {
+    private fun updateMem(address: Address, value: Int) {
         memory[address].update(value)
     }
 
     /**
      * init: takes the current PC and returns the NEW PC based on the old one
      */
-    private fun setPC(init: ((currentPC: MemoryCompanion.Address) -> MemoryCompanion.Address)) {
+    private fun setPC(init: ((currentPC: Address) -> Address)) {
         pc = init(pc) // We return the new PC based on the function
 
         if (pc.address.toLong() == RETURN_OS) {

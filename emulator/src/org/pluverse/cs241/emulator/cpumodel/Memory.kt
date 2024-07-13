@@ -1,9 +1,5 @@
 package org.pluverse.cs241.emulator.cpumodel
 
-import kotlin.math.abs
-
-typealias MemIndex = Int
-
 /**
     Memory: an abstract class that holds the data and has simple operations to retrieve and set.
 
@@ -19,7 +15,7 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
      * getData returns the data at cpu address
      */
     fun getData(index: Int): T {
-        if (index > data.size) throw OutsideMemoryRangeException()
+        if (index > data.size || index < 0) throw OutsideMemoryRangeException()
 
         return data[index]
     }
@@ -48,72 +44,6 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
         const val DOUBLE_WORD_HEX_LENGTH = 8
 
         // Correlated classes
-
-        /**
-        Address holds info on the address. instance() returns the index
-         */
-        data class Address(val address: UInt = 0u) {
-            private val index: UInt = address / 4u
-
-            /**
-             * Return the address as an int
-             */
-            fun getAddressBits(): Int = address.toInt()
-
-            // Returns the array index i.e. address / 4
-            operator fun invoke(): Int = index.toInt()
-
-            /**
-             * Increase number of words (4 bytes)
-             *
-             * Plus and minus operations we want to consider overflow of address,
-             * therefore we use long operations to verify.
-             */
-
-            operator fun plus(numOfFourBytes: Int): Address {
-                if (numOfFourBytes < 0) return this - abs(numOfFourBytes)
-
-                // Check if the increase will put it fast 0xfffffffff
-                val increase = numOfFourBytes.toLong() * 4
-                if (increase + address.toLong() > UInt.MAX_VALUE.toLong())
-                    throw OutsideAddressRangeException()
-
-                return Address(address + (numOfFourBytes * 4).toUInt())
-            }
-
-            operator fun plus(other: Address): Address {
-                return this + other() // Add the index or # of 4 bytes
-            }
-
-            operator fun minus(numOfFourBytes: Int): Address {
-                if (numOfFourBytes < 0) return this + abs(numOfFourBytes)
-
-                // Check if the decrease will put the address below 0
-                val decrease = numOfFourBytes.toLong() * 4
-                if (decrease > address.toLong())
-                    throw OutsideAddressRangeException()
-
-                return Address(address - (numOfFourBytes * 4).toUInt())
-            }
-
-            operator fun minus(other: Address): Address {
-                return this - other() // Add the index or # of 4 bytes
-            }
-
-            /**
-             * Operation to input move raw bytes instead of words
-             *
-             */
-            fun shiftBytes(numOfBytes: Int): Address {
-                return this + (numOfBytes / 4)
-            }
-
-
-            init {
-                // Ensure the address is a multiple of 4
-                if (address % 4u != 0u) throw InvalidAddressException()
-            }
-        }
 
         @JvmStatic
         fun getAddress(index: Int): Address {

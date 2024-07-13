@@ -22,16 +22,15 @@ abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expect
     val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
 
     // immediate value - we want it to be in two's complement - 16 bits
-    // Get the 16th bit, if it's true then add -2^15 to the first 15 bits
-    val immediate = (if (doubleWord shr 15 and 0x1 == 1) -(1 shl 15) else 0) + (doubleWord and MemoryData.FIFTEEN_BITS)
+    val immediate = doubleWord.toShort().toInt()
 
     abstract fun getSyntax(): String // Returns the mips syntax for the operation
     abstract fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (address: Memory.Companion.Address) -> Int,
+        getMem: (address: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) // This will run the instruction and update memory
 
     init {
@@ -63,10 +62,10 @@ class AddInstruction(doubleWord: Int) : ThreeRegisterInstruction("add", doubleWo
 
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // $d = $s + $t
         val computedValue = getReg(regS) + getReg(regT)
@@ -83,10 +82,10 @@ class SubInstruction(doubleWord: Int) : ThreeRegisterInstruction("sub", doubleWo
 
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // $d = $s - $t
         val computedValue = getReg(regS) - getReg(regT)
@@ -103,10 +102,10 @@ class SetLessThanInstruction(doubleWord: Int) : ThreeRegisterInstruction("slt", 
 
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // $d = 1 if $s < $t; 0 otherwise
         val valS: Int = getReg(regS)
@@ -128,10 +127,10 @@ class SetLessThanUInstruction(doubleWord: Int) : ThreeRegisterInstruction("sltu"
 
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // $d = 1 if $s < $t; 0 otherwise
         // WE WANT ONLY THE UNSIGNED INT
@@ -166,6 +165,11 @@ abstract class TwoRegisterInstruction(
     override fun getSyntax(): String {
         return "${identifier} $${regS}, $${regT}"
     }
+
+    init {
+        // Verify bit 12-22 are all 0
+        if (regD != 0) throw BadCodeException(identifier)
+    }
 }
 
 class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction("mult", doubleWord, OPCODE, OPERAND) {
@@ -177,10 +181,10 @@ class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction("mult", doub
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // hi:lo = $s * $t
         val valS: Int = getReg(regS)
@@ -212,10 +216,10 @@ class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction("multu", do
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         // hi:lo = $s * $t
         // ** Cast them to Unsigned prior to multiplication **
@@ -248,10 +252,10 @@ class DivideInstruction(doubleWord: Int) : TwoRegisterInstruction("div", doubleW
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
@@ -273,10 +277,10 @@ class DivideUInstruction(doubleWord: Int) : TwoRegisterInstruction("divu", doubl
 
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val valS: UInt = getReg(regS).toUInt()
         val valT: UInt = getReg(regT).toUInt()
@@ -323,10 +327,10 @@ class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleW
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
@@ -351,10 +355,10 @@ class BranchNotEqualInstruction(doubleWord: Int)
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
@@ -389,25 +393,27 @@ abstract class DataInstruction(
 
 }
 
-class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
+class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
 
     /**
      * $t = MEM [$s + i]:4
      *
-     * Read from memory into the $t. Make sure we get the UNSIGNED value of s.
+     * Read from memory into the $t. We will add the immediate to the valS to get the memory addr.
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
-        val valS: UInt = getReg(regS).toUInt() // We want the unsigned version
-        val loadAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
+        val valS = getReg(regS)
+
+        // Covers edge cases - must be POS and % 4.
+        val loadAddress = Address().shiftBytes(valS + immediate)
 
         // If it's the input address, read in the next address
-        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read()else getMem(loadAddress)
+        val data: Int = if (loadAddress.address.toLong() == STD_INPUT) System.`in`.read() else getMem(loadAddress)
 
         updateReg(regT, data) // Mutate regT
     }
@@ -420,7 +426,7 @@ class LoadInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCOD
     }
 }
 
-class SaveInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCODE, null) {
+class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCODE, null) {
 
     /**
      * MEM [$s + i]:4 = $t
@@ -429,15 +435,16 @@ class SaveInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCOD
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
-        val valS: UInt = getReg(regS).toUInt()
+        val valS: Int = getReg(regS)
         val valT = getReg(regT)
 
-        val saveAddress = Memory.Companion.Address(valS).shiftBytes(immediate)
+        // Covers edge cases - must be POS and % 4.
+        val saveAddress = Address().shiftBytes(immediate + valS)
 
         if (saveAddress.address.toLong() == STD_OUTPUT) {
             // We want to print the least sig byte to stdout
@@ -475,10 +482,10 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val hi = getReg(Registers.HI_INDEX)
         updateReg(regD, hi)
@@ -507,10 +514,10 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val lo = getReg(Registers.LO_INDEX)
         updateReg(regD, lo)
@@ -541,10 +548,10 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         setPC { currentPC ->
             // By the Fetch-Execute Cycle, current PC is the next instruction
@@ -578,15 +585,15 @@ class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPE
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val jumpToValue = getReg(regS)
 
         // The address class will verify it's divisible by four
-        val jumpToAddress = Memory.Companion.Address(jumpToValue.toUInt())
+        val jumpToAddress = Address(jumpToValue.toUInt())
 
         setPC { jumpToAddress }
     }
@@ -614,15 +621,15 @@ class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCO
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         val jumpToValue = getReg(regS)
 
         // The address class will verify it's divisible by four
-        val jumpToAddress = Memory.Companion.Address(jumpToValue.toUInt())
+        val jumpToAddress = Address(jumpToValue.toUInt())
 
         setPC { currentPC ->
             // Want to link the current PC to $31
@@ -655,10 +662,10 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
      */
     override fun execute(
         getReg: (index: Int) -> Int,
-        getMem: (index: Memory.Companion.Address) -> Int,
+        getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
-        updateMem: (address: Memory.Companion.Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Memory.Companion.Address) -> Memory.Companion.Address) -> Unit
+        updateMem: (address: Address, value: Int) -> Unit,
+        setPC: (init: (currentPC: Address) -> Address) -> Unit
     ) {
         throw WordWithNoInstructionException()
     }

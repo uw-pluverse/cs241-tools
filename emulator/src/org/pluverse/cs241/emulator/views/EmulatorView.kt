@@ -1,6 +1,6 @@
 package org.pluverse.cs241.emulator.views
 
-import org.pluverse.cs241.emulator.cpumodel.Memory
+import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.RamMemory
 import org.pluverse.cs241.emulator.cpumodel.Registers
 
@@ -22,7 +22,7 @@ interface EmulatorView {
      *
      *      Registers, Memory, and Program Counter
      */
-    fun injectInitialState(registers: Registers, memory: RamMemory, pc: Memory.Companion.Address)
+    fun injectInitialState(registers: Registers, memory: RamMemory, pc: Address)
 
 
     /**
@@ -38,6 +38,6 @@ interface EmulatorView {
     /**
      * Updates the program counter in the view
      */
-    fun updateProgramCounter(pc: Memory.Companion.Address)
+    fun updateProgramCounter(pc: Address)
 
 }
