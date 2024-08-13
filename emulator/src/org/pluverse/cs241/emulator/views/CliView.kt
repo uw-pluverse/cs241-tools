@@ -1,25 +1,19 @@
 package org.pluverse.cs241.emulator.views
 
-import org.pluverse.cs241.emulator.cpumodel.Registers
-import org.pluverse.cs241.emulator.cpumodel.RamMemory
-import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.*
 
 /**
  * This class is a simple view which only needs the registers and PC
  */
-class CliView : EmulatorView {
+class CliView : BasicEmulatorView() {
 
-    lateinit var registers: Registers
+    override fun notifyRegUpdate(index: Int, oldValue: Int) {}
 
-    override fun injectInitialState(registers: Registers, memory: RamMemory, pc: Address) {
-        this.registers = registers
-    }
+    override fun notifyMemUpdate(address: Address, oldValue: Int) {}
 
-    override fun updateRegisters(registers: Registers, changedIndex: Int) {}
+    override fun notifyPcUpdate(pc: Address) {}
 
-    override fun updateMemory(memory: RamMemory, changedIndex: Int) {}
-
-    override fun updateProgramCounter(pc: Address) {}
+    override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {}
 
     fun getCompletedOutput(): String {
         val ret: StringBuilder = StringBuilder("MIPS Program Completed\n")

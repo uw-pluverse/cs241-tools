@@ -46,7 +46,7 @@ class RegistersTest {
     }
 }
 
-class RamMemoryTest {
+class RamMutableMemoryTest {
 
     @Test
     fun getDataReturnsCorrectMipsInstructionData() {

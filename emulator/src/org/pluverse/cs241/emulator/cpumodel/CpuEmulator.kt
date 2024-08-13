@@ -1,6 +1,7 @@
 package org.pluverse.cs241.emulator.cpumodel
 
 import org.pluverse.cs241.emulator.views.EmulatorView
+import org.pluverse.cs241.emulator.cpumodel.Execution.ExecutionType
 
 /**
 CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retrieves from the memory.
@@ -20,7 +21,10 @@ class CpuEmulator {
 
     private var pc = Address(0u) // Start the PC at 0x0
 
-    var hasReturnedOS = false // This tracks to ensure we haven't returned to OS yet
+    private val executionStack = MutableExecutionStack() // This is used to track the execution of the program for step reversal
+    private val view: EmulatorView // Used to notify view.
+
+    val hasReturnedOS: Boolean get() = pc.address.toLong() == RETURN_OS // This tracks to ensure we haven't returned to OS yet
 
     /**
      * Primary constructor to be called by other constructors:
@@ -32,7 +36,8 @@ class CpuEmulator {
         this.mipsInputData = mipsInputData
         this.instructionsCount = mipsInputData.size / 4
 
-        view.injectInitialState(registers, memory, pc)
+        this.view = view
+        this.view.injectInitialState(registers, memory, pc, executionStack)
 
         // Verify it has a valid number of bytes. Also, we want to ensure that
         // the number of bytes won't overflow the largest address 0xffffffff (unsigned)
@@ -97,76 +102,47 @@ class CpuEmulator {
     }
 
     /**
-     * executionStack will be appended whenever a change occurs in the memory, register, or PC to save
-     * for rewind. This is a list of list of executions done in each execution in stack-like fashion.
-     *
-     * MutableList<...> below:
-     *
-     * MutableList<Triple<ExecutionType, MemoryCompanion.Address, Int>>
-     *
-     *     A list of all mutations during a single instruction. Last item in overall list
-     *     is the last instruction's mutation.
-     *
-     * ... Triple<ExecutionType, Companion.Address, Int>
-     *
-     *     Execution Type: The type of execution done
-     *
-     *     Address: The address in which it was stored || Last PC address
-     *
-     *     Int: The value that was in their prior || null
-     *
-     */
-    enum class ExecutionType {REGISTER, MEMORY, PC}
-    private val executionStack: MutableList<MutableList<Triple<ExecutionType, Address, Int>>> = mutableListOf()
-
-    /**
      * Functions for executionStack below:
-     *
-     * getNumExecutions() returns the number of executions made already
-     *
-     * recordExecution(...) adds the mutation to the current instructions' executions (the last item/array).
      *
      * reverseExecution(...) reverses the numOfExecutions x instructions to previous values
      */
-    fun getNumExecutions(): Int = executionStack.size
-
-    fun recordExecution(mutation: Triple<ExecutionType, Address, Int>) {
-        executionStack.last().add(mutation)
-    }
+    fun numReverseExecutions(): Int = executionStack.getSize()
 
     fun reverseExecution(numOfExecutions: Int = 1) {
         // First check there are enough executions to reverse
-        if (numOfExecutions > executionStack.size) throw ReverseNoExecutionExeception()
+        if (numOfExecutions > numReverseExecutions()) throw ReverseNoExecutionExeception()
 
         // Now reverse the executions
         for (i in numOfExecutions downTo 1) {
-            val lastExecutions = executionStack.removeLast() // Pop last item in the stack
+            val lastExecutions = executionStack.pop()!! // Pop last item in the stack
 
             // Go through each item in reverse, and reverse its affect
             lastExecutions.reversed().forEach { execution ->
-                val type: ExecutionType = execution.first
-                val oldAddress = execution.second
-                val oldValue = execution.third
+                val type: ExecutionType = execution.type
+                val oldAddress = execution.address
+                val oldValue = execution.value
 
                 when (type) {
                     // We want to set the register to previous value
-                    ExecutionType.REGISTER -> registers[oldAddress()].update(oldValue)
+                    ExecutionType.REGISTER -> {
+                        registers[oldAddress].update(oldValue)
+                        view.notifyRegUpdate(oldAddress(), oldValue)
+                    }
 
                     // Restore old memory value
-                    ExecutionType.MEMORY -> memory[oldAddress].update(oldValue)
+                    ExecutionType.MEMORY -> {
+                        memory[oldAddress].update(oldValue)
+                        view.notifyMemUpdate(oldAddress, oldValue)
+                    }
 
                     // Set the PC to previous PC
-                    ExecutionType.PC -> pc = oldAddress
+                    ExecutionType.PC -> {
+                        pc = oldAddress
+                        view.notifyPcUpdate(pc)
+                    }
                 }
             }
         }
-    }
-
-    /**
-     * Function to determine if the program has finished
-     */
-    fun hasFinished(): Boolean {
-        return hasReturnedOS
     }
 
     /**
@@ -187,14 +163,18 @@ class CpuEmulator {
     fun runFetchExecuteLoop() {
         if (hasReturnedOS) throw EmulatorHasReturnedOSException()
 
-        val instruction = memory.getData(pc)
-        pc += 1
+        executionStack.newInstruction() // Start a new instruction
 
-        // We want to push the executionStack by one to record the instruction about to run
-        executionStack.add(mutableListOf())
+        val data = memory.getData(pc)
+        setPC { pc -> pc + 1 } // We want to increment the PC by 1 byte
+
+        val instruction = data.instruction
 
         // Execute the instruction with the given functions
-        instruction().execute(::getReg, ::getMem, ::updateReg, ::updateMem, ::setPC)
+        instruction.execute(::getReg, ::getMem, ::updateReg, ::updateMem, ::setPC)
+
+        // Notify the view we have run an instruction
+        view.notifyRunInstruction(instruction, executionStack.last()!!)
     }
 
     /**
@@ -207,7 +187,16 @@ class CpuEmulator {
     }
 
     private fun updateReg(index: Int, value: Int) {
+        assert(index in 0..33) { "Invalid register index" }
+
+        // Record "prior" register value
+        executionStack.recordExecution(ExecutionType.REGISTER, Address(index.toUInt() * 4u), registers[index].doubleWord)
+        val oldValue = registers[index].doubleWord
+
         registers[index].update(value)
+
+        // Notify the view of the register update
+        view.notifyRegUpdate(index, oldValue)
     }
 
     private fun getMem(address: Address): Int {
@@ -215,24 +204,33 @@ class CpuEmulator {
     }
 
     private fun updateMem(address: Address, value: Int) {
+        // Record "prior" memory value
+        executionStack.recordExecution(ExecutionType.MEMORY, address, memory[address].doubleWord)
+        val oldValue = memory[address].doubleWord
+
         memory[address].update(value)
+
+        // Notify the view of the memory update
+        view.notifyMemUpdate(address, oldValue)
     }
 
     /**
      * init: takes the current PC and returns the NEW PC based on the old one
      */
     private fun setPC(init: ((currentPC: Address) -> Address)) {
+        // Record the old PC
+        executionStack.recordExecution(ExecutionType.PC, pc)
+
         pc = init(pc) // We return the new PC based on the function
 
-        if (pc.address.toLong() == RETURN_OS) {
-            hasReturnedOS = true
-        }
+        // Notify the view of the PC update
+        view.notifyPcUpdate(pc)
     }
 
     companion object {
         const val RETURN_OS = 0x8123456c // IDK subject to change\
 
         const val MAX_ADDRESS: UInt = 0x01000000u // This is the max address and starting stack pointer
-        const val MAX_ARRAY_SIZE: Int = 4194304 // This is MAX_ADDRESS / 4
+        const val MAX_ARRAY_SIZE: Int = 4194304 + 1 // This is MAX_ADDRESS / 4
     }
 }

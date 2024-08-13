@@ -6,14 +6,17 @@ Stores general info about the register and/or mips instruction such as the detai
 
  */
 interface MemoryData {
-    var doubleWord: Int
+
+    val doubleWord: Int
+    val address: Address
 
     operator fun invoke(): Any = doubleWord // Get the doubleWord
+    override fun toString(): String  // Get the details of the object
 
     fun getBinary(): String // Get the binary printout of doubleWord
     fun getHex(): String // Get the hexadecimal printout of doubleWord
+    fun getPrefixTag(): String // Used as an identifier for the MemoryData i.e. by address
     fun getDetails(): String // Print additional info and the binary and hex
-    fun update(doubleWord: Int) // Updates the double word
 
     companion object {
         // Static methods for conversions
@@ -41,9 +44,9 @@ interface MemoryData {
 This implements similar functions from MemoryData for Mips and Register Data
 
  */
-abstract class EmulatorMemoryData(override var doubleWord: Int) : MemoryData {
+abstract class EmulatorMemoryData(override var doubleWord: Int, override val address: Address) : MemoryData {
 
-    constructor() : this(0) // Default to 0
+    constructor(address: Address) : this(0, address)
 
     // Returns a binary string, padded to 32 bits
     override fun getBinary(): String = Integer.toBinaryString(doubleWord).padStart(Int.SIZE_BITS, '0')
@@ -51,22 +54,22 @@ abstract class EmulatorMemoryData(override var doubleWord: Int) : MemoryData {
     // Returns a hex string of the doubleWord
     override fun getHex(): String = "0x${Integer.toHexString(doubleWord).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
 
-    override fun update(doubleWord: Int) {
+    // Get the details
+    override fun toString(): String = getDetails()
+
+    fun update(doubleWord: Int) {
         // Use the custom set methods to modify it
         // This is for better semantics
 
         this.doubleWord = doubleWord
     }
-
-
 }
-
 
 /**
 Class to represent a register instruction. Just a straight implementation
  */
 
-class RegisterData(private val regNumber: Int) : EmulatorMemoryData() {
+class RegisterData(private val regNumber: Int) : EmulatorMemoryData(Address(regNumber.toUInt() * 4u)) {
 
     override operator fun invoke(): Int = doubleWord
 
@@ -80,8 +83,12 @@ class RegisterData(private val regNumber: Int) : EmulatorMemoryData() {
             if (regNumber != 0) super.doubleWord = value
         }
 
+    override fun getPrefixTag(): String {
+        return "$${regNumber}"
+    }
+
     override fun getDetails(): String {
-        return "<Register $${regNumber}> : ${getBinary()}"
+        return "<Register $${regNumber}>${if (regNumber < 10) " " else ""} : ${getBinary()}"
     }
 
 }
@@ -94,7 +101,7 @@ Note: CpuEmulator is the Controller, Memory is the Model, Views TBD.
         MipsInstruction(s) run can mutate the Memory(s).
 
  */
-class MipsInstructionData(doubleWord: Int, val address: Address) : EmulatorMemoryData(doubleWord) {
+class RamMemoryData(doubleWord: Int, override val address: Address) : EmulatorMemoryData(doubleWord, address) {
 
     override var doubleWord: Int
         get() = super.doubleWord
@@ -110,8 +117,12 @@ class MipsInstructionData(doubleWord: Int, val address: Address) : EmulatorMemor
 
     constructor(address: Address) : this(0, address)
 
+    override fun getPrefixTag(): String {
+        return "M[${address.toHexStringSimple()}]"
+    }
+
     override fun getDetails(): String {
-        return ""
+        return instruction.getSyntax()
     }
 
     companion object {

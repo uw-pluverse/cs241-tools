@@ -20,6 +20,7 @@ kt_jvm_library(
         "MipsInstruction.kt",
         "EmulatorExceptions.kt",
         "Address.kt",
+        "ExecutionStack.kt"
     ],
     visibility = ["//visibility:public"]
 )

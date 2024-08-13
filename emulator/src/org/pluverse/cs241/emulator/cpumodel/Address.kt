@@ -73,6 +73,13 @@ import kotlin.math.abs
         return "0x${Integer.toHexString(address.toInt()).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
     }
 
+    /**
+     * Return non-padded hex string
+     */
+    fun toHexStringSimple(): String {
+        return "0x${Integer.toHexString(address.toInt())}"
+    }
+
     fun toBinaryString(): String {
         return address.toString(2).padStart(Int.SIZE_BITS, '0')
     }

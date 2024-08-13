@@ -4,10 +4,13 @@ kt_jvm_library(
     name = "views_lib",
     srcs = [
         "EmulatorView.kt",
-        "CliView.kt"
+        "CliView.kt",
+        "GuiView.kt"
     ],
     deps = [
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib"
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//:lanterna",
+        "//emulator/src/org/pluverse/cs241/emulator/views/lanterna:components"
     ],
     visibility = ["//visibility:public"]
 )

@@ -1,5 +1,7 @@
 package org.pluverse.cs241.emulator.cpumodel
 
+typealias ReadonlyMemory = Memory<MemoryData>
+
 /**
     Memory: an abstract class that holds the data and has simple operations to retrieve and set.
 
@@ -7,16 +9,15 @@ package org.pluverse.cs241.emulator.cpumodel
     - We use the Address class for better semantics in converting address (multiple of 4) to an array index.
         i.e. address() => returns an array index
  */
-abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_MEM_SIZE) {
+abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_MEM_SIZE) {
 
-    protected abstract val data: Array<T> // Initialize it to a size of max size
+    protected abstract val data: List<T> // Initialize it to a size of max size
 
     /**
      * getData returns the data at cpu address
      */
     fun getData(index: Int): T {
         if (index > data.size || index < 0) throw OutsideMemoryRangeException()
-
         return data[index]
     }
 
@@ -35,6 +36,17 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
         return getData(index)
     }
 
+    fun getSize(): Int {
+        return data.size
+    }
+
+    fun forEach(run: (T) -> Unit) {
+        for (element in data) run(element)
+    }
+
+    operator fun iterator(): Iterator<T> { return data.iterator() }
+
+
     /**
     Default values for the class
     */
@@ -45,6 +57,9 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
 
         // Correlated classes
 
+        /**
+         * Convert an array index to it's equivalent address (index * 4).
+         */
         @JvmStatic
         fun getAddress(index: Int): Address {
             if (index < 0 || index.toUInt() > UInt.MAX_VALUE / 4u) throw InvalidAddressException()
@@ -60,7 +75,7 @@ abstract class Memory<T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_M
  * Note: we are protected from accessing it HI:LO directly because 5 bits are only [0, 31]
  */
 class Registers : Memory<RegisterData>(34) {
-    override val data: Array<RegisterData> = Array<RegisterData>(maxSize) { index -> RegisterData(index) }
+    override val data: MutableList<RegisterData> = MutableList<RegisterData>(maxSize) { index -> RegisterData(index) }
 
     companion object {
         const val HI_INDEX = 32
@@ -72,15 +87,19 @@ class Registers : Memory<RegisterData>(34) {
 
 }
 
-class RamMemory : Memory<MipsInstructionData> {
+/**
+ * The RamMemory points an address to a double word. We will parse these double words into
+ * readable Mips Instructions.
+ */
+class RamMemory : Memory<RamMemoryData> {
 
     constructor() : super()
     constructor(maxSize: Int) : super(maxSize)
 
     // Create an array of size maxSize of Mips Instructions
-    override val data: Array<MipsInstructionData> = Array<MipsInstructionData>(maxSize)
+    override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize)
     { index ->
-        MipsInstructionData(address = getAddress(index))
+        RamMemoryData(address = getAddress(index))
     }
 
 }

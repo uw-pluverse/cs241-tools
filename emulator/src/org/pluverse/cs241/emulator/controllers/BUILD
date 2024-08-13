@@ -18,12 +18,25 @@ kt_jvm_binary(
     runtime_deps = [":controllers_lib"],
 )
 
+kt_jvm_binary(
+    name = "steppers.test",
+    main_class = "org.pluverse.cs241.emulator.controllers.StepperControllerTest",
+    runtime_deps = [":controllers_lib"],
+)
+
+kt_jvm_binary(
+    name = "steppers",
+    main_class = "org.pluverse.cs241.emulator.controllers.StepperController",
+    runtime_deps = [":controllers_lib"],
+)
+
 kt_jvm_library(
     name = "controllers_lib",
     srcs = [
         "TwoIntsController.kt",
         "ArrayController.kt",
         "StdinController.kt",
+        "StepperController.kt"
     ],
     visibility = ["//visibility:public"],
     deps = [
