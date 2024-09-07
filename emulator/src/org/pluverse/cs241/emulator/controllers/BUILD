@@ -33,14 +33,14 @@ kt_jvm_binary(
 kt_jvm_library(
     name = "controllers_lib",
     srcs = [
-        "TwoIntsController.kt",
         "ArrayController.kt",
         "StdinController.kt",
-        "StepperController.kt"
+        "StepperController.kt",
+        "TwoIntsController.kt",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel",
-        "//emulator/src/org/pluverse/cs241/emulator/views:views_lib"
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
+        "//emulator/src/org/pluverse/cs241/emulator/views:views_lib",
     ],
 )

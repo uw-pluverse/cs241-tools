@@ -14,17 +14,9 @@ cd "${WORKSPACE_ROOT}"
 
 BAZEL_DIRS=(
   "copyright"
-  "src"
-  "test"
+  "emulator"
   "version"
 )
-
-readonly SUBMODULE_BAZEL_DIRS=(
-)
-for submodule in "${SUBMODULE_BAZEL_DIRS[@]}" ; do
-  [[ -z "$(find "${submodule}" -name BUILD)" ]] && continue
-  BAZEL_DIRS+=("${submodule}")
-done
 
 ABS_BAZEL_DIRS=()
 ABS_BAZEL_DIRS_STRING=""

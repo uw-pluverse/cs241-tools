@@ -3,24 +3,24 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 kt_jvm_library(
     name = "cpumodel",
     srcs = [
-        "CpuEmulator.kt"
+        "CpuEmulator.kt",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         ":cpumodel_lib",
-        "//emulator/src/org/pluverse/cs241/emulator/views:views_lib"
+        "//emulator/src/org/pluverse/cs241/emulator/views:views_lib",
     ],
-    visibility = ["//visibility:public"]
 )
 
 kt_jvm_library(
     name = "cpumodel_lib",
     srcs = [
+        "Address.kt",
+        "EmulatorExceptions.kt",
+        "ExecutionStack.kt",
         "Memory.kt",
         "MemoryData.kt",
         "MipsInstruction.kt",
-        "EmulatorExceptions.kt",
-        "Address.kt",
-        "ExecutionStack.kt"
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )

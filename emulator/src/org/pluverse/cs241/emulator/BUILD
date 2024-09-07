@@ -3,18 +3,16 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library"
 kt_jvm_binary(
     name = "emulator",
     main_class = "org.pluverse.cs241.emulator.MipsEmulatorMain",
-    runtime_deps = [":emulator_lib"]
+    runtime_deps = [":emulator_lib"],
 )
 
 kt_jvm_library(
     name = "emulator_lib",
     srcs = [
-        "MipsEmulatorMain.kt"
+        "MipsEmulatorMain.kt",
     ],
     deps = [
         "//emulator/src/org/pluverse/cs241/emulator/controllers:controllers_lib",
         "@maven//:org_jetbrains_kotlinx_kotlinx_cli_jvm",
-    ]
+    ],
 )
-
-

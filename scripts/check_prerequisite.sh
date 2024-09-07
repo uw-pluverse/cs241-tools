@@ -5,17 +5,8 @@ set -o nounset
 
 readonly TOOLS=(
     "java"
-    "javap"
-    "creduce"
-    "gcc"
-    "clang"
-    "clang-format"
-    "go"
-    "python"
-    "ruby"
-    "rustc"
-    "rustfmt"
-    "scala")
+    "python3"
+    )
 
 missing=""
 for tool in "${TOOLS[@]}" ; do
