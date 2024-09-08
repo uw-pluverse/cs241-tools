@@ -18,8 +18,22 @@ package org.pluverse.cs241.emulator.views
 
 import com.googlecode.lanterna.TerminalSize
 import com.googlecode.lanterna.TextColor
-import com.googlecode.lanterna.graphics.*
-import com.googlecode.lanterna.gui2.*
+import com.googlecode.lanterna.graphics.SimpleTheme
+import com.googlecode.lanterna.gui2.BasicWindow
+import com.googlecode.lanterna.gui2.BorderLayout
+import com.googlecode.lanterna.gui2.Borders
+import com.googlecode.lanterna.gui2.CheckBoxList
+import com.googlecode.lanterna.gui2.Direction
+import com.googlecode.lanterna.gui2.GridLayout
+import com.googlecode.lanterna.gui2.Label
+import com.googlecode.lanterna.gui2.LinearLayout
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI
+import com.googlecode.lanterna.gui2.Panel
+import com.googlecode.lanterna.gui2.TextBox
+import com.googlecode.lanterna.gui2.TextGUIGraphics
+import com.googlecode.lanterna.gui2.Window
+import com.googlecode.lanterna.gui2.WindowBasedTextGUI
+import com.googlecode.lanterna.gui2.WindowListenerAdapter
 import com.googlecode.lanterna.gui2.table.Table
 import com.googlecode.lanterna.gui2.table.TableCellRenderer
 import com.googlecode.lanterna.input.KeyStroke
@@ -115,22 +129,42 @@ class Test {
 
                 // Bottom right panel (e.g., commit log)
                 val bottomRightPanel = Panel(LinearLayout(Direction.VERTICAL))
-                bottomRightPanel.addComponent(Label("Commit Log").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED))
-                bottomRightPanel.addComponent(Label("Fix bug #123").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED))
-                bottomRightPanel.addComponent(Label("Add new feature").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED))
+                bottomRightPanel.addComponent(
+                    Label("Commit Log").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
+                )
+                bottomRightPanel.addComponent(
+                    Label("Fix bug #123").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
+                )
+                bottomRightPanel.addComponent(
+                    Label("Add new feature").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
+                )
 
                 // Adding top and bottom right panels to right panel
                 rightPanel.addComponent(topRightPanel.withBorder(Borders.singleLine("[2]-INFO")), BorderLayout.Location.TOP)
-                rightPanel.addComponent(bottomRightPanel.withBorder(Borders.singleLine("[3]-REG/MEM")), BorderLayout.Location.CENTER)
+                rightPanel.addComponent(
+                    bottomRightPanel.withBorder(Borders.singleLine("[3]-REG/MEM")),
+                    BorderLayout.Location.CENTER,
+                )
 
                 val bottomPanel = Panel(LinearLayout(Direction.HORIZONTAL))
-                bottomPanel.addComponent(Label("Press 'q' to quit").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.BLUE))
+                bottomPanel.addComponent(
+                    Label("Press 'q' to quit").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.BLUE),
+                )
 
                 val topPanel = Panel(BorderLayout())
 
                 // Adding left and right panels to main panel
                 topPanel.addComponent(leftPanelBorder, BorderLayout.Location.LEFT)
-                topPanel.addComponent(rightPanel.setLayoutData(GridLayout.createLayoutData(GridLayout.Alignment.FILL, GridLayout.Alignment.FILL, true, true)))
+                topPanel.addComponent(
+                    rightPanel.setLayoutData(
+                        GridLayout.createLayoutData(
+                            GridLayout.Alignment.FILL,
+                            GridLayout.Alignment.FILL,
+                            true,
+                            true,
+                        ),
+                    ),
+                )
 
                 mainPanel.addComponent(topPanel, BorderLayout.Location.CENTER)
                 mainPanel.addComponent(bottomPanel, BorderLayout.Location.BOTTOM)
@@ -152,6 +186,7 @@ class Test {
                                 leftPanelBorder.theme = SimpleTheme(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK)
                                 window.focusedInteractable = instructionList
                             }
+
                             '2' -> {
                                 window.focusedInteractable = cmdLine
                             }

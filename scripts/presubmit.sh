@@ -10,10 +10,7 @@ source "${SCRIPT_DIR}/constants.sh" || exit 1
 
 ./scripts/cleanup.sh || exit 1
 
-bazelisk test --test_output=errors ${ALL_BAZEL_BUILD_TARGETS_STRING} \
-    //benchmark:run_benchmark_test\
-    //benchmark:analyze_cache_profiling_test\
-    //benchmark:convert_result_to_csv_test || exit 1
+bazelisk test --test_output=errors ${ALL_BAZEL_BUILD_TARGETS_STRING} || exit 1
 
 # Run the build later, because test takes more time and needs parallelism.
 # Note that `bazelisk build` builds more targets than `bazelisk test`

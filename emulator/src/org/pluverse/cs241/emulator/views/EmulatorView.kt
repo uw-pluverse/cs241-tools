@@ -16,7 +16,11 @@
  */
 package org.pluverse.cs241.emulator.views
 
-import org.pluverse.cs241.emulator.cpumodel.*
+import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.Execution
+import org.pluverse.cs241.emulator.cpumodel.ExecutionStack
+import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
+import org.pluverse.cs241.emulator.cpumodel.ReadonlyMemory
 
 /**
  * Represents a view of the emulator. Provides methods to update the view in the CpuEmulator class.

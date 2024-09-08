@@ -21,7 +21,24 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.pluverse.cs241.emulator.cpumodel.*
+import org.pluverse.cs241.emulator.cpumodel.AddInstruction
+import org.pluverse.cs241.emulator.cpumodel.BranchEqualInstruction
+import org.pluverse.cs241.emulator.cpumodel.BranchNotEqualInstruction
+import org.pluverse.cs241.emulator.cpumodel.DivideInstruction
+import org.pluverse.cs241.emulator.cpumodel.DivideUInstruction
+import org.pluverse.cs241.emulator.cpumodel.JumpAndLinkInstruction
+import org.pluverse.cs241.emulator.cpumodel.JumpInstruction
+import org.pluverse.cs241.emulator.cpumodel.LisInstruction
+import org.pluverse.cs241.emulator.cpumodel.LoadWordInstruction
+import org.pluverse.cs241.emulator.cpumodel.MoveHighInstruction
+import org.pluverse.cs241.emulator.cpumodel.MoveLowInstruction
+import org.pluverse.cs241.emulator.cpumodel.MultiplyInstruction
+import org.pluverse.cs241.emulator.cpumodel.MultiplyUInstruction
+import org.pluverse.cs241.emulator.cpumodel.SetLessThanInstruction
+import org.pluverse.cs241.emulator.cpumodel.SetLessThanUInstruction
+import org.pluverse.cs241.emulator.cpumodel.StoreWordInstruction
+import org.pluverse.cs241.emulator.cpumodel.SubInstruction
+import org.pluverse.cs241.emulator.cpumodel.WrongMipsInstructionException
 import java.lang.Math.pow
 import kotlin.math.pow
 

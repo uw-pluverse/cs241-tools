@@ -16,8 +16,12 @@
  */
 package org.pluverse.cs241.emulator
 
-import kotlinx.cli.*
-import org.pluverse.cs241.emulator.controllers.*
+import kotlinx.cli.ArgParser
+import kotlinx.cli.ArgType
+import kotlinx.cli.default
+import org.pluverse.cs241.emulator.controllers.ArrayController
+import org.pluverse.cs241.emulator.controllers.StdinController
+import org.pluverse.cs241.emulator.controllers.TwoIntsController
 
 class MipsEmulatorMain {
 

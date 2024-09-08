@@ -16,7 +16,9 @@
  */
 package org.pluverse.cs241.emulator.views
 
-import org.pluverse.cs241.emulator.cpumodel.*
+import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.Execution
+import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
 
 /**
  * This class is a simple view which only needs the registers and PC
