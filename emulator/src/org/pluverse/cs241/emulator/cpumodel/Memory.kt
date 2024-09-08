@@ -19,11 +19,11 @@ package org.pluverse.cs241.emulator.cpumodel
 typealias ReadonlyMemory = Memory<MemoryData>
 
 /**
-    Memory: an abstract class that holds the data and has simple operations to retrieve and set.
+ Memory: an abstract class that holds the data and has simple operations to retrieve and set.
 
-    Address (Class) consumes an address and returns an array index
-    - We use the Address class for better semantics in converting address (multiple of 4) to an array index.
-        i.e. address() => returns an array index
+ Address (Class) consumes an address and returns an array index
+ - We use the Address class for better semantics in converting address (multiple of 4) to an array index.
+ i.e. address() => returns an array index
  */
 abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_MEM_SIZE) {
 
@@ -62,10 +62,9 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
 
     operator fun iterator(): Iterator<T> { return data.iterator() }
 
-
     /**
-    Default values for the class
-    */
+     Default values for the class
+     */
     companion object {
         // Assign the static variables
         const val DEFAULT_MAX_MEM_SIZE = 20000
@@ -100,7 +99,6 @@ class Registers : Memory<RegisterData>(34) {
         const val STACK_POINTER = 30 // Stack pointer
         const val JUMP_REGISTER = 31 // By convention to use this register for return also for specific semantics
     }
-
 }
 
 /**
@@ -113,12 +111,7 @@ class RamMemory : Memory<RamMemoryData> {
     constructor(maxSize: Int) : super(maxSize)
 
     // Create an array of size maxSize of Mips Instructions
-    override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize)
-    { index ->
+    override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize) { index ->
         RamMemoryData(address = getAddress(index))
     }
-
 }
-
-
-

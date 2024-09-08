@@ -15,11 +15,10 @@
  * Perses; see the file LICENSE.  If not see <http://www.gnu.org/licenses/>.
  */
 package org.pluverse.cs241.emulator
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.junit.Assert.*
-
 import org.pluverse.cs241.emulator.cpumodel.*
 
 @RunWith(JUnit4::class)

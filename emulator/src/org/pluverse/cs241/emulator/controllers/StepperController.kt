@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along with
  * Perses; see the file LICENSE.  If not see <http://www.gnu.org/licenses/>.
  */
-package org.pluverse.cs241.emulator.controllers;
+package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
@@ -22,7 +22,6 @@ import org.pluverse.cs241.emulator.views.CliView
 import org.pluverse.cs241.emulator.views.GuiView
 import kotlin.io.path.Path
 import kotlin.io.path.readBytes
-
 
 class StepperControllerTest {
 
@@ -48,11 +47,11 @@ class StepperControllerTest {
 
             println("Running MIPS program.")
 
-            while(!emulator.hasReturnedOS) {
+            while (!emulator.hasReturnedOS) {
                 print("Type n, q, or r: ")
                 val input = readln()[0]
 
-                when(input) {
+                when (input) {
                     'n' -> emulator.runFetchExecuteLoop()
                     'r' -> emulator.reverseExecution()
                     'q' -> break
@@ -88,8 +87,9 @@ class StepperController {
             }
 
             val stepBack: () -> Unit = {
-                if (emulator.numReverseExecutions() > 0)
+                if (emulator.numReverseExecutions() > 0) {
                     emulator.reverseExecution()
+                }
             }
 
             try {

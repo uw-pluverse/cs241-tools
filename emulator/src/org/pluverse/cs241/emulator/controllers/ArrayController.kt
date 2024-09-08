@@ -60,7 +60,7 @@ class ArrayController {
                 while (true) {
                     emulator.runFetchExecuteLoop()
                 }
-            } catch(error: EmulatorHasReturnedOSException) {
+            } catch (error: EmulatorHasReturnedOSException) {
                 println(view.getCompletedOutput())
             }
         }

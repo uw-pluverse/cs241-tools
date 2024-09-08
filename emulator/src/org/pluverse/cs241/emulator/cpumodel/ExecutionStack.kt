@@ -91,7 +91,6 @@ class MutableExecutionStack : ExecutionStack {
     override fun last(): List<Execution>? {
         return executionStack.lastOrNull()
     }
-
 }
 
 /**
@@ -100,5 +99,5 @@ class MutableExecutionStack : ExecutionStack {
  */
 data class Execution(val type: ExecutionType, val address: Address, val value: Int) {
 
-    enum class ExecutionType {REGISTER, MEMORY, PC}
+    enum class ExecutionType { REGISTER, MEMORY, PC }
 }

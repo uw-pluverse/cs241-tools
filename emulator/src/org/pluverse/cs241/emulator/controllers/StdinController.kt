@@ -50,7 +50,7 @@ class StdinController {
                 while (true) {
                     emulator.runFetchExecuteLoop()
                 }
-            } catch(error: EmulatorHasReturnedOSException) {
+            } catch (error: EmulatorHasReturnedOSException) {
                 println(view.getCompletedOutput())
             }
         }

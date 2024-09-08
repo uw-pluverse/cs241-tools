@@ -16,10 +16,8 @@
  */
 package org.pluverse.cs241.emulator
 
-import org.pluverse.cs241.emulator.controllers.*
-import kotlin.io.path.readBytes
-
 import kotlinx.cli.*
+import org.pluverse.cs241.emulator.controllers.*
 
 class MipsEmulatorMain {
 
@@ -54,11 +52,15 @@ class MipsEmulatorMain {
 
             val argsInput = Array<String>(1) { file }
 
-            if (twoints) TwoIntsController.main(argsInput)
-            else if (array) ArrayController.main(argsInput)
-            else if (stdin) StdinController.main(argsInput)
-            else throw Error("Need to specify a controller")
+            if (twoints) {
+                TwoIntsController.main(argsInput)
+            } else if (array) {
+                ArrayController.main(argsInput)
+            } else if (stdin) {
+                StdinController.main(argsInput)
+            } else {
+                throw Error("Need to specify a controller")
+            }
         }
     }
-
 }

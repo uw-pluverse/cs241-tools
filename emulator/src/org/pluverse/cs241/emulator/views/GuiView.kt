@@ -124,10 +124,10 @@ class GuiView : BasicEmulatorView() {
      * Initialize the main components to display the GUI.
      */
     init {
-        instructionList = object: CheckBoxList<MemoryData>() {
+        instructionList = object : CheckBoxList<MemoryData>() {
             override fun afterEnterFocus(
                 direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?
+                previouslyInFocus: Interactable?,
             ) {
                 instructionListBorder.theme = focusPanelTheme
             }
@@ -146,7 +146,7 @@ class GuiView : BasicEmulatorView() {
         cmdLine = object : TextBox(TerminalSize(rightSideSize, 5), TextBox.Style.MULTI_LINE) {
             override fun afterEnterFocus(
                 direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?
+                previouslyInFocus: Interactable?,
             ) {
                 cmdLineBorder.theme = focusPanelTheme
             }
@@ -164,7 +164,7 @@ class GuiView : BasicEmulatorView() {
         registerTable = object : DataActionListBox() {
             override fun afterEnterFocus(
                 direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?
+                previouslyInFocus: Interactable?,
             ) {
                 registerTableBorder.theme = focusPanelTheme
             }
@@ -182,7 +182,7 @@ class GuiView : BasicEmulatorView() {
         stackTable = object : DataActionListBox() {
             override fun afterEnterFocus(
                 direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?
+                previouslyInFocus: Interactable?,
             ) {
                 stackTableBorder.theme = focusPanelTheme
             }
@@ -200,7 +200,7 @@ class GuiView : BasicEmulatorView() {
 
         bottomPanel.addComponent(
             Label("Press 'q' to quit, 'r' to run, 'n' to step, 'b' to step back, 'tab' to switch")
-                .setForegroundColor(TextColor.ANSI.RED)
+                .setForegroundColor(TextColor.ANSI.RED),
         )
 
         setPreferredSizes(screen.terminalSize) // Set the sizes of all components
@@ -225,14 +225,13 @@ class GuiView : BasicEmulatorView() {
             override fun onUnhandledInput(
                 basePane: Window?,
                 keyStroke: KeyStroke?,
-                hasBeenHandled: AtomicBoolean?
+                hasBeenHandled: AtomicBoolean?,
             ) {
-
             }
 
             override fun onInput(basePane: Window?, keyStroke: KeyStroke?, deliverEvent: AtomicBoolean?) {
                 // Set the scrolls of arrow up and down as page up and down. Also disables next component focus switch.
-                val handleFocusInput: (KeyStroke) -> Unit = lambda@ { _ ->
+                val handleFocusInput: (KeyStroke) -> Unit = lambda@{ _ ->
                     window.focusedInteractable?.handleInput(keyStroke)
                     deliverEvent?.set(false) // Stop default behaviour
                 }
@@ -325,7 +324,6 @@ class GuiView : BasicEmulatorView() {
     }
 
     override fun notifyMemUpdate(address: Address, oldValue: Int) {
-
     }
 
     override fun notifyPcUpdate(pc: Address) {
@@ -333,7 +331,5 @@ class GuiView : BasicEmulatorView() {
     }
 
     override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {
-
     }
 }
-

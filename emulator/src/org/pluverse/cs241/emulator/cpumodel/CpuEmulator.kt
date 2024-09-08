@@ -16,8 +16,8 @@
  */
 package org.pluverse.cs241.emulator.cpumodel
 
-import org.pluverse.cs241.emulator.views.EmulatorView
 import org.pluverse.cs241.emulator.cpumodel.Execution.ExecutionType
+import org.pluverse.cs241.emulator.views.EmulatorView
 
 /**
 CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retrieves from the memory.
@@ -33,7 +33,7 @@ class CpuEmulator {
 
     // Define VARIABLES
     private val registers: Registers = Registers()
-    private val memory : RamMemory = RamMemory(MAX_ARRAY_SIZE)
+    private val memory: RamMemory = RamMemory(MAX_ARRAY_SIZE)
 
     private var pc = Address(0u) // Start the PC at 0x0
 
@@ -57,8 +57,9 @@ class CpuEmulator {
 
         // Verify it has a valid number of bytes. Also, we want to ensure that
         // the number of bytes won't overflow the largest address 0xffffffff (unsigned)
-        if (mipsInputData.size % 4 != 0 || mipsInputData.size > (UInt.MAX_VALUE / 4u).toInt())
+        if (mipsInputData.size % 4 != 0 || mipsInputData.size > (UInt.MAX_VALUE / 4u).toInt()) {
             throw InvalidAddressException()
+        }
 
         // Insert the instruction into the memory
         for (i in mipsInputData.indices step 4) {
@@ -67,8 +68,11 @@ class CpuEmulator {
             // This sets the data to the instruction
             memory.getData(byteAddress).update(
                 MemoryData.convertFourByteToInteger(
-                    mipsInputData[i], mipsInputData[i + 1], mipsInputData[i + 2], mipsInputData[i + 3]
-                )
+                    mipsInputData[i],
+                    mipsInputData[i + 1],
+                    mipsInputData[i + 2],
+                    mipsInputData[i + 3],
+                ),
             )
         }
     }

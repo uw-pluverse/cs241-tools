@@ -16,7 +16,6 @@
  */
 package org.pluverse.cs241.emulator.cpumodel
 
-
 open class MissingFileArgException : Throwable("Missing a file argument")
 open class BadMipsFileException(details: String = "") : Throwable("Bad mips file format: $details")
 open class MissingByteException : BadMipsFileException("Partial double word read, must be 4 bytes (doubleword)")
@@ -41,6 +40,5 @@ open class InvalidAddressException : Throwable("Address must be a multiple of fo
 /**
  * Internal errors
  */
-open class WrongMipsInstructionException: Throwable("Mismatch opcode or operand")
+open class WrongMipsInstructionException : Throwable("Mismatch opcode or operand")
 open class BadCodeException(type: String) : Throwable("Mismatch opcode or operand on $type")
-

@@ -16,8 +16,8 @@
  */
 package org.pluverse.cs241.emulator
 
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -78,10 +78,11 @@ class MipsInstructionTests {
         fun modifyInstr(instr: Int, regS: Int? = null, regT: Int? = null, regD: Int? = null, imm: Int? = null): Int {
             var ret = instr
 
-            assert((regS == null || regS in 0..31) &&
-                (regT == null || regT in 0..31) &&
-                (regD == null || regD in 0..31) &&
-                (imm == null || imm in -32768..32767)
+            assert(
+                (regS == null || regS in 0..31) &&
+                    (regT == null || regT in 0..31) &&
+                    (regD == null || regD in 0..31) &&
+                    (imm == null || imm in -32768..32767),
             )
 
             if (regS != null) ret = ret or (regS shl 21)
@@ -316,7 +317,7 @@ class MipsInstructionTests {
             assertEquals(2, divInstruction.regT)
         }
     }
-    
+
     @Test
     fun testDivideUInstructionReadsOnlyDivideUInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { DivideUInstruction(ADD) }
@@ -360,7 +361,7 @@ class MipsInstructionTests {
             assertEquals(2, divuInstruction.regT)
         }
     }
-    
+
     @Test
     fun testMoveHighInstructionReadsOnlyMoveHighInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { MoveHighInstruction(ADD) }
@@ -446,7 +447,7 @@ class MipsInstructionTests {
             assertEquals(5, mfloInstruction.regD)
         }
     }
-    
+
     @Test
     fun testLisInstructionReadsOnlyLisInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { LisInstruction(ADD) }
@@ -489,7 +490,7 @@ class MipsInstructionTests {
             assertEquals(5, lisInstruction.regD)
         }
     }
-    
+
     @Test
     fun testSetLessThanInstructionReadsOnlySetLessThanInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { SetLessThanInstruction(ADD) }
@@ -579,7 +580,7 @@ class MipsInstructionTests {
             assertEquals(3, sltuInstruction.regD)
         }
     }
-    
+
     @Test
     fun testJumpInstructionReadsOnlyJumpInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { JumpInstruction(ADD) }
@@ -665,7 +666,7 @@ class MipsInstructionTests {
             assertEquals(1, jalrInstruction.regS)
         }
     }
-    
+
     @Test
     fun testLoadInstructionReadsOnlyLoadInstruction() {
         assertThrows(WrongMipsInstructionException::class.java) { LoadWordInstruction(ADD) }
@@ -705,7 +706,7 @@ class MipsInstructionTests {
             val lwInstruction = LoadWordInstruction(modifyInstr(LW.toInt(), imm = 2.0.pow(15.0).toInt() - 1))
             assertEquals(2.0.pow(15.0).toInt() - 1, lwInstruction.immediate)
 
-            val lwInstruction2 = LoadWordInstruction(modifyInstr(LW.toInt(),31, imm = -pow(2.0, 15.0).toInt()))
+            val lwInstruction2 = LoadWordInstruction(modifyInstr(LW.toInt(), 31, imm = -pow(2.0, 15.0).toInt()))
             assertEquals(31, lwInstruction2.regS)
             assertEquals(-pow(2.0, 15.0).toInt(), lwInstruction2.immediate)
 
@@ -754,7 +755,7 @@ class MipsInstructionTests {
             val swInstruction = StoreWordInstruction(modifyInstr(SW.toInt(), imm = 2.0.pow(15.0).toInt() - 1))
             assertEquals(2.0.pow(15.0).toInt() - 1, swInstruction.immediate)
 
-            val swInstruction2 = StoreWordInstruction(modifyInstr(SW.toInt(),31, imm = -2.0.pow(15.0).toInt()))
+            val swInstruction2 = StoreWordInstruction(modifyInstr(SW.toInt(), 31, imm = -2.0.pow(15.0).toInt()))
             assertEquals(31, swInstruction2.regS)
             assertEquals(-2.0.pow(15.0).toInt(), swInstruction2.immediate)
 
@@ -861,7 +862,4 @@ class MipsInstructionTests {
             assertEquals(-2.0.pow(15.0).toInt(), bneInstruction2.immediate)
         }
     }
-
-
 }
-

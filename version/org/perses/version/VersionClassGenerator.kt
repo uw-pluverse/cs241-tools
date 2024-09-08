@@ -27,26 +27,26 @@ import kotlin.io.path.writeText
 
 object VersionClassGenerator {
 
-  private const val MAJOR_VERSION = "1"
-  private const val MINOR_VERSION = "8"
+    private const val MAJOR_VERSION = "1"
+    private const val MINOR_VERSION = "8"
 
-  @JvmStatic
-  fun generate(args: Array<String>) {
-    require(args.size == 2)
-    val lines = Paths.get(args[0]).readLines(StandardCharsets.UTF_8)
-    val map = parse(lines)
-    val outputFile = Paths.get(args[1])
-    writeVersionClass(map, outputFile)
-  }
+    @JvmStatic
+    fun generate(args: Array<String>) {
+        require(args.size == 2)
+        val lines = Paths.get(args[0]).readLines(StandardCharsets.UTF_8)
+        val map = parse(lines)
+        val outputFile = Paths.get(args[1])
+        writeVersionClass(map, outputFile)
+    }
 
-  private fun writeVersionClass(map: ImmutableMultimap<String, String>, outputFile: Path) {
-    val branch: String = map.get("PERSES_GIT_BRANCH").single()
-    val hash: String = map.get("PERSES_GIT_COMMIT_HASH").single()
-    val status: String = map.get("PERSES_GIT_STATUS").single()
-    val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
+    private fun writeVersionClass(map: ImmutableMultimap<String, String>, outputFile: Path) {
+        val branch: String = map.get("PERSES_GIT_BRANCH").single()
+        val hash: String = map.get("PERSES_GIT_COMMIT_HASH").single()
+        val status: String = map.get("PERSES_GIT_STATUS").single()
+        val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME)
 
-    outputFile.writeText(
-      """
+        outputFile.writeText(
+            """
       |package org.perses.version
       |object Version {
       |  @JvmStatic
@@ -67,31 +67,31 @@ object VersionClassGenerator {
       |  @JvmStatic
       |  val BUILD_TIME = "$timestamp"
       |}
-      """.trimMargin(),
-      StandardCharsets.UTF_8,
-    )
-  }
-
-  fun parse(lines: List<String>): ImmutableMultimap<String, String> {
-    val builder = ImmutableMultimap.builder<String, String>()
-    for (line in lines) {
-      val trimmed = line.trim()
-      if (trimmed.isBlank()) {
-        continue
-      }
-      val index = trimmed.indexOfFirst { it.isWhitespace() }
-      val key: String
-      val value: String
-      if (index < 0) {
-        key = trimmed
-        value = ""
-      } else {
-        check(index > 0) { "Invalid line: \"$line\"" }
-        key = trimmed.substring(startIndex = 0, endIndex = index).trim()
-        value = trimmed.substring(startIndex = index).trim()
-      }
-      builder.put(key, value)
+            """.trimMargin(),
+            StandardCharsets.UTF_8,
+        )
     }
-    return builder.build()
-  }
+
+    fun parse(lines: List<String>): ImmutableMultimap<String, String> {
+        val builder = ImmutableMultimap.builder<String, String>()
+        for (line in lines) {
+            val trimmed = line.trim()
+            if (trimmed.isBlank()) {
+                continue
+            }
+            val index = trimmed.indexOfFirst { it.isWhitespace() }
+            val key: String
+            val value: String
+            if (index < 0) {
+                key = trimmed
+                value = ""
+            } else {
+                check(index > 0) { "Invalid line: \"$line\"" }
+                key = trimmed.substring(startIndex = 0, endIndex = index).trim()
+                value = trimmed.substring(startIndex = index).trim()
+            }
+            builder.put(key, value)
+        }
+        return builder.build()
+    }
 }

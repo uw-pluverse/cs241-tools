@@ -19,8 +19,8 @@ package org.perses.version
 import org.perses.version.VersionClassGenerator.generate
 
 object VersionClassGeneratorMain {
-  @JvmStatic
-  fun main(args: Array<String>) {
-    generate(args)
-  }
+    @JvmStatic
+    fun main(args: Array<String>) {
+        generate(args)
+    }
 }

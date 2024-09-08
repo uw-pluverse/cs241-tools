@@ -40,9 +40,8 @@ interface EmulatorView {
         registers: ReadonlyMemory,
         memory: ReadonlyMemory,
         pc: Address,
-        executionStack: ExecutionStack
+        executionStack: ExecutionStack,
     )
-
 
     /**
      * Updates the registers in the view. Specifies a specific register that changed too
@@ -78,7 +77,7 @@ abstract class BasicEmulatorView : EmulatorView {
         registers: ReadonlyMemory,
         memory: ReadonlyMemory,
         pc: Address,
-        executionStack: ExecutionStack
+        executionStack: ExecutionStack,
     ) {
         this.registers = registers
         this.memory = memory

@@ -16,14 +16,14 @@
  */
 package org.pluverse.cs241.emulator
 
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.pluverse.cs241.emulator.cpumodel.Address
-import org.pluverse.cs241.emulator.cpumodel.OutsideAddressRangeException
 import org.pluverse.cs241.emulator.cpumodel.InvalidAddressException
+import org.pluverse.cs241.emulator.cpumodel.OutsideAddressRangeException
 
 @RunWith(JUnit4::class)
 class AddressTest {

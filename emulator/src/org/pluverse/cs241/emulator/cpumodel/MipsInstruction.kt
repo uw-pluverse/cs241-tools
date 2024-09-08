@@ -23,7 +23,7 @@ An abstract class that provides functionality for an instruction based on the gi
 abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expectedOperand: Int?) {
 
     /**
-    Important information about the MipsInstruction
+     Important information about the MipsInstruction
      */
 
     // opcode: the first 6 bits - identifies the type
@@ -46,13 +46,14 @@ abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expect
         getMem: (address: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) // This will run the instruction and update memory
 
     init {
         // Verify the opcode and operand is correct
-        if ((expectedOpcode != null && opcode != expectedOpcode) || (expectedOperand != null && operand != expectedOperand))
+        if ((expectedOpcode != null && opcode != expectedOpcode) || (expectedOperand != null && operand != expectedOperand)) {
             throw WrongMipsInstructionException()
+        }
     }
 }
 
@@ -61,16 +62,15 @@ Three register instructions below
 
  */
 
-
 abstract class ThreeRegisterInstruction(
     val identifier: String,
     doubleWord: Int,
     expectedOpcode: Int,
-    expectedOperand: Int?
+    expectedOperand: Int?,
 ) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
 
     override fun getSyntax(): String {
-        return "${identifier} $${regD}, $${regS}, $${regT}"
+        return "$identifier $$regD, $$regS, $$regT"
     }
 }
 
@@ -81,7 +81,7 @@ class AddInstruction(doubleWord: Int) : ThreeRegisterInstruction("add", doubleWo
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // $d = $s + $t
         val computedValue = getReg(regS) + getReg(regT)
@@ -101,7 +101,7 @@ class SubInstruction(doubleWord: Int) : ThreeRegisterInstruction("sub", doubleWo
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // $d = $s - $t
         val computedValue = getReg(regS) - getReg(regT)
@@ -121,7 +121,7 @@ class SetLessThanInstruction(doubleWord: Int) : ThreeRegisterInstruction("slt", 
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // $d = 1 if $s < $t; 0 otherwise
         val valS: Int = getReg(regS)
@@ -146,7 +146,7 @@ class SetLessThanUInstruction(doubleWord: Int) : ThreeRegisterInstruction("sltu"
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // $d = 1 if $s < $t; 0 otherwise
         // WE WANT ONLY THE UNSIGNED INT
@@ -175,11 +175,11 @@ abstract class TwoRegisterInstruction(
     val identifier: String,
     doubleWord: Int,
     expectedOpcode: Int,
-    expectedOperand: Int?
+    expectedOperand: Int?,
 ) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
 
     override fun getSyntax(): String {
-        return "${identifier} $${regS}, $${regT}"
+        return "$identifier $$regS, $$regT"
     }
 
     init {
@@ -200,7 +200,7 @@ class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction("mult", doub
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // hi:lo = $s * $t
         val valS: Int = getReg(regS)
@@ -235,7 +235,7 @@ class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction("multu", do
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         // hi:lo = $s * $t
         // ** Cast them to Unsigned prior to multiplication **
@@ -271,7 +271,7 @@ class DivideInstruction(doubleWord: Int) : TwoRegisterInstruction("div", doubleW
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
@@ -296,7 +296,7 @@ class DivideUInstruction(doubleWord: Int) : TwoRegisterInstruction("divu", doubl
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS: UInt = getReg(regS).toUInt()
         val valT: UInt = getReg(regT).toUInt()
@@ -326,11 +326,11 @@ abstract class BranchInstruction(
     val identifier: String,
     doubleWord: Int,
     expectedOpcode: Int,
-    expectedOperand: Int?
+    expectedOperand: Int?,
 ) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
 
     override fun getSyntax(): String {
-        return "${identifier} $${regS}, $${regT}, ${immediate}"
+        return "$identifier $$regS, $$regT, $immediate"
     }
 }
 
@@ -346,12 +346,12 @@ class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleW
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
 
-        setPC()  { currentPC ->
+        setPC() { currentPC ->
             if (valS == valT) (currentPC + immediate) else currentPC
         }
     }
@@ -361,8 +361,8 @@ class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleW
     }
 }
 
-class BranchNotEqualInstruction(doubleWord: Int)
-    : BranchInstruction("bne", doubleWord, OPCODE, null) {
+class BranchNotEqualInstruction(doubleWord: Int) :
+    BranchInstruction("bne", doubleWord, OPCODE, null) {
 
     /**
      * if ($s != $t) pc += i * 4
@@ -374,7 +374,7 @@ class BranchNotEqualInstruction(doubleWord: Int)
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS: Int = getReg(regS)
         val valT: Int = getReg(regT)
@@ -386,7 +386,6 @@ class BranchNotEqualInstruction(doubleWord: Int)
 
     companion object {
         const val OPCODE: Int = (0b000101)
-        
     }
 }
 
@@ -400,13 +399,12 @@ abstract class DataInstruction(
     val identifier: String,
     doubleWord: Int,
     expectedOpcode: Int,
-    expectedOperand: Int?
+    expectedOperand: Int?,
 ) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
 
     override fun getSyntax(): String {
-        return "${identifier} $${regT}, ${immediate}($${regS})"
+        return "$identifier $$regT, $immediate($$regS)"
     }
-
 }
 
 class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
@@ -421,7 +419,7 @@ class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, O
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS = getReg(regS)
 
@@ -454,7 +452,7 @@ class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, 
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val valS: Int = getReg(regS)
         val valT = getReg(regT)
@@ -488,7 +486,7 @@ Rest of single register instructions below
 
 class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
     override fun getSyntax(): String {
-        return "mfhi $${regD}"
+        return "mfhi $$regD"
     }
 
     /**
@@ -501,7 +499,7 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val hi = getReg(Registers.HI_INDEX)
         updateReg(regD, hi)
@@ -520,7 +518,7 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
 
 class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
     override fun getSyntax(): String {
-        return "mflo $${regD}"
+        return "mflo $$regD"
     }
 
     /**
@@ -533,7 +531,7 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val lo = getReg(Registers.LO_INDEX)
         updateReg(regD, lo)
@@ -553,7 +551,7 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
 class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAND) {
 
     override fun getSyntax(): String {
-        return "lis $${regD}"
+        return "lis $$regD"
     }
 
     /**
@@ -567,7 +565,7 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         setPC { currentPC ->
             // By the Fetch-Execute Cycle, current PC is the next instruction
@@ -579,7 +577,7 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
     }
 
     companion object {
-        
+
         const val OPERAND: Int = (0b00000010100)
     }
 
@@ -591,7 +589,7 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
 
 class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
     override fun getSyntax(): String {
-        return "jr $${regS}"
+        return "jr $$regS"
     }
 
     /**
@@ -604,7 +602,7 @@ class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPE
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val jumpToValue = getReg(regS)
 
@@ -627,7 +625,7 @@ class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPE
 
 class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
     override fun getSyntax(): String {
-        return "jalr $${regS}"
+        return "jalr $$regS"
     }
 
     /**
@@ -640,7 +638,7 @@ class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCO
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         val jumpToValue = getReg(regS)
 
@@ -681,10 +679,8 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
         getMem: (index: Address) -> Int,
         updateReg: (index: Int, value: Int) -> Unit,
         updateMem: (address: Address, value: Int) -> Unit,
-        setPC: (init: (currentPC: Address) -> Address) -> Unit
+        setPC: (init: (currentPC: Address) -> Address) -> Unit,
     ) {
         throw WordWithNoInstructionException()
     }
-
 }
-

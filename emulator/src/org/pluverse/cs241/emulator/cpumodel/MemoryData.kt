@@ -27,7 +27,7 @@ interface MemoryData {
     val address: Address
 
     operator fun invoke(): Any = doubleWord // Get the doubleWord
-    override fun toString(): String  // Get the details of the object
+    override fun toString(): String // Get the details of the object
 
     fun getBinary(): String // Get the binary printout of doubleWord
     fun getHex(): String // Get the hexadecimal printout of doubleWord
@@ -54,7 +54,6 @@ interface MemoryData {
         const val SIXTEEN_BITS = 0xFFFF
     }
 }
-
 
 /**
 This implements similar functions from MemoryData for Mips and Register Data
@@ -100,21 +99,19 @@ class RegisterData(private val regNumber: Int) : EmulatorMemoryData(Address(regN
         }
 
     override fun getPrefixTag(): String {
-        return "$${regNumber}"
+        return "$$regNumber"
     }
 
     override fun getDetails(): String {
-        return "<Register $${regNumber}>${if (regNumber < 10) " " else ""} : ${getBinary()}"
+        return "<Register $$regNumber>${if (regNumber < 10) " " else ""} : ${getBinary()}"
     }
-
 }
-
 
 /**
 General info for the mips instructions and allows for mutation of CpuEmulator
 
 Note: CpuEmulator is the Controller, Memory is the Model, Views TBD.
-        MipsInstruction(s) run can mutate the Memory(s).
+ MipsInstruction(s) run can mutate the Memory(s).
 
  */
 class RamMemoryData(doubleWord: Int, override val address: Address) : EmulatorMemoryData(doubleWord, address) {
@@ -143,7 +140,7 @@ class RamMemoryData(doubleWord: Int, override val address: Address) : EmulatorMe
 
     companion object {
         /**
-        Method to filter a doubleWord and return the correct MipsInstructionData
+         Method to filter a doubleWord and return the correct MipsInstructionData
          */
         @JvmStatic
         fun getMipsInstruction(doubleWord: Int): MipsInstruction {
@@ -154,17 +151,20 @@ class RamMemoryData(doubleWord: Int, override val address: Address) : EmulatorMe
             val regS = (doubleWord shr 21) and MemoryData.FIVE_BITS
             val regT = (doubleWord shr 16) and MemoryData.FIVE_BITS
             val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
-            val defaultRegisterOpCode = 0b000000;
+            val defaultRegisterOpCode = 0b000000
 
             // Check edge cases first, mfhi, mflo, lis, jr, jalr
             if (opcode == MoveHighInstruction.OPCODE && regT == 0) {
                 if (regS == 0) {
-                    if (operand == MoveHighInstruction.OPERAND) return MoveHighInstruction(doubleWord)
-                    else if (operand == MoveLowInstruction.OPERAND) return MoveLowInstruction(doubleWord)
-                    else if (operand == LisInstruction.OPERAND) return LisInstruction(doubleWord)
+                    if (operand == MoveHighInstruction.OPERAND) {
+                        return MoveHighInstruction(doubleWord)
+                    } else if (operand == MoveLowInstruction.OPERAND) {
+                        return MoveLowInstruction(doubleWord)
+                    } else if (operand == LisInstruction.OPERAND) return LisInstruction(doubleWord)
                 } else if (regD == 0) {
-                    if (operand == JumpInstruction.OPERAND) return JumpInstruction(doubleWord)
-                    else if (operand == JumpAndLinkInstruction.OPERAND) return JumpAndLinkInstruction(doubleWord)
+                    if (operand == JumpInstruction.OPERAND) {
+                        return JumpInstruction(doubleWord)
+                    } else if (operand == JumpAndLinkInstruction.OPERAND) return JumpAndLinkInstruction(doubleWord)
                 }
             }
 
@@ -188,7 +188,4 @@ class RamMemoryData(doubleWord: Int, override val address: Address) : EmulatorMe
             }
         }
     }
-
 }
-
-

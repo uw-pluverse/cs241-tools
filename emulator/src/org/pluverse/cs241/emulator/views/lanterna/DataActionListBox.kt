@@ -37,7 +37,7 @@ import org.pluverse.cs241.emulator.cpumodel.MemoryData
 data class DataActionItem(
     private val data: MemoryData,
     var action: Runnable,
-    var displayMode: DisplayMode = DisplayMode.HEX
+    var displayMode: DisplayMode = DisplayMode.HEX,
 ) {
 
     val prefixTag: String = data.getPrefixTag()
@@ -59,7 +59,7 @@ data class DataActionItem(
  * A GUI component for a scrollable list of DataMemory items. i.e. Register or Ram Memory.
  */
 open class DataActionListBox(
-    preferredSize: TerminalSize? = null
+    preferredSize: TerminalSize? = null,
 ) : AbstractListBox<DataActionItem, DataActionListBox>(preferredSize) {
 
     var customRenderer: DataActionListItemRenderer? = null
@@ -121,7 +121,7 @@ class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: 
         index: Int,
         item: DataActionItem,
         selected: Boolean,
-        focused: Boolean
+        focused: Boolean,
     ) {
         graphics.fill(' ') // Fill up the contents
         val isHighlight = highlight == index
@@ -129,8 +129,11 @@ class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: 
         // Get the styles for the items
         val themeDefinition = listBox.theme.getDefinition(AbstractListBox::class.java)
         val itemStyle = DefaultMutableThemeStyle(
-            if (selected && focused) themeDefinition.selected else
+            if (selected && focused) {
+                themeDefinition.selected
+            } else {
                 themeDefinition.normal
+            },
         )
         val tagStyle = DefaultMutableThemeStyle(itemStyle).setForeground(TextColor.Factory.fromString("#E67E22"))
         val highlightStyle = DefaultMutableThemeStyle(itemStyle).setForeground(TextColor.ANSI.GREEN_BRIGHT)

@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class VersionClassGeneratorTest {
 
-  val data = """
+    val data = """
     BUILD_TIMESTAMP 1699246047
     FORMATTED_DATE 2023 Nov 06 04 47 27 Mon 
     PERSES_GIT_BRANCH master
@@ -32,12 +32,12 @@ class VersionClassGeneratorTest {
     PERSES_GIT_STATUS Modified
   """.lines()
 
-  @Test
-  fun testParser() {
-    val result = VersionClassGenerator.parse(data)
-    assertThat(result).hasSize(5)
-    assertThat(result.get("BUILD_TIMESTAMP").single()).isEqualTo("1699246047")
-    assertThat(result.get("FORMATTED_DATE").single()).isEqualTo("2023 Nov 06 04 47 27 Mon")
-    assertThat(result.get("PERSES_GIT_BRANCH").single()).isEqualTo("master")
-  }
+    @Test
+    fun testParser() {
+        val result = VersionClassGenerator.parse(data)
+        assertThat(result).hasSize(5)
+        assertThat(result.get("BUILD_TIMESTAMP").single()).isEqualTo("1699246047")
+        assertThat(result.get("FORMATTED_DATE").single()).isEqualTo("2023 Nov 06 04 47 27 Mon")
+        assertThat(result.get("PERSES_GIT_BRANCH").single()).isEqualTo("master")
+    }
 }

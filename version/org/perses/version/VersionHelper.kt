@@ -26,18 +26,18 @@ import java.io.PrintStream
 
 object VersionHelper {
 
-  @JvmStatic
-  fun printVersionInfo(programName: String, stream: PrintStream) {
-    stream.println("$programName version $MAJOR_VERSION.$MINOR_VERSION")
-    if (COMMIT_HASH.isNotBlank()) {
-      stream.println("Git Version: $COMMIT_HASH")
+    @JvmStatic
+    fun printVersionInfo(programName: String, stream: PrintStream) {
+        stream.println("$programName version $MAJOR_VERSION.$MINOR_VERSION")
+        if (COMMIT_HASH.isNotBlank()) {
+            stream.println("Git Version: $COMMIT_HASH")
+        }
+        if (BRANCH.isNotBlank()) {
+            stream.println("Git Branch: $BRANCH")
+        }
+        if (STATUS.isNotBlank()) {
+            stream.println("Git Status: $STATUS")
+        }
+        stream.println("Built on $BUILD_TIME")
     }
-    if (BRANCH.isNotBlank()) {
-      stream.println("Git Branch: $BRANCH")
-    }
-    if (STATUS.isNotBlank()) {
-      stream.println("Git Status: $STATUS")
-    }
-    stream.println("Built on $BUILD_TIME")
-  }
 }

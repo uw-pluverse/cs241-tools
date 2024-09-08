@@ -63,7 +63,7 @@ class InstructionsListItemRenderer<T>(var highlight: Int = 0) : CheckBoxList.Che
         index: Int,
         item: T,
         selected: Boolean,
-        focused: Boolean
+        focused: Boolean,
     ) {
         // Define constants for the item
         val itemChecked = listBox.isChecked(index)
@@ -84,10 +84,13 @@ class InstructionsListItemRenderer<T>(var highlight: Int = 0) : CheckBoxList.Che
         // Get the styles for the items
         val themeDefinition = listBox.theme.getDefinition(CheckBoxList::class.java)
         val itemStyle = DefaultMutableThemeStyle(
-            if (selected)
+            if (selected) {
                 themeDefinition.active
-            else if (focused) themeDefinition.insensitive
-            else themeDefinition.normal
+            } else if (focused) {
+                themeDefinition.insensitive
+            } else {
+                themeDefinition.normal
+            },
         )
 
         if (itemChecked) itemStyle.setBackground(TextColor.Factory.fromString("#992222"))
@@ -97,7 +100,6 @@ class InstructionsListItemRenderer<T>(var highlight: Int = 0) : CheckBoxList.Che
         val markerStyle = DefaultMutableThemeStyle(themeDefinition.normal).setForeground(TextColor.ANSI.RED_BRIGHT)
         val pcStyle = DefaultMutableThemeStyle(themeDefinition.getCustom(HIGHLIGHT_CUSTOM_THEME))
             .setBackground(itemStyle.background)
-
 
         // Draw the checkbox if set
         graphics.applyThemeStyle(if (itemChecked) markerStyle else itemStyle)

@@ -23,7 +23,7 @@ import kotlin.math.abs
  * They are represented in multiple of fours and are used to access memory.
  * @param address: UInt
  */
- data class Address(val address: UInt = 0u) {
+data class Address(val address: UInt = 0u) {
     /**
      * Gets the memory array index given this address (address / 4)
      */
