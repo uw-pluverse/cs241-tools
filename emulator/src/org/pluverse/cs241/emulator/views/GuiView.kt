@@ -38,6 +38,8 @@ import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.Execution
 import org.pluverse.cs241.emulator.cpumodel.MemoryData
@@ -46,6 +48,7 @@ import org.pluverse.cs241.emulator.cpumodel.Registers
 import org.pluverse.cs241.emulator.views.lanterna.DataActionListBox
 import org.pluverse.cs241.emulator.views.lanterna.HIGHLIGHT_CUSTOM_THEME
 import org.pluverse.cs241.emulator.views.lanterna.InstructionsListItemRenderer
+import org.pluverse.cs241.emulator.views.lanterna.CommandLine
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -59,6 +62,8 @@ class GuiView : BasicEmulatorView() {
     lateinit var stepForward: () -> Unit
     lateinit var stepBackward: () -> Unit
 
+    private val outputStream = ByteArrayOutputStream() // Used to redirect output
+
     /**
      * The main wrapper components for the GUI
      */
@@ -66,8 +71,8 @@ class GuiView : BasicEmulatorView() {
     private val textGUI: WindowBasedTextGUI
     private val window: BasicWindow
 
-    var leftSideSize: Int
-    var rightSideSize: Int
+    private var leftSideSize: Int
+    private var rightSideSize: Int
 
     /**
      * The components of the GUI
@@ -80,7 +85,7 @@ class GuiView : BasicEmulatorView() {
 
     private val rightPanel: Panel = Panel(BorderLayout()) // Right side - holds rightTop and rightBottom
 
-    private val cmdLine: TextBox // Top Right
+    private val cmdLine: CommandLine // Top Right
     private val cmdLineBorder: Border = Borders.singleLineReverseBevel("[2]-Command Line")
 
     private val rightBottomPanel: Panel = Panel(BorderLayout()) // Bottom right - holds Reg / Stack
@@ -107,16 +112,6 @@ class GuiView : BasicEmulatorView() {
             defaultDefinition.setActive(TextColor.ANSI.WHITE_BRIGHT, TextColor.ANSI.BLACK)
         }
     }
-
-    /**
-     * The fields for the GUI
-     */
-
-    // The panels in the display and their toggled modes
-    private enum class Display { INSTRUCTIONS, REGISTERS, MEMORY, INFO, SEARCH }
-    private enum class DisplayMode { REGISTERS, MEMORY, PC }
-    private val displayModes: MutableMap<Display, DisplayMode> = EnumMap(Display::class.java)
-    private var curDisplay: Display = Display.INSTRUCTIONS
 
     /**
      * Setup/Initialize the wrapper components. The screen & window.
@@ -163,7 +158,7 @@ class GuiView : BasicEmulatorView() {
             }
         }
 
-        cmdLine = object : TextBox(TerminalSize(rightSideSize, 5), TextBox.Style.MULTI_LINE) {
+        cmdLine = object : CommandLine(TerminalSize(rightSideSize, 5), outputStream) {
             override fun afterEnterFocus(
                 direction: Interactable.FocusChangeDirection?,
                 previouslyInFocus: Interactable?,
@@ -264,7 +259,7 @@ class GuiView : BasicEmulatorView() {
 
                 // Handle main commands
                 when (keyStroke?.character) {
-                    'q', '1', '2', '3', '4', 'n', 'b' -> {
+                    'q', '1', '2', '3', '4', 'n', 'b', 'r' -> {
                         when (keyStroke.character) {
                             'q' -> window.close()
                             '1' -> window.focusedInteractable = instructionList
@@ -273,6 +268,7 @@ class GuiView : BasicEmulatorView() {
                             '4' -> window.focusedInteractable = stackTable
                             'n' -> stepForward()
                             'b' -> stepBackward()
+                            'r' -> runUntilBreakpoint()
                         }
 
                         deliverEvent?.set(false)
@@ -292,12 +288,29 @@ class GuiView : BasicEmulatorView() {
      * Display and run the GUI
      */
     fun start(stepForward: () -> Unit, stepBackward: () -> Unit) {
-        this.stepForward = stepForward
-        this.stepBackward = stepBackward
+        val originalOut = System.out
+        System.setOut(PrintStream(outputStream))
 
-        displayDefault()
-        screen.startScreen()
-        textGUI.addWindowAndWait(window)
+        try {
+            this.stepForward = stepForward
+            this.stepBackward = stepBackward
+
+            displayDefault()
+            screen.startScreen()
+            textGUI.addWindowAndWait(window)
+        } catch(e: Exception) {
+            throw e
+        } finally {
+            System.setOut(originalOut)
+        }
+    }
+
+    fun runUntilBreakpoint() {
+        stepForward() // Want to take at least one step
+
+        while (!checkReturnedOs() && !instructionList.isChecked(pc().getMemoryIndex())) {
+            stepForward()
+        }
     }
 
     /**
@@ -334,6 +347,9 @@ class GuiView : BasicEmulatorView() {
         stackTable.preferredSize = stackPreferredSize
     }
 
+    /**
+     * Updates the stack pointer in the stack table.
+     */
     private fun updateStackPointer() {
         stackTable.selectedIndex = Address(registers[Registers.STACK_POINTER].doubleWord.toUInt()).getMemoryIndex()
         stackTable.customRenderer?.highlight = stackTable.selectedIndex
@@ -348,8 +364,15 @@ class GuiView : BasicEmulatorView() {
 
     override fun notifyPcUpdate(pc: Address) {
         instructionListRenderer.highlight = pc()
+        instructionList.selectedIndex = pc.getMemoryIndex()
     }
 
     override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {
+        if (checkReturnedOs()) {
+            cmdLine.printReturnOs()
+        } else {
+            cmdLine.printChanges(executions, memory, registers)
+            cmdLine.printOutput()
+        }
     }
 }

@@ -38,13 +38,14 @@ interface EmulatorView {
     /**
      * Functions to inject dependencies in the CPUModel to initialize states
      *
-     *      Registers, Memory, and Program Counter
+     *      Registers, Memory, Program Counter, Execution Stack, Check Returned OS
      */
     fun injectInitialState(
         registers: ReadonlyMemory,
         memory: ReadonlyMemory,
-        pc: Address,
+        pc: () -> Address,
         executionStack: ExecutionStack,
+        checkReturnedOs: () -> Boolean
     )
 
     /**
@@ -74,18 +75,21 @@ interface EmulatorView {
 abstract class BasicEmulatorView : EmulatorView {
     lateinit var registers: ReadonlyMemory
     lateinit var memory: ReadonlyMemory
-    lateinit var pc: Address
+    lateinit var pc: () -> Address
     lateinit var executionStack: ExecutionStack
+    lateinit var checkReturnedOs: () -> Boolean
 
     override fun injectInitialState(
         registers: ReadonlyMemory,
         memory: ReadonlyMemory,
-        pc: Address,
+        pc: () -> Address,
         executionStack: ExecutionStack,
+        checkReturnedOs: () -> Boolean
     ) {
         this.registers = registers
         this.memory = memory
         this.pc = pc
         this.executionStack = executionStack
+        this.checkReturnedOs = checkReturnedOs
     }
 }

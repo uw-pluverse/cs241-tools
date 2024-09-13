@@ -43,15 +43,15 @@ data class DataActionItem(
     val prefixTag: String = data.getPrefixTag()
 
     companion object {
-        enum class DisplayMode { BINARY, HEX }
+        enum class DisplayMode { SIGNED_DECIMAL, HEX }
     }
 
     fun toggleDisplayMode() {
-        displayMode = if (displayMode == DisplayMode.HEX) DisplayMode.BINARY else DisplayMode.HEX
+        displayMode = if (displayMode == DisplayMode.HEX) DisplayMode.SIGNED_DECIMAL else DisplayMode.HEX
     }
 
     override fun toString(): String {
-        return if (displayMode == DisplayMode.HEX) data.getHex() else data.getBinary()
+        return if (displayMode == DisplayMode.HEX) data.getHex() else data.doubleWord.toString()
     }
 }
 
@@ -123,7 +123,6 @@ class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: 
         selected: Boolean,
         focused: Boolean,
     ) {
-        graphics.fill(' ') // Fill up the contents
         val isHighlight = highlight == index
 
         // Get the styles for the items
@@ -143,6 +142,11 @@ class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: 
         val maxPrefixTag = listBox.getItemAt(maxIndex.coerceAtMost(listBox.itemCount - 1)).prefixTag.length
         val tag = if (isHighlight) "${item.prefixTag} " else item.prefixTag.padEnd(maxPrefixTag + 1)
 
+        // Fill the gap with spaces
+        graphics.applyThemeStyle(itemStyle)
+        graphics.fill(' ')
+
+        // Add Contents
         var insertCol = 0
 
         if (isHighlight) {

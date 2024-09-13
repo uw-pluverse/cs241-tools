@@ -67,7 +67,7 @@ abstract class EmulatorMemoryData(override var doubleWord: Int, override val add
     override fun getBinary(): String = Integer.toBinaryString(doubleWord).padStart(Int.SIZE_BITS, '0')
 
     // Returns a hex string of the doubleWord
-    override fun getHex(): String = "0x${Integer.toHexString(doubleWord).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
+    override fun getHex(): String = getHex(doubleWord)
 
     // Get the details
     override fun toString(): String = getDetails()
@@ -77,6 +77,13 @@ abstract class EmulatorMemoryData(override var doubleWord: Int, override val add
         // This is for better semantics
 
         this.doubleWord = doubleWord
+    }
+
+    companion object {
+        @JvmStatic
+        fun getHex(doubleWord: Int): String {
+            return "0x${Integer.toHexString(doubleWord).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
+        }
     }
 }
 
@@ -99,6 +106,9 @@ class RegisterData(private val regNumber: Int) : EmulatorMemoryData(Address(regN
         }
 
     override fun getPrefixTag(): String {
+        if (regNumber == Registers.HI_INDEX) return "\$HI"
+        if (regNumber == Registers.LO_INDEX) return "\$LO"
+
         return "$$regNumber"
     }
 
