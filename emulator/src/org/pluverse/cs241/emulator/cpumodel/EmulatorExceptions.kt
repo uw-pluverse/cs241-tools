@@ -23,7 +23,7 @@ open class MissingByteException : BadMipsFileException("Partial double word read
 /**
  * Exceptions related to running the emulator
  */
-open class EmulatorHasReturnedOSException : Throwable("Program already returned to OS, finished successfully")
+open class EmulatorHasReturnedOSException : Throwable("Program returned to OS, finished successfully")
 open class WordWithNoInstructionException : Throwable("Executing a non-instruction is not allowed")
 open class ReverseNoExecutionExeception : Throwable("No more instructions to reverse")
 open class NoInputToReadException : Throwable("No input to load into a word")

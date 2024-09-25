@@ -20,6 +20,7 @@ import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 
 /**
@@ -39,7 +40,7 @@ class ArrayController {
          */
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty()) throw Error("Need file input")
+            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
             // Get the length of the array
             print("Enter length of array: ")
@@ -62,6 +63,8 @@ class ArrayController {
                 }
             } catch (error: EmulatorHasReturnedOSException) {
                 println(view.getCompletedOutput())
+            } catch (error: Exception) {
+                println(error.message)
             }
         }
     }

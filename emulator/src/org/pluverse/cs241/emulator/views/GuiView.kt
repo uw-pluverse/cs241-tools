@@ -30,7 +30,6 @@ import com.googlecode.lanterna.gui2.Label
 import com.googlecode.lanterna.gui2.LinearLayout
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI
 import com.googlecode.lanterna.gui2.Panel
-import com.googlecode.lanterna.gui2.TextBox
 import com.googlecode.lanterna.gui2.Window
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI
 import com.googlecode.lanterna.gui2.WindowListenerAdapter
@@ -49,7 +48,6 @@ import org.pluverse.cs241.emulator.views.lanterna.DataActionListBox
 import org.pluverse.cs241.emulator.views.lanterna.HIGHLIGHT_CUSTOM_THEME
 import org.pluverse.cs241.emulator.views.lanterna.InstructionsListItemRenderer
 import org.pluverse.cs241.emulator.views.lanterna.CommandLine
-import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
