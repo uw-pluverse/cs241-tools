@@ -20,6 +20,7 @@ import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 
 /**
@@ -39,7 +40,7 @@ class StdinController {
          */
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty()) throw Error("Need file input")
+            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
             val view = CliView()
             val emulator = CpuEmulator(view, Path(args[0]).readBytes(), 0, 0)
@@ -52,6 +53,8 @@ class StdinController {
                 }
             } catch (error: EmulatorHasReturnedOSException) {
                 println(view.getCompletedOutput())
+            } catch (error: Exception) {
+                println(error.message)
             }
         }
     }

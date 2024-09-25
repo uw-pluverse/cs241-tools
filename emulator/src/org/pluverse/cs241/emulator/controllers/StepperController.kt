@@ -20,7 +20,10 @@ import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import org.pluverse.cs241.emulator.views.GuiView
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.readBytes
 
 class StepperControllerTest {
@@ -33,7 +36,7 @@ class StepperControllerTest {
          */
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty()) throw Error("Need file input")
+            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
             // Get the two integer inputs
             print("Enter value for register 1: ")
@@ -70,7 +73,7 @@ class StepperController {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            if (args.isEmpty()) throw Error("Need file input")
+            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
             // Get the two integer inputs
             print("Enter value for register 1: ")
@@ -94,14 +97,59 @@ class StepperController {
 
             try {
                 view.start(stepOver, stepBack)
-            } catch (e: EmulatorHasReturnedOSException) {
-                e.printStackTrace()
+            } catch (e: Exception) {
+                println(e.message)
             } finally {
                 view.screen.let {
                     try {
                         it.stopScreen()
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        println(e)
+                    }
+                }
+            }
+        }
+    }
+}
+
+class StepperControllerArray {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+
+            // Get the length of the array
+            print("Enter length of array: ")
+            val length = readln().toInt()
+
+            // Get the input values for the array
+            val inputArray = Array<Int>(length) { index ->
+                print("Enter array element $index: ")
+                readln().toIntOrNull() ?: 0
+            }
+            val view = GuiView()
+            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
+
+            val stepOver: () -> Unit = {
+                if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
+            }
+
+            val stepBack: () -> Unit = {
+                if (emulator.numReverseExecutions() > 0) {
+                    emulator.reverseExecution()
+                }
+            }
+
+            try {
+                view.start(stepOver, stepBack)
+            } catch (e: Exception) {
+                println(e.message)
+            } finally {
+                view.screen.let {
+                    try {
+                        it.stopScreen()
+                    } catch (e: Exception) {
+                        println(e.message)
                     }
                 }
             }

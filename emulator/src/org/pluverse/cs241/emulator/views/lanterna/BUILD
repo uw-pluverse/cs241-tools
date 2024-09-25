@@ -5,6 +5,7 @@ kt_jvm_library(
     srcs = [
         "DataActionListBox.kt",
         "InstructionsListItemRenderer.kt",
+        "CommandLine.kt"
     ],
     visibility = ["//visibility:public"],
     deps = [

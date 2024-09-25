@@ -1,6 +1,6 @@
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 
-kt_jvm_binary(
+java_binary(
     name = "emulator",
     main_class = "org.pluverse.cs241.emulator.MipsEmulatorMain",
     runtime_deps = [":emulator_lib"],

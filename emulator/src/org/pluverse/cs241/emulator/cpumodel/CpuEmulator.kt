@@ -53,7 +53,7 @@ class CpuEmulator {
         this.instructionsCount = mipsInputData.size / 4
 
         this.view = view
-        this.view.injectInitialState(registers, memory, pc, executionStack)
+        this.view.injectInitialState(registers, memory, ::pc, executionStack, ::hasReturnedOS)
 
         // Verify it has a valid number of bytes. Also, we want to ensure that
         // the number of bytes won't overflow the largest address 0xffffffff (unsigned)
