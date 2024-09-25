@@ -6,7 +6,7 @@ Packaged all controllers into a single jar file.
 
 Execute the following to obtain the single jar 
 ```bash
-bazel build emulator/src/org/pluverse/cs241/emulator/emulator_deploy.jar
+bazel build emulator/src/org/pluverse/cs241/emulator:emulator_deploy.jar
 ```
 
 ## Usage
