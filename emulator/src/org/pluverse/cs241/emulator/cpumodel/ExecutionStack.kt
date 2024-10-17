@@ -28,9 +28,9 @@ package org.pluverse.cs241.emulator.cpumodel
  *
  */
 interface ExecutionStack {
-    fun getSize(): Int
-    fun get(i: Int): List<Execution>?
-    fun last(): List<Execution>?
+  fun getSize(): Int
+  fun get(i: Int): List<Execution>?
+  fun last(): List<Execution>?
 }
 
 /**
@@ -55,42 +55,42 @@ interface ExecutionStack {
  */
 class MutableExecutionStack : ExecutionStack {
 
-    private val executionStack: MutableList<MutableList<Execution>> = mutableListOf()
+  private val executionStack: MutableList<MutableList<Execution>> = mutableListOf()
 
-    /**
-     * Add a new instruction to the stack
-     */
-    fun newInstruction() {
-        executionStack.add(mutableListOf())
-    }
+  /**
+   * Add a new instruction to the stack
+   */
+  fun newInstruction() {
+    executionStack.add(mutableListOf())
+  }
 
-    /**
-     * This function adds a new execution to the current instruction.
-     * Perform some assertions to ensure value null iff type is PC.
-     */
-    fun recordExecution(type: Execution.ExecutionType, address: Address, value: Int = 0) {
-        executionStack.last().add(Execution(type, address, value))
-    }
+  /**
+   * This function adds a new execution to the current instruction.
+   * Perform some assertions to ensure value null iff type is PC.
+   */
+  fun recordExecution(type: Execution.ExecutionType, address: Address, value: Int = 0) {
+    executionStack.last().add(Execution(type, address, value))
+  }
 
-    /**
-     * Pop the last instruction's mutations
-     */
-    fun pop(): MutableList<Execution>? {
-        return executionStack.removeLastOrNull()
-    }
+  /**
+   * Pop the last instruction's mutations
+   */
+  fun pop(): MutableList<Execution>? {
+    return executionStack.removeLastOrNull()
+  }
 
-    override fun getSize(): Int = executionStack.size
+  override fun getSize(): Int = executionStack.size
 
-    /**
-     * Get instruction execution at index i. Make it immutable.
-     */
-    override fun get(i: Int): List<Execution>? {
-        return executionStack.getOrNull(i)
-    }
+  /**
+   * Get instruction execution at index i. Make it immutable.
+   */
+  override fun get(i: Int): List<Execution>? {
+    return executionStack.getOrNull(i)
+  }
 
-    override fun last(): List<Execution>? {
-        return executionStack.lastOrNull()
-    }
+  override fun last(): List<Execution>? {
+    return executionStack.lastOrNull()
+  }
 }
 
 /**
@@ -99,5 +99,5 @@ class MutableExecutionStack : ExecutionStack {
  */
 data class Execution(val type: ExecutionType, val address: Address, val value: Int) {
 
-    enum class ExecutionType { REGISTER, MEMORY, PC }
+  enum class ExecutionType { REGISTER, MEMORY, PC }
 }

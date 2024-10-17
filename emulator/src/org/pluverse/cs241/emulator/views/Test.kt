@@ -44,66 +44,68 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class Test {
 
-    class CustomTableCellRenderer : TableCellRenderer<String> {
-        private val selectedRowBackgroundColor = TextColor.ANSI.GREEN
-        private val selectedRowForegroundColor = TextColor.ANSI.WHITE
-        private val defaultBackgroundColor = TextColor.ANSI.BLACK
-        private val defaultForegroundColor = TextColor.ANSI.WHITE
+  class CustomTableCellRenderer : TableCellRenderer<String> {
+    private val selectedRowBackgroundColor = TextColor.ANSI.GREEN
+    private val selectedRowForegroundColor = TextColor.ANSI.WHITE
+    private val defaultBackgroundColor = TextColor.ANSI.BLACK
+    private val defaultForegroundColor = TextColor.ANSI.WHITE
 
-        override fun drawCell(
-            table: Table<String>?,
-            cell: String?,
-            columnIndex: Int,
-            rowIndex: Int,
-            graphics: TextGUIGraphics,
-        ) {
-            if (rowIndex == table?.selectedRow) {
-                graphics.setBackgroundColor(selectedRowBackgroundColor)
-                graphics.setForegroundColor(selectedRowForegroundColor)
-            } else {
-                graphics.setBackgroundColor(defaultBackgroundColor)
-                graphics.setForegroundColor(defaultForegroundColor)
-            }
-            graphics.putString(0, 0, cell)
-        }
-
-        override fun getPreferredSize(p0: Table<String>?, p1: String?, p2: Int, p3: Int): TerminalSize {
-            return (TerminalSize(10, 10))
-        }
+    override fun drawCell(
+      table: Table<String>?,
+      cell: String?,
+      columnIndex: Int,
+      rowIndex: Int,
+      graphics: TextGUIGraphics,
+    ) {
+      if (rowIndex == table?.selectedRow) {
+        graphics.setBackgroundColor(selectedRowBackgroundColor)
+        graphics.setForegroundColor(selectedRowForegroundColor)
+      } else {
+        graphics.setBackgroundColor(defaultBackgroundColor)
+        graphics.setForegroundColor(defaultForegroundColor)
+      }
+      graphics.putString(0, 0, cell)
     }
 
-    companion object {
+    override fun getPreferredSize(p0: Table<String>?, p1: String?, p2: Int, p3: Int): TerminalSize {
+      return (TerminalSize(10, 10))
+    }
+  }
 
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val defaultTerminalFactory = DefaultTerminalFactory()
-            var screen: Screen? = null
+  companion object {
 
-            try {
-                screen = defaultTerminalFactory.createScreen()
-                screen.startScreen()
+    @JvmStatic
+    fun main(args: Array<String>) {
+      val defaultTerminalFactory = DefaultTerminalFactory()
+      var screen: Screen? = null
 
-                val textGUI: WindowBasedTextGUI = MultiWindowTextGUI(screen)
+      try {
+        screen = defaultTerminalFactory.createScreen()
+        screen.startScreen()
 
-                val window = BasicWindow("MIPS Stepper")
-                window.setHints(listOf(Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS))
-                window.theme = SimpleTheme(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLACK)
+        val textGUI: WindowBasedTextGUI = MultiWindowTextGUI(screen)
 
-                var leftSize = screen.terminalSize.columns / 3
-                var rightSize = screen.terminalSize.columns - leftSize
+        val window = BasicWindow("MIPS Stepper")
+        window.setHints(listOf(Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS))
+        window.theme = SimpleTheme(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLACK)
 
-                // Main panel with a BorderLayout
-                val mainPanel = Panel(BorderLayout())
+        var leftSize = screen.terminalSize.columns / 3
+        var rightSize = screen.terminalSize.columns - leftSize
 
-                // Left panel (e.g., status)
-                val leftPanel = Panel(LinearLayout(Direction.VERTICAL))
-                val leftPanelBorder = leftPanel.withBorder(Borders.singleLineReverseBevel("[1]-Instructions"))
-                val instructionList = CheckBoxList<String>()
+        // Main panel with a BorderLayout
+        val mainPanel = Panel(BorderLayout())
+
+        // Left panel (e.g., status)
+        val leftPanel = Panel(LinearLayout(Direction.VERTICAL))
+        val leftPanelBorder = leftPanel.withBorder(
+          Borders.singleLineReverseBevel("[1]-Instructions"),
+        )
+        val instructionList = CheckBoxList<String>()
 //                    instructionList.setListItemRenderer() = Definition()
-                repeat(10) {
-                    instructionList.addItem("LW $1, 0($2)")
-                    instructionList.addItem("LW $3, 0($4)")
-                }
+        repeat(10) {
+          instructionList.addItem("LW $1, 0($2)")
+          instructionList.addItem("LW $3, 0($4)")
+        }
 
 //                    val instructionList = Table<String>("")
 //                    instructionList.setSelectAction {
@@ -119,77 +121,96 @@ class Test {
 //                        instructionList.tableModel.addRow("LW $3, 0($4)")
 //                    }
 
-                leftPanel.addComponent(instructionList)
+        leftPanel.addComponent(instructionList)
 
-                // Right panel with a split layout
-                val rightPanel = Panel(BorderLayout())
+        // Right panel with a split layout
+        val rightPanel = Panel(BorderLayout())
 
-                // Top right panel (e.g., branches)
-                val topRightPanel = Panel(LinearLayout(Direction.HORIZONTAL))
+        // Top right panel (e.g., branches)
+        val topRightPanel = Panel(LinearLayout(Direction.HORIZONTAL))
 
-                // Bottom right panel (e.g., commit log)
-                val bottomRightPanel = Panel(LinearLayout(Direction.VERTICAL))
-                bottomRightPanel.addComponent(
-                    Label("Commit Log").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
-                )
-                bottomRightPanel.addComponent(
-                    Label("Fix bug #123").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
-                )
-                bottomRightPanel.addComponent(
-                    Label("Add new feature").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.RED),
-                )
+        // Bottom right panel (e.g., commit log)
+        val bottomRightPanel = Panel(LinearLayout(Direction.VERTICAL))
+        bottomRightPanel.addComponent(
+          Label(
+            "Commit Log",
+          ).setForegroundColor(
+            TextColor.ANSI.WHITE,
+          ).setBackgroundColor(TextColor.ANSI.RED),
+        )
+        bottomRightPanel.addComponent(
+          Label(
+            "Fix bug #123",
+          ).setForegroundColor(
+            TextColor.ANSI.WHITE,
+          ).setBackgroundColor(TextColor.ANSI.RED),
+        )
+        bottomRightPanel.addComponent(
+          Label(
+            "Add new feature",
+          ).setForegroundColor(
+            TextColor.ANSI.WHITE,
+          ).setBackgroundColor(TextColor.ANSI.RED),
+        )
 
-                // Adding top and bottom right panels to right panel
-                rightPanel.addComponent(topRightPanel.withBorder(Borders.singleLine("[2]-INFO")), BorderLayout.Location.TOP)
-                rightPanel.addComponent(
-                    bottomRightPanel.withBorder(Borders.singleLine("[3]-REG/MEM")),
-                    BorderLayout.Location.CENTER,
-                )
+        // Adding top and bottom right panels to right panel
+        rightPanel.addComponent(
+          topRightPanel.withBorder(Borders.singleLine("[2]-INFO")),
+          BorderLayout.Location.TOP,
+        )
+        rightPanel.addComponent(
+          bottomRightPanel.withBorder(Borders.singleLine("[3]-REG/MEM")),
+          BorderLayout.Location.CENTER,
+        )
 
-                val bottomPanel = Panel(LinearLayout(Direction.HORIZONTAL))
-                bottomPanel.addComponent(
-                    Label("Press 'q' to quit").setForegroundColor(TextColor.ANSI.WHITE).setBackgroundColor(TextColor.ANSI.BLUE),
-                )
+        val bottomPanel = Panel(LinearLayout(Direction.HORIZONTAL))
+        bottomPanel.addComponent(
+          Label(
+            "Press 'q' to quit",
+          ).setForegroundColor(
+            TextColor.ANSI.WHITE,
+          ).setBackgroundColor(TextColor.ANSI.BLUE),
+        )
 
-                val topPanel = Panel(BorderLayout())
+        val topPanel = Panel(BorderLayout())
 
-                // Adding left and right panels to main panel
-                topPanel.addComponent(leftPanelBorder, BorderLayout.Location.LEFT)
-                topPanel.addComponent(
-                    rightPanel.setLayoutData(
-                        GridLayout.createLayoutData(
-                            GridLayout.Alignment.FILL,
-                            GridLayout.Alignment.FILL,
-                            true,
-                            true,
-                        ),
-                    ),
-                )
+        // Adding left and right panels to main panel
+        topPanel.addComponent(leftPanelBorder, BorderLayout.Location.LEFT)
+        topPanel.addComponent(
+          rightPanel.setLayoutData(
+            GridLayout.createLayoutData(
+              GridLayout.Alignment.FILL,
+              GridLayout.Alignment.FILL,
+              true,
+              true,
+            ),
+          ),
+        )
 
-                mainPanel.addComponent(topPanel, BorderLayout.Location.CENTER)
-                mainPanel.addComponent(bottomPanel, BorderLayout.Location.BOTTOM)
+        mainPanel.addComponent(topPanel, BorderLayout.Location.CENTER)
+        mainPanel.addComponent(bottomPanel, BorderLayout.Location.BOTTOM)
 
-                val cmdLine = TextBox(TerminalSize(rightSize, 5), TextBox.Style.MULTI_LINE)
-                topRightPanel.addComponent(cmdLine)
+        val cmdLine = TextBox(TerminalSize(rightSize, 5), TextBox.Style.MULTI_LINE)
+        topRightPanel.addComponent(cmdLine)
 
-                // Setting the main panel to the window
-                window.component = mainPanel
-                window.addWindowListener(object : WindowListenerAdapter() {
-                    override fun onUnhandledInput(
-                        basePane: Window?,
-                        keyStroke: KeyStroke?,
-                        hasBeenHandled: AtomicBoolean?,
-                    ) {
-                        when (keyStroke?.character) {
-                            'q' -> window.close()
-                            '1' -> {
-                                leftPanelBorder.theme = SimpleTheme(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK)
-                                window.focusedInteractable = instructionList
-                            }
+        // Setting the main panel to the window
+        window.component = mainPanel
+        window.addWindowListener(object : WindowListenerAdapter() {
+          override fun onUnhandledInput(
+            basePane: Window?,
+            keyStroke: KeyStroke?,
+            hasBeenHandled: AtomicBoolean?,
+          ) {
+            when (keyStroke?.character) {
+              'q' -> window.close()
+              '1' -> {
+                leftPanelBorder.theme = SimpleTheme(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK)
+                window.focusedInteractable = instructionList
+              }
 
-                            '2' -> {
-                                window.focusedInteractable = cmdLine
-                            }
+              '2' -> {
+                window.focusedInteractable = cmdLine
+              }
 //                                'j' -> {
 //                                    // Move selection down
 //                                    val currentRow = instructionList.selectedRow
@@ -204,32 +225,32 @@ class Test {
 //                                        instructionList.setSelectedRow(currentRow - 1)
 //                                    }
 //                                }
-                        }
-
-                        textGUI.updateScreen()
-                    }
-
-                    override fun onResized(window: Window?, oldSize: TerminalSize?, newSize: TerminalSize?) {
-                        if (newSize != null) {
-                            val newLeftSize = TerminalSize(newSize.columns / 3, newSize.rows)
-                            leftPanel.preferredSize = newLeftSize
-                            instructionList.preferredSize = newLeftSize
-                        }
-                    }
-                })
-
-                textGUI.addWindowAndWait(window)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                screen?.let {
-                    try {
-                        it.stopScreen()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
             }
+
+            textGUI.updateScreen()
+          }
+
+          override fun onResized(window: Window?, oldSize: TerminalSize?, newSize: TerminalSize?) {
+            if (newSize != null) {
+              val newLeftSize = TerminalSize(newSize.columns / 3, newSize.rows)
+              leftPanel.preferredSize = newLeftSize
+              instructionList.preferredSize = newLeftSize
+            }
+          }
+        })
+
+        textGUI.addWindowAndWait(window)
+      } catch (e: IOException) {
+        e.printStackTrace()
+      } finally {
+        screen?.let {
+          try {
+            it.stopScreen()
+          } catch (e: IOException) {
+            e.printStackTrace()
+          }
         }
+      }
     }
+  }
 }

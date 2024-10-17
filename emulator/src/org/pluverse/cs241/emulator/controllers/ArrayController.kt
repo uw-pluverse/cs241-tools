@@ -32,40 +32,40 @@ import kotlin.io.path.readBytes
 
 class ArrayController {
 
-    companion object {
+  companion object {
 
-        /**
-         * @params args: contains the file input path
-         *
-         */
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+    /**
+     * @params args: contains the file input path
+     *
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+      if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
-            // Get the length of the array
-            print("Enter length of array: ")
-            val length = readln().toInt()
+      // Get the length of the array
+      print("Enter length of array: ")
+      val length = readln().toInt()
 
-            // Get the input values for the array
-            val inputArray = Array<Int>(length) { index ->
-                print("Enter array element $index: ")
-                readln().toIntOrNull() ?: 0
-            }
+      // Get the input values for the array
+      val inputArray = Array<Int>(length) { index ->
+        print("Enter array element $index: ")
+        readln().toIntOrNull() ?: 0
+      }
 
-            val view = CliView()
-            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
+      val view = CliView()
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
 
-            println("Running MIPS program.")
+      println("Running MIPS program.")
 
-            try {
-                while (true) {
-                    emulator.runFetchExecuteLoop()
-                }
-            } catch (error: EmulatorHasReturnedOSException) {
-                println(view.getCompletedOutput())
-            } catch (error: Exception) {
-                println(error.message)
-            }
+      try {
+        while (true) {
+          emulator.runFetchExecuteLoop()
         }
+      } catch (error: EmulatorHasReturnedOSException) {
+        println(view.getCompletedOutput())
+      } catch (error: Exception) {
+        println(error.message)
+      }
     }
+  }
 }

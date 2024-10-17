@@ -26,35 +26,35 @@ import java.io.PrintStream
 @RunWith(JUnit4::class)
 class VersionTest {
 
-    @Test
-    fun test() {
-        assertThat(Version.MAJOR_VERSION).isNotEmpty()
-        Integer.parseInt(Version.MAJOR_VERSION)
+  @Test
+  fun test() {
+    assertThat(Version.MAJOR_VERSION).isNotEmpty()
+    Integer.parseInt(Version.MAJOR_VERSION)
 
-        assertThat(Version.MINOR_VERSION).isNotEmpty()
-        Integer.parseInt(Version.MINOR_VERSION)
+    assertThat(Version.MINOR_VERSION).isNotEmpty()
+    Integer.parseInt(Version.MINOR_VERSION)
 
-        assertThat(Version.STATUS.lowercase()).isAnyOf("clean", "modified")
+    assertThat(Version.STATUS.lowercase()).isAnyOf("clean", "modified")
 
-        assertThat(Version.BUILD_TIME).isNotEmpty()
+    assertThat(Version.BUILD_TIME).isNotEmpty()
+  }
+
+  @Test
+  fun testPrint() {
+    val bos = ByteArrayOutputStream()
+    PrintStream(
+      bos,
+      true, // autoFlush
+      Charsets.UTF_8.name(),
+    ).use {
+      VersionHelper.printVersionInfo("perses", it)
     }
-
-    @Test
-    fun testPrint() {
-        val bos = ByteArrayOutputStream()
-        PrintStream(
-            bos,
-            true, // autoFlush
-            Charsets.UTF_8.name(),
-        ).use {
-            VersionHelper.printVersionInfo("perses", it)
-        }
-        val string = bos.toString(Charsets.UTF_8.name())
-        assertThat(string).startsWith("perses")
-        if (string.contains("Git Version")) {
-            assertThat(string).contains("Git Branch")
-            assertThat(string).contains("Git Status")
-        }
-        assertThat(string).contains("Built on")
+    val string = bos.toString(Charsets.UTF_8.name())
+    assertThat(string).startsWith("perses")
+    if (string.contains("Git Version")) {
+      assertThat(string).contains("Git Branch")
+      assertThat(string).contains("Git Status")
     }
+    assertThat(string).contains("Built on")
+  }
 }

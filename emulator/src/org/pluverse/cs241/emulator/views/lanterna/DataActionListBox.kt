@@ -35,134 +35,154 @@ import org.pluverse.cs241.emulator.cpumodel.MemoryData
  * I.e., M[3] or <Register> etc.
  */
 data class DataActionItem(
-    private val data: MemoryData,
-    var action: Runnable,
-    var displayMode: DisplayMode = DisplayMode.HEX,
+  private val data: MemoryData,
+  var action: Runnable,
+  var displayMode: DisplayMode = DisplayMode.HEX,
 ) {
 
-    val prefixTag: String = data.getPrefixTag()
+  val prefixTag: String = data.getPrefixTag()
 
-    companion object {
-        enum class DisplayMode { SIGNED_DECIMAL, HEX }
-    }
+  companion object {
+    enum class DisplayMode { SIGNED_DECIMAL, HEX }
+  }
 
-    fun toggleDisplayMode() {
-        displayMode = if (displayMode == DisplayMode.HEX) DisplayMode.SIGNED_DECIMAL else DisplayMode.HEX
+  fun toggleDisplayMode() {
+    displayMode = if (displayMode == DisplayMode.HEX) {
+      DisplayMode.SIGNED_DECIMAL
+    } else {
+      DisplayMode.HEX
     }
+  }
 
-    override fun toString(): String {
-        return if (displayMode == DisplayMode.HEX) data.getHex() else data.doubleWord.toString()
-    }
+  override fun toString(): String {
+    return if (displayMode == DisplayMode.HEX) data.getHex() else data.doubleWord.toString()
+  }
 }
 
 /**
  * A GUI component for a scrollable list of DataMemory items. i.e. Register or Ram Memory.
  */
 open class DataActionListBox(
-    preferredSize: TerminalSize? = null,
+  preferredSize: TerminalSize? = null,
 ) : AbstractListBox<DataActionItem, DataActionListBox>(preferredSize) {
 
-    var customRenderer: DataActionListItemRenderer? = null
+  var customRenderer: DataActionListItemRenderer? = null
 
-    override fun createDefaultListItemRenderer(): ListItemRenderer<DataActionItem, DataActionListBox> {
-        return DataActionListItemRenderer()
-    }
+  override fun createDefaultListItemRenderer(): ListItemRenderer<
+    DataActionItem,
+    DataActionListBox,
+    > {
+    return DataActionListItemRenderer()
+  }
 
-    fun setListItemRenderer(highlightText: String): DataActionListBox? {
-        customRenderer = customRenderer ?: DataActionListItemRenderer(highlightText = highlightText)
-        return setListItemRenderer(customRenderer)
-    }
+  fun setListItemRenderer(highlightText: String): DataActionListBox? {
+    customRenderer = customRenderer ?: DataActionListItemRenderer(highlightText = highlightText)
+    return setListItemRenderer(customRenderer)
+  }
 
-    fun addItem(item: MemoryData, action: Runnable): DataActionListBox {
-        return this.addItem(DataActionItem(item, action))
-    }
+  fun addItem(item: MemoryData, action: Runnable): DataActionListBox {
+    return this.addItem(DataActionItem(item, action))
+  }
 
-    override fun getCursorLocation(): TerminalPosition? {
-        return null
-    }
+  override fun getCursorLocation(): TerminalPosition? {
+    return null
+  }
 
-    override fun handleKeyStroke(keyStroke: KeyStroke): Interactable.Result {
-        if (this.isKeyboardActivationStroke(keyStroke)) {
-            this.runSelectedItem()
-            return Interactable.Result.HANDLED
-        } else if (keyStroke.keyType == KeyType.MouseEvent) {
-            val mouseAction = keyStroke as MouseAction
-            val actionType = mouseAction.actionType
-            if (!this.isMouseMove(keyStroke) && actionType != MouseActionType.CLICK_RELEASE && actionType != MouseActionType.SCROLL_UP && actionType != MouseActionType.SCROLL_DOWN) {
-                val existingIndex = this.selectedIndex
-                val newIndex = this.getIndexByMouseAction(mouseAction)
-                if (existingIndex == newIndex && this.isFocused && actionType != MouseActionType.CLICK_DOWN) {
-                    return Interactable.Result.HANDLED
-                } else {
-                    val result = super.handleKeyStroke(keyStroke)
-                    this.runSelectedItem()
-                    return result
-                }
-            } else {
-                return super.handleKeyStroke(keyStroke)
-            }
+  override fun handleKeyStroke(keyStroke: KeyStroke): Interactable.Result {
+    if (this.isKeyboardActivationStroke(keyStroke)) {
+      this.runSelectedItem()
+      return Interactable.Result.HANDLED
+    } else if (keyStroke.keyType == KeyType.MouseEvent) {
+      val mouseAction = keyStroke as MouseAction
+      val actionType = mouseAction.actionType
+      if (!this.isMouseMove(keyStroke) &&
+        actionType != MouseActionType.CLICK_RELEASE &&
+        actionType != MouseActionType.SCROLL_UP &&
+        actionType != MouseActionType.SCROLL_DOWN
+      ) {
+        val existingIndex = this.selectedIndex
+        val newIndex = this.getIndexByMouseAction(mouseAction)
+        if (existingIndex == newIndex &&
+          this.isFocused && actionType != MouseActionType.CLICK_DOWN
+        ) {
+          return Interactable.Result.HANDLED
         } else {
-            val result = super.handleKeyStroke(keyStroke)
-            return result
+          val result = super.handleKeyStroke(keyStroke)
+          this.runSelectedItem()
+          return result
         }
+      } else {
+        return super.handleKeyStroke(keyStroke)
+      }
+    } else {
+      val result = super.handleKeyStroke(keyStroke)
+      return result
     }
+  }
 
-    private fun runSelectedItem() {
-        this.selectedItem?.toggleDisplayMode()
-    }
+  private fun runSelectedItem() {
+    this.selectedItem?.toggleDisplayMode()
+  }
 }
 
 class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: String = "") :
-    AbstractListBox.ListItemRenderer<DataActionItem, DataActionListBox>() {
+  AbstractListBox.ListItemRenderer<DataActionItem, DataActionListBox>() {
 
-    override fun drawItem(
-        graphics: TextGUIGraphics,
-        listBox: DataActionListBox,
-        index: Int,
-        item: DataActionItem,
-        selected: Boolean,
-        focused: Boolean,
-    ) {
-        val isHighlight = highlight == index
+  override fun drawItem(
+    graphics: TextGUIGraphics,
+    listBox: DataActionListBox,
+    index: Int,
+    item: DataActionItem,
+    selected: Boolean,
+    focused: Boolean,
+  ) {
+    val isHighlight = highlight == index
 
-        // Get the styles for the items
-        val themeDefinition = listBox.theme.getDefinition(AbstractListBox::class.java)
-        val itemStyle = DefaultMutableThemeStyle(
-            if (selected && focused) {
-                themeDefinition.selected
-            } else {
-                themeDefinition.normal
-            },
-        )
-        val tagStyle = DefaultMutableThemeStyle(itemStyle).setForeground(TextColor.Factory.fromString("#E67E22"))
-        val highlightStyle = DefaultMutableThemeStyle(itemStyle).setForeground(TextColor.ANSI.GREEN_BRIGHT)
+    // Get the styles for the items
+    val themeDefinition = listBox.theme.getDefinition(AbstractListBox::class.java)
+    val itemStyle = DefaultMutableThemeStyle(
+      if (selected && focused) {
+        themeDefinition.selected
+      } else {
+        themeDefinition.normal
+      },
+    )
+    val tagStyle = DefaultMutableThemeStyle(
+      itemStyle,
+    ).setForeground(TextColor.Factory.fromString("#E67E22"))
+    val highlightStyle = DefaultMutableThemeStyle(
+      itemStyle,
+    ).setForeground(TextColor.ANSI.GREEN_BRIGHT)
 
-        // Insert text into gap after prefixTag
-        val maxIndex = listBox.size.rows - listBox.renderer.getCursorLocation(listBox).row + listBox.selectedIndex - 1
-        val maxPrefixTag = listBox.getItemAt(maxIndex.coerceAtMost(listBox.itemCount - 1)).prefixTag.length
-        val tag = if (isHighlight) "${item.prefixTag} " else item.prefixTag.padEnd(maxPrefixTag + 1)
+    // Insert text into gap after prefixTag
+    val maxIndex = listBox.size.rows -
+      listBox.renderer.getCursorLocation(listBox).row + listBox.selectedIndex - 1
+    val maxPrefixTag = listBox.getItemAt(
+      maxIndex.coerceAtMost(listBox.itemCount - 1),
+    ).prefixTag.length
+    val tag = if (isHighlight) "${item.prefixTag} " else item.prefixTag.padEnd(maxPrefixTag + 1)
 
-        // Fill the gap with spaces
-        graphics.applyThemeStyle(itemStyle)
-        graphics.fill(' ')
+    // Fill the gap with spaces
+    graphics.applyThemeStyle(itemStyle)
+    graphics.fill(' ')
 
-        // Add Contents
-        var insertCol = 0
+    // Add Contents
+    var insertCol = 0
 
-        if (isHighlight) {
-            // If this row should be highlighted, then we insert the highlight text
-            graphics.applyThemeStyle(highlightStyle)
-            graphics.putString(insertCol, 0, highlightText)
-            insertCol = highlightText.length
-        }
-
-        // Insert the prefix tag
-        graphics.applyThemeStyle(tagStyle)
-        graphics.putString(insertCol, 0, tag)
-
-        // Insert text
-        insertCol += tag.length
-        graphics.applyThemeStyle(if (isHighlight) highlightStyle else itemStyle)
-        graphics.putString(insertCol, 0, "$item")
+    if (isHighlight) {
+      // If this row should be highlighted, then we insert the highlight text
+      graphics.applyThemeStyle(highlightStyle)
+      graphics.putString(insertCol, 0, highlightText)
+      insertCol = highlightText.length
     }
+
+    // Insert the prefix tag
+    graphics.applyThemeStyle(tagStyle)
+    graphics.putString(insertCol, 0, tag)
+
+    // Insert text
+    insertCol += tag.length
+    graphics.applyThemeStyle(if (isHighlight) highlightStyle else itemStyle)
+    graphics.putString(insertCol, 0, "$item")
+  }
 }

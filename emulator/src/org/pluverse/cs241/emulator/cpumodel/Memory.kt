@@ -27,61 +27,61 @@ typealias ReadonlyMemory = Memory<MemoryData>
  */
 abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_MAX_MEM_SIZE) {
 
-    protected abstract val data: List<T> // Initialize it to a size of max size
+  protected abstract val data: List<T> // Initialize it to a size of max size
+
+  /**
+   * getData returns the data at cpu address
+   */
+  fun getData(index: Int): T {
+    if (index > data.size || index < 0) throw OutsideMemoryRangeException()
+    return data[index]
+  }
+
+  fun getData(address: Address): T {
+    return getData(address())
+  }
+
+  /**
+   * [ ] accessors for getting the data. Same as getData(...)
+   */
+  operator fun get(address: Address): T {
+    return getData(address)
+  }
+
+  operator fun get(index: Int): T {
+    return getData(index)
+  }
+
+  fun getSize(): Int {
+    return data.size
+  }
+
+  fun forEach(run: (T) -> Unit) {
+    for (element in data) run(element)
+  }
+
+  operator fun iterator(): Iterator<T> { return data.iterator() }
+
+  /**
+   Default values for the class
+   */
+  companion object {
+    // Assign the static variables
+    const val DEFAULT_MAX_MEM_SIZE = 20000
+    const val DOUBLE_WORD_HEX_LENGTH = 8
+
+    // Correlated classes
 
     /**
-     * getData returns the data at cpu address
+     * Convert an array index to it's equivalent address (index * 4).
      */
-    fun getData(index: Int): T {
-        if (index > data.size || index < 0) throw OutsideMemoryRangeException()
-        return data[index]
+    @JvmStatic
+    fun getAddress(index: Int): Address {
+      if (index < 0 || index.toUInt() > UInt.MAX_VALUE / 4u) throw InvalidAddressException()
+
+      return Address(index.toUInt() * 4u)
     }
-
-    fun getData(address: Address): T {
-        return getData(address())
-    }
-
-    /**
-     * [ ] accessors for getting the data. Same as getData(...)
-     */
-    operator fun get(address: Address): T {
-        return getData(address)
-    }
-
-    operator fun get(index: Int): T {
-        return getData(index)
-    }
-
-    fun getSize(): Int {
-        return data.size
-    }
-
-    fun forEach(run: (T) -> Unit) {
-        for (element in data) run(element)
-    }
-
-    operator fun iterator(): Iterator<T> { return data.iterator() }
-
-    /**
-     Default values for the class
-     */
-    companion object {
-        // Assign the static variables
-        const val DEFAULT_MAX_MEM_SIZE = 20000
-        const val DOUBLE_WORD_HEX_LENGTH = 8
-
-        // Correlated classes
-
-        /**
-         * Convert an array index to it's equivalent address (index * 4).
-         */
-        @JvmStatic
-        fun getAddress(index: Int): Address {
-            if (index < 0 || index.toUInt() > UInt.MAX_VALUE / 4u) throw InvalidAddressException()
-
-            return Address(index.toUInt() * 4u)
-        }
-    }
+  }
 }
 
 /**
@@ -90,15 +90,18 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
  * Note: we are protected from accessing it HI:LO directly because 5 bits are only [0, 31]
  */
 class Registers : Memory<RegisterData>(34) {
-    override val data: MutableList<RegisterData> = MutableList<RegisterData>(maxSize) { index -> RegisterData(index) }
+  override val data: MutableList<RegisterData> =
+    MutableList<RegisterData>(maxSize) { index -> RegisterData(index) }
 
-    companion object {
-        const val HI_INDEX = 32
-        const val LO_INDEX = 33
+  companion object {
+    const val HI_INDEX = 32
+    const val LO_INDEX = 33
 
-        const val STACK_POINTER = 30 // Stack pointer
-        const val JUMP_REGISTER = 31 // By convention to use this register for return also for specific semantics
-    }
+    const val STACK_POINTER = 30 // Stack pointer
+
+    // By convention to use this register for return also for specific semantics
+    const val JUMP_REGISTER = 31
+  }
 }
 
 /**
@@ -107,11 +110,11 @@ class Registers : Memory<RegisterData>(34) {
  */
 class RamMemory : Memory<RamMemoryData> {
 
-    constructor() : super()
-    constructor(maxSize: Int) : super(maxSize)
+  constructor() : super()
+  constructor(maxSize: Int) : super(maxSize)
 
-    // Create an array of size maxSize of Mips Instructions
-    override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize) { index ->
-        RamMemoryData(address = getAddress(index))
-    }
+  // Create an array of size maxSize of Mips Instructions
+  override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize) { index ->
+    RamMemoryData(address = getAddress(index))
+  }
 }

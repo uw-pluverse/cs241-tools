@@ -29,97 +29,117 @@ const val HIGHLIGHT_CUSTOM_THEME = "HIGHLIGHT"
  * with the theme of HIGHLIGHT_CUSTOM_THEME. I.e., highlight the PC Row.
  *
  */
-class InstructionsListItemRenderer<T>(var highlight: Int = 0) : CheckBoxList.CheckBoxListItemRenderer<T>() {
+class InstructionsListItemRenderer<T>(
+  var highlight: Int = 0,
+) : CheckBoxList.CheckBoxListItemRenderer<T>() {
 
-    override fun getLabel(listBox: CheckBoxList<T>?, index: Int, item: T): String {
-        listBox!!
+  override fun getLabel(listBox: CheckBoxList<T>?, index: Int, item: T): String {
+    listBox!!
 
-        // Define constants for the item
-        val itemChecked = listBox.isChecked(index)
-        val isPc = index == highlight
-        val selectedIndex = listBox.selectedIndex
-        val rows = listBox.size.rows
-        val cursorRow = listBox.cursorLocation.row
+    // Define constants for the item
+    val itemChecked = listBox.isChecked(index)
+    val isPc = index == highlight
+    val selectedIndex = listBox.selectedIndex
+    val rows = listBox.size.rows
+    val cursorRow = listBox.cursorLocation.row
 
-        // Define the text for the item
-        val breakpoint = if (itemChecked) '\u23FA' else ' '
-        val pcText = if (isPc) "PC \u2192 " else ""
-        val maxDisplayedAddress = getLargestDisplayedIndex(selectedIndex, cursorRow, rows).toUInt() * 4u
-        val maxAddressText = Address(maxDisplayedAddress).toHexStringSimple()
-        val addressHex = Address(index.toUInt() * 4u).toHexStringSimple()
-        val addressText = if (isPc) addressHex.padEnd(maxAddressText.length) else addressHex.padEnd(maxAddressText.length + 1)
-        val itemText = "${(item ?: "<error>")}"
-
-        return breakpoint + pcText + addressText + itemText
+    // Define the text for the item
+    val breakpoint = if (itemChecked) '\u23FA' else ' '
+    val pcText = if (isPc) "PC \u2192 " else ""
+    val maxDisplayedAddress = getLargestDisplayedIndex(selectedIndex, cursorRow, rows).toUInt() * 4u
+    val maxAddressText = Address(maxDisplayedAddress).toHexStringSimple()
+    val addressHex = Address(index.toUInt() * 4u).toHexStringSimple()
+    val addressText = if (isPc) {
+      addressHex.padEnd(
+        maxAddressText.length,
+      )
+    } else {
+      addressHex.padEnd(maxAddressText.length + 1)
     }
+    val itemText = "${(item ?: "<error>")}"
 
-    override fun getHotSpotPositionOnLine(selectedIndex: Int): Int {
-        return 0
+    return breakpoint + pcText + addressText + itemText
+  }
+
+  override fun getHotSpotPositionOnLine(selectedIndex: Int): Int {
+    return 0
+  }
+
+  override fun drawItem(
+    graphics: TextGUIGraphics,
+    listBox: CheckBoxList<T>,
+    index: Int,
+    item: T,
+    selected: Boolean,
+    focused: Boolean,
+  ) {
+    // Define constants for the item
+    val itemChecked = listBox.isChecked(index)
+    val isPc = index == highlight
+    val selectedIndex = listBox.selectedIndex
+    val rows = listBox.size.rows
+    val cursorRow = listBox.renderer.getCursorLocation(listBox).row
+
+    // Define the text for the item
+    val breakpoint = if (itemChecked) '\u23FA' else ' '
+    val pcText = if (isPc) "PC \u2192 " else ""
+    val maxDisplayedAddress = getLargestDisplayedIndex(selectedIndex, cursorRow, rows).toUInt() * 4u
+    val maxAddressText = Address(maxDisplayedAddress).toHexStringSimple()
+    val addressHex = Address(index.toUInt() * 4u).toHexStringSimple()
+    val addressText = if (isPc) {
+      addressHex.padEnd(
+        addressHex.length + 1,
+      )
+    } else {
+      addressHex.padEnd(maxAddressText.length + 1)
     }
+    val itemText = "${(item ?: "<error>")}"
 
-    override fun drawItem(
-        graphics: TextGUIGraphics,
-        listBox: CheckBoxList<T>,
-        index: Int,
-        item: T,
-        selected: Boolean,
-        focused: Boolean,
-    ) {
-        // Define constants for the item
-        val itemChecked = listBox.isChecked(index)
-        val isPc = index == highlight
-        val selectedIndex = listBox.selectedIndex
-        val rows = listBox.size.rows
-        val cursorRow = listBox.renderer.getCursorLocation(listBox).row
+    // Get the styles for the items
+    val themeDefinition = listBox.theme.getDefinition(CheckBoxList::class.java)
+    val itemStyle = DefaultMutableThemeStyle(
+      if (selected) {
+        themeDefinition.active
+      } else if (focused) {
+        themeDefinition.insensitive
+      } else {
+        themeDefinition.normal
+      },
+    )
 
-        // Define the text for the item
-        val breakpoint = if (itemChecked) '\u23FA' else ' '
-        val pcText = if (isPc) "PC \u2192 " else ""
-        val maxDisplayedAddress = getLargestDisplayedIndex(selectedIndex, cursorRow, rows).toUInt() * 4u
-        val maxAddressText = Address(maxDisplayedAddress).toHexStringSimple()
-        val addressHex = Address(index.toUInt() * 4u).toHexStringSimple()
-        val addressText = if (isPc) addressHex.padEnd(addressHex.length + 1) else addressHex.padEnd(maxAddressText.length + 1)
-        val itemText = "${(item ?: "<error>")}"
+    if (itemChecked) itemStyle.setBackground(TextColor.Factory.fromString("#992222"))
 
-        // Get the styles for the items
-        val themeDefinition = listBox.theme.getDefinition(CheckBoxList::class.java)
-        val itemStyle = DefaultMutableThemeStyle(
-            if (selected) {
-                themeDefinition.active
-            } else if (focused) {
-                themeDefinition.insensitive
-            } else {
-                themeDefinition.normal
-            },
-        )
+    val addressStyle = DefaultMutableThemeStyle(itemStyle)
+      .setForeground(TextColor.Factory.fromString("#E67E22")) // Orange
+    val markerStyle = DefaultMutableThemeStyle(
+      themeDefinition.normal,
+    ).setForeground(TextColor.ANSI.RED_BRIGHT)
+    val pcStyle = DefaultMutableThemeStyle(themeDefinition.getCustom(HIGHLIGHT_CUSTOM_THEME))
+      .setBackground(itemStyle.background)
 
-        if (itemChecked) itemStyle.setBackground(TextColor.Factory.fromString("#992222"))
+    // Draw the checkbox if set
+    graphics.applyThemeStyle(if (itemChecked) markerStyle else itemStyle)
+    graphics.setCharacter(0, 0, breakpoint)
 
-        val addressStyle = DefaultMutableThemeStyle(itemStyle)
-            .setForeground(TextColor.Factory.fromString("#E67E22")) // Orange
-        val markerStyle = DefaultMutableThemeStyle(themeDefinition.normal).setForeground(TextColor.ANSI.RED_BRIGHT)
-        val pcStyle = DefaultMutableThemeStyle(themeDefinition.getCustom(HIGHLIGHT_CUSTOM_THEME))
-            .setBackground(itemStyle.background)
+    // Insert the actual text
+    // Note: We want to space it evenly based on the max length of addressText
+    graphics.applyThemeStyle(if (isPc) pcStyle else itemStyle)
 
-        // Draw the checkbox if set
-        graphics.applyThemeStyle(if (itemChecked) markerStyle else itemStyle)
-        graphics.setCharacter(0, 0, breakpoint)
+    var insertCol = 2 // Insert two after debug breakpoints
+    graphics.putString(insertCol, 0, pcText)
 
-        // Insert the actual text
-        // Note: We want to space it evenly based on the max length of addressText
-        graphics.applyThemeStyle(if (isPc) pcStyle else itemStyle)
+    insertCol += pcText.length
+    graphics.applyThemeStyle(addressStyle)
+    graphics.putString(insertCol, 0, addressText)
 
-        var insertCol = 2 // Insert two after debug breakpoints
-        graphics.putString(insertCol, 0, pcText)
+    insertCol += addressText.length
+    graphics.applyThemeStyle(if (isPc) pcStyle else itemStyle)
+    graphics.putString(insertCol, 0, itemText)
+  }
 
-        insertCol += pcText.length
-        graphics.applyThemeStyle(addressStyle)
-        graphics.putString(insertCol, 0, addressText)
-
-        insertCol += addressText.length
-        graphics.applyThemeStyle(if (isPc) pcStyle else itemStyle)
-        graphics.putString(insertCol, 0, itemText)
-    }
-
-    private fun getLargestDisplayedIndex(index: Int, cursorRow: Int, rows: Int): Int = rows - cursorRow + index - 1
+  private fun getLargestDisplayedIndex(
+    index: Int,
+    cursorRow: Int,
+    rows: Int,
+  ): Int = rows - cursorRow + index - 1
 }

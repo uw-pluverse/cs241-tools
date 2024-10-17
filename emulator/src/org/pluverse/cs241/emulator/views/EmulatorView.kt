@@ -35,37 +35,37 @@ import org.pluverse.cs241.emulator.cpumodel.ReadonlyMemory
  */
 interface EmulatorView {
 
-    /**
-     * Functions to inject dependencies in the CPUModel to initialize states
-     *
-     *      Registers, Memory, Program Counter, Execution Stack, Check Returned OS
-     */
-    fun injectInitialState(
-        registers: ReadonlyMemory,
-        memory: ReadonlyMemory,
-        pc: () -> Address,
-        executionStack: ExecutionStack,
-        checkReturnedOs: () -> Boolean,
-    )
+  /**
+   * Functions to inject dependencies in the CPUModel to initialize states
+   *
+   *      Registers, Memory, Program Counter, Execution Stack, Check Returned OS
+   */
+  fun injectInitialState(
+    registers: ReadonlyMemory,
+    memory: ReadonlyMemory,
+    pc: () -> Address,
+    executionStack: ExecutionStack,
+    checkReturnedOs: () -> Boolean,
+  )
 
-    /**
-     * Updates the registers in the view. Specifies a specific register that changed too
-     */
-    fun notifyRegUpdate(index: Int, oldValue: Int)
+  /**
+   * Updates the registers in the view. Specifies a specific register that changed too
+   */
+  fun notifyRegUpdate(index: Int, oldValue: Int)
 
-    /**
-     * Updates the RAM memory in the view. Specifies a specific memory index that changed too
-     * and notes the old value.
-     *
-     */
-    fun notifyMemUpdate(address: Address, oldValue: Int)
+  /**
+   * Updates the RAM memory in the view. Specifies a specific memory index that changed too
+   * and notes the old value.
+   *
+   */
+  fun notifyMemUpdate(address: Address, oldValue: Int)
 
-    /**
-     * Updates the program counter in the view
-     */
-    fun notifyPcUpdate(pc: Address)
+  /**
+   * Updates the program counter in the view
+   */
+  fun notifyPcUpdate(pc: Address)
 
-    fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>)
+  fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>)
 }
 
 /**
@@ -73,23 +73,23 @@ interface EmulatorView {
  *
  */
 abstract class BasicEmulatorView : EmulatorView {
-    lateinit var registers: ReadonlyMemory
-    lateinit var memory: ReadonlyMemory
-    lateinit var pc: () -> Address
-    lateinit var executionStack: ExecutionStack
-    lateinit var checkReturnedOs: () -> Boolean
+  lateinit var registers: ReadonlyMemory
+  lateinit var memory: ReadonlyMemory
+  lateinit var pc: () -> Address
+  lateinit var executionStack: ExecutionStack
+  lateinit var checkReturnedOs: () -> Boolean
 
-    override fun injectInitialState(
-        registers: ReadonlyMemory,
-        memory: ReadonlyMemory,
-        pc: () -> Address,
-        executionStack: ExecutionStack,
-        checkReturnedOs: () -> Boolean,
-    ) {
-        this.registers = registers
-        this.memory = memory
-        this.pc = pc
-        this.executionStack = executionStack
-        this.checkReturnedOs = checkReturnedOs
-    }
+  override fun injectInitialState(
+    registers: ReadonlyMemory,
+    memory: ReadonlyMemory,
+    pc: () -> Address,
+    executionStack: ExecutionStack,
+    checkReturnedOs: () -> Boolean,
+  ) {
+    this.registers = registers
+    this.memory = memory
+    this.pc = pc
+    this.executionStack = executionStack
+    this.checkReturnedOs = checkReturnedOs
+  }
 }

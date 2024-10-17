@@ -32,30 +32,30 @@ import kotlin.io.path.readBytes
 
 class StdinController {
 
-    companion object {
+  companion object {
 
-        /**
-         * @params args: contains the file input path
-         *
-         */
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+    /**
+     * @params args: contains the file input path
+     *
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+      if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
-            val view = CliView()
-            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), 0, 0)
+      val view = CliView()
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), 0, 0)
 
-            println("Running MIPS program.")
+      println("Running MIPS program.")
 
-            try {
-                while (true) {
-                    emulator.runFetchExecuteLoop()
-                }
-            } catch (error: EmulatorHasReturnedOSException) {
-                println(view.getCompletedOutput())
-            } catch (error: Exception) {
-                println(error.message)
-            }
+      try {
+        while (true) {
+          emulator.runFetchExecuteLoop()
         }
+      } catch (error: EmulatorHasReturnedOSException) {
+        println(view.getCompletedOutput())
+      } catch (error: Exception) {
+        println(error.message)
+      }
     }
+  }
 }

@@ -57,320 +57,347 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class GuiView : BasicEmulatorView() {
 
-    lateinit var stepForward: () -> Unit
-    lateinit var stepBackward: () -> Unit
+  lateinit var stepForward: () -> Unit
+  lateinit var stepBackward: () -> Unit
 
-    private val outputStream = ByteArrayOutputStream() // Used to redirect output
+  private val outputStream = ByteArrayOutputStream() // Used to redirect output
 
-    /**
-     * The main wrapper components for the GUI
-     */
-    val screen: Screen
-    private val textGUI: WindowBasedTextGUI
-    private val window: BasicWindow
+  /**
+   * The main wrapper components for the GUI
+   */
+  val screen: Screen
+  private val textGUI: WindowBasedTextGUI
+  private val window: BasicWindow
 
-    private var leftSideSize: Int
-    private var rightSideSize: Int
+  private var leftSideSize: Int
+  private var rightSideSize: Int
 
-    /**
-     * The components of the GUI
-     */
-    private val mainPanel: Panel = Panel(BorderLayout()) // Main container wrapper
+  /**
+   * The components of the GUI
+   */
+  private val mainPanel: Panel = Panel(BorderLayout()) // Main container wrapper
 
-    private val instructionList: CheckBoxList<MemoryData> // Left side
-    private val instructionListBorder: Border = Borders.singleLineReverseBevel("[1]-Instructions")
-    private val instructionListRenderer = InstructionsListItemRenderer<MemoryData>()
+  private val instructionList: CheckBoxList<MemoryData> // Left side
+  private val instructionListBorder: Border = Borders.singleLineReverseBevel("[1]-Instructions")
+  private val instructionListRenderer = InstructionsListItemRenderer<MemoryData>()
 
-    private val rightPanel: Panel = Panel(BorderLayout()) // Right side - holds rightTop and rightBottom
+  private val rightPanel: Panel = Panel(
+    BorderLayout(),
+  ) // Right side - holds rightTop and rightBottom
 
-    private val cmdLine: CommandLine // Top Right
-    private val cmdLineBorder: Border = Borders.singleLineReverseBevel("[2]-Command Line")
+  private val cmdLine: CommandLine // Top Right
+  private val cmdLineBorder: Border = Borders.singleLineReverseBevel("[2]-Command Line")
 
-    private val rightBottomPanel: Panel = Panel(BorderLayout()) // Bottom right - holds Reg / Stack
+  private val rightBottomPanel: Panel = Panel(BorderLayout()) // Bottom right - holds Reg / Stack
 
-    private val registerTable: DataActionListBox
-    private val registerTableBorder: Border = Borders.singleLineReverseBevel("[3]-Registers")
+  private val registerTable: DataActionListBox
+  private val registerTableBorder: Border = Borders.singleLineReverseBevel("[3]-Registers")
 
-    private val stackTable: DataActionListBox
-    private val stackTableBorder: Border = Borders.singleLineReverseBevel("[4]-Stack")
+  private val stackTable: DataActionListBox
+  private val stackTableBorder: Border = Borders.singleLineReverseBevel("[4]-Stack")
 
-    private val bottomPanel: Panel = Panel(LinearLayout(Direction.HORIZONTAL)) // Bottom - holds command info
+  private val bottomPanel: Panel = Panel(
+    LinearLayout(Direction.HORIZONTAL),
+  ) // Bottom - holds command info
 
-    /**
-     * The themes for the GUI
-     */
-    private val mainTheme = object : SimpleTheme(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLACK) {
-        init {
-            defaultDefinition.setSelected(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLUE)
-            defaultDefinition.setCustom(HIGHLIGHT_CUSTOM_THEME, TextColor.ANSI.GREEN_BRIGHT, TextColor.ANSI.BLACK)
-        }
-    }
-    private val focusPanelTheme = object : SimpleTheme(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK) {
-        init {
-            defaultDefinition.setActive(TextColor.ANSI.WHITE_BRIGHT, TextColor.ANSI.BLACK)
-        }
-    }
-
-    /**
-     * Setup/Initialize the wrapper components. The screen & window.
-     */
+  /**
+   * The themes for the GUI
+   */
+  private val mainTheme = object : SimpleTheme(
+    TextColor.RGB(192, 192, 192),
+    TextColor.ANSI.BLACK,
+  ) {
     init {
-        // Create the terminal screen
-        val defaultTerminalFactory = DefaultTerminalFactory()
-        screen = defaultTerminalFactory.createScreen()
-        screen.startScreen()
-
-        // Create the MultiWindowTextGUI
-        textGUI = MultiWindowTextGUI(screen)
-
-        // Create the main window. Set it to full screen and set the theme
-        window = BasicWindow("MIPS Stepper")
-        window.setHints(listOf(Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS))
-        window.theme = mainTheme
-
-        // Set up a default size for the left and right side
-        leftSideSize = screen.terminalSize.columns / 3
-        rightSideSize = screen.terminalSize.columns - leftSideSize
+      defaultDefinition.setSelected(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLUE)
+      defaultDefinition.setCustom(
+        HIGHLIGHT_CUSTOM_THEME,
+        TextColor.ANSI.GREEN_BRIGHT,
+        TextColor.ANSI.BLACK,
+      )
     }
-
-    /**
-     * Initialize the main components to display the GUI.
-     */
+  }
+  private val focusPanelTheme = object : SimpleTheme(TextColor.ANSI.GREEN, TextColor.ANSI.BLACK) {
     init {
-        instructionList = object : CheckBoxList<MemoryData>() {
-            override fun afterEnterFocus(
-                direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?,
-            ) {
-                instructionListBorder.theme = focusPanelTheme
-            }
+      defaultDefinition.setActive(TextColor.ANSI.WHITE_BRIGHT, TextColor.ANSI.BLACK)
+    }
+  }
 
-            override fun afterLeaveFocus(direction: Interactable.FocusChangeDirection?, nextInFocus: Interactable?) {
-                instructionListBorder.theme = mainTheme
-            }
+  /**
+   * Setup/Initialize the wrapper components. The screen & window.
+   */
+  init {
+    // Create the terminal screen
+    val defaultTerminalFactory = DefaultTerminalFactory()
+    screen = defaultTerminalFactory.createScreen()
+    screen.startScreen()
 
-            init {
-                withBorder(instructionListBorder)
-                theme = mainTheme
-                setListItemRenderer(instructionListRenderer)
-            }
+    // Create the MultiWindowTextGUI
+    textGUI = MultiWindowTextGUI(screen)
+
+    // Create the main window. Set it to full screen and set the theme
+    window = BasicWindow("MIPS Stepper")
+    window.setHints(listOf(Window.Hint.FULL_SCREEN, Window.Hint.NO_DECORATIONS))
+    window.theme = mainTheme
+
+    // Set up a default size for the left and right side
+    leftSideSize = screen.terminalSize.columns / 3
+    rightSideSize = screen.terminalSize.columns - leftSideSize
+  }
+
+  /**
+   * Initialize the main components to display the GUI.
+   */
+  init {
+    instructionList = object : CheckBoxList<MemoryData>() {
+      override fun afterEnterFocus(
+        direction: Interactable.FocusChangeDirection?,
+        previouslyInFocus: Interactable?,
+      ) {
+        instructionListBorder.theme = focusPanelTheme
+      }
+
+      override fun afterLeaveFocus(
+        direction: Interactable.FocusChangeDirection?,
+        nextInFocus: Interactable?,
+      ) {
+        instructionListBorder.theme = mainTheme
+      }
+
+      init {
+        withBorder(instructionListBorder)
+        theme = mainTheme
+        setListItemRenderer(instructionListRenderer)
+      }
+    }
+
+    cmdLine = object : CommandLine(TerminalSize(rightSideSize, 5), outputStream) {
+      override fun afterEnterFocus(
+        direction: Interactable.FocusChangeDirection?,
+        previouslyInFocus: Interactable?,
+      ) {
+        cmdLineBorder.theme = focusPanelTheme
+      }
+
+      override fun afterLeaveFocus(
+        direction: Interactable.FocusChangeDirection?,
+        nextInFocus: Interactable?,
+      ) {
+        cmdLineBorder.theme = mainTheme
+      }
+
+      init {
+        withBorder(cmdLineBorder)
+        theme = mainTheme
+      }
+    }
+
+    registerTable = object : DataActionListBox() {
+      override fun afterEnterFocus(
+        direction: Interactable.FocusChangeDirection?,
+        previouslyInFocus: Interactable?,
+      ) {
+        registerTableBorder.theme = focusPanelTheme
+      }
+
+      override fun afterLeaveFocus(
+        direction: Interactable.FocusChangeDirection?,
+        nextInFocus: Interactable?,
+      ) {
+        registerTableBorder.theme = mainTheme
+      }
+
+      init {
+        withBorder(registerTableBorder)
+        theme = mainTheme
+      }
+    }
+
+    stackTable = object : DataActionListBox() {
+      override fun afterEnterFocus(
+        direction: Interactable.FocusChangeDirection?,
+        previouslyInFocus: Interactable?,
+      ) {
+        stackTableBorder.theme = focusPanelTheme
+      }
+
+      override fun afterLeaveFocus(
+        direction: Interactable.FocusChangeDirection?,
+        nextInFocus: Interactable?,
+      ) {
+        stackTableBorder.theme = mainTheme
+      }
+
+      init {
+        withBorder(stackTableBorder)
+        theme = mainTheme
+        setListItemRenderer(highlightText = "$${Registers.STACK_POINTER} \u2192 ")
+      }
+    }
+
+    bottomPanel.addComponent(
+      Label("Press 'q' to quit, 'r' to run, 'n' to step, 'b' to step back, 'tab' to switch")
+        .setForegroundColor(TextColor.ANSI.RED),
+    )
+
+    setPreferredSizes(screen.terminalSize) // Set the sizes of all components
+  }
+
+  /**
+   * Attach the components to each other
+   */
+  init {
+    rightBottomPanel.addComponent(registerTableBorder, BorderLayout.Location.LEFT)
+    rightBottomPanel.addComponent(stackTableBorder, BorderLayout.Location.CENTER)
+
+    rightPanel.addComponent(cmdLineBorder, BorderLayout.Location.TOP)
+    rightPanel.addComponent(rightBottomPanel, BorderLayout.Location.CENTER)
+
+    mainPanel.addComponent(instructionListBorder, BorderLayout.Location.LEFT)
+    mainPanel.addComponent(rightPanel, BorderLayout.Location.RIGHT)
+    mainPanel.addComponent(bottomPanel, BorderLayout.Location.BOTTOM)
+
+    window.component = mainPanel
+    window.addWindowListener(object : WindowListenerAdapter() {
+      override fun onUnhandledInput(
+        basePane: Window?,
+        keyStroke: KeyStroke?,
+        hasBeenHandled: AtomicBoolean?,
+      ) {
+      }
+
+      override fun onInput(basePane: Window?, keyStroke: KeyStroke?, deliverEvent: AtomicBoolean?) {
+        // Set the scrolls of arrow up and down as page up and down. Also disables next component focus switch.
+        val handleFocusInput: (KeyStroke) -> Unit = lambda@{ _ ->
+          window.focusedInteractable?.handleInput(keyStroke)
+          deliverEvent?.set(false) // Stop default behaviour
         }
 
-        cmdLine = object : CommandLine(TerminalSize(rightSideSize, 5), outputStream) {
-            override fun afterEnterFocus(
-                direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?,
-            ) {
-                cmdLineBorder.theme = focusPanelTheme
-            }
-
-            override fun afterLeaveFocus(direction: Interactable.FocusChangeDirection?, nextInFocus: Interactable?) {
-                cmdLineBorder.theme = mainTheme
-            }
-
-            init {
-                withBorder(cmdLineBorder)
-                theme = mainTheme
-            }
+        when (keyStroke?.keyType) {
+          KeyType.ArrowUp -> handleFocusInput(KeyStroke(KeyType.PageUp))
+          KeyType.ArrowDown -> handleFocusInput(KeyStroke(KeyType.PageDown))
+          else -> {}
         }
 
-        registerTable = object : DataActionListBox() {
-            override fun afterEnterFocus(
-                direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?,
-            ) {
-                registerTableBorder.theme = focusPanelTheme
+        // Handle main commands
+        when (keyStroke?.character) {
+          'q', '1', '2', '3', '4', 'n', 'b', 'r' -> {
+            when (keyStroke.character) {
+              'q' -> window.close()
+              '1' -> window.focusedInteractable = instructionList
+              '2' -> window.focusedInteractable = cmdLine
+              '3' -> window.focusedInteractable = registerTable
+              '4' -> window.focusedInteractable = stackTable
+              'n' -> stepForward()
+              'b' -> stepBackward()
+              'r' -> runUntilBreakpoint()
             }
 
-            override fun afterLeaveFocus(direction: Interactable.FocusChangeDirection?, nextInFocus: Interactable?) {
-                registerTableBorder.theme = mainTheme
-            }
-
-            init {
-                withBorder(registerTableBorder)
-                theme = mainTheme
-            }
+            deliverEvent?.set(false)
+          }
         }
+      }
 
-        stackTable = object : DataActionListBox() {
-            override fun afterEnterFocus(
-                direction: Interactable.FocusChangeDirection?,
-                previouslyInFocus: Interactable?,
-            ) {
-                stackTableBorder.theme = focusPanelTheme
-            }
-
-            override fun afterLeaveFocus(direction: Interactable.FocusChangeDirection?, nextInFocus: Interactable?) {
-                stackTableBorder.theme = mainTheme
-            }
-
-            init {
-                withBorder(stackTableBorder)
-                theme = mainTheme
-                setListItemRenderer(highlightText = "$${Registers.STACK_POINTER} \u2192 ")
-            }
+      override fun onResized(window: Window?, oldSize: TerminalSize?, newSize: TerminalSize?) {
+        if (newSize != null) {
+          setPreferredSizes(newSize)
         }
+      }
+    })
+  }
 
-        bottomPanel.addComponent(
-            Label("Press 'q' to quit, 'r' to run, 'n' to step, 'b' to step back, 'tab' to switch")
-                .setForegroundColor(TextColor.ANSI.RED),
-        )
+  /**
+   * Display and run the GUI
+   */
+  fun start(stepForward: () -> Unit, stepBackward: () -> Unit) {
+    val originalOut = System.out
+    System.setOut(PrintStream(outputStream))
 
-        setPreferredSizes(screen.terminalSize) // Set the sizes of all components
+    try {
+      this.stepForward = stepForward
+      this.stepBackward = stepBackward
+
+      displayDefault()
+      screen.startScreen()
+      textGUI.addWindowAndWait(window)
+    } catch (e: Exception) {
+      throw e
+    } finally {
+      System.setOut(originalOut)
+    }
+  }
+
+  fun runUntilBreakpoint() {
+    stepForward() // Want to take at least one step
+
+    while (!checkReturnedOs() && !instructionList.isChecked(pc().getMemoryIndex())) {
+      stepForward()
+    }
+  }
+
+  /**
+   * Sets all the components of the GUI to the default. Called in INIT and when a display REFRESH
+   * is required.
+   */
+  private fun displayDefault() {
+    registers.forEach { data -> registerTable.addItem(data) {} }
+    memory.forEach { data ->
+      instructionList.addItem(data)
+      stackTable.addItem(data) {}
     }
 
-    /**
-     * Attach the components to each other
-     */
-    init {
-        rightBottomPanel.addComponent(registerTableBorder, BorderLayout.Location.LEFT)
-        rightBottomPanel.addComponent(stackTableBorder, BorderLayout.Location.CENTER)
+    // Set the stack pointer text and move to the stack pointer
+    updateStackPointer()
+  }
 
-        rightPanel.addComponent(cmdLineBorder, BorderLayout.Location.TOP)
-        rightPanel.addComponent(rightBottomPanel, BorderLayout.Location.CENTER)
+  /**
+   * Sets the preferred sizes for all components based on the new size.
+   */
+  private fun setPreferredSizes(newSize: TerminalSize) {
+    leftSideSize = newSize.columns / 3
+    rightSideSize = newSize.columns - leftSideSize
 
-        mainPanel.addComponent(instructionListBorder, BorderLayout.Location.LEFT)
-        mainPanel.addComponent(rightPanel, BorderLayout.Location.RIGHT)
-        mainPanel.addComponent(bottomPanel, BorderLayout.Location.BOTTOM)
+    instructionList.preferredSize = TerminalSize(leftSideSize, newSize.rows)
+    cmdLine.preferredSize = TerminalSize(rightSideSize, 5)
 
-        window.component = mainPanel
-        window.addWindowListener(object : WindowListenerAdapter() {
-            override fun onUnhandledInput(
-                basePane: Window?,
-                keyStroke: KeyStroke?,
-                hasBeenHandled: AtomicBoolean?,
-            ) {
-            }
+    val leftPreferredSize = TerminalSize(leftSideSize, screen.terminalSize.rows)
+    val registerPreferredSize =
+      TerminalSize(rightSideSize / 2 - 1, screen.terminalSize.rows - 5)
+    val stackPreferredSize =
+      TerminalSize(rightSideSize - registerPreferredSize.columns, screen.terminalSize.rows - 5)
 
-            override fun onInput(basePane: Window?, keyStroke: KeyStroke?, deliverEvent: AtomicBoolean?) {
-                // Set the scrolls of arrow up and down as page up and down. Also disables next component focus switch.
-                val handleFocusInput: (KeyStroke) -> Unit = lambda@{ _ ->
-                    window.focusedInteractable?.handleInput(keyStroke)
-                    deliverEvent?.set(false) // Stop default behaviour
-                }
+    instructionList.preferredSize = leftPreferredSize
+    registerTable.preferredSize = registerPreferredSize
+    stackTable.preferredSize = stackPreferredSize
+  }
 
-                when (keyStroke?.keyType) {
-                    KeyType.ArrowUp -> handleFocusInput(KeyStroke(KeyType.PageUp))
-                    KeyType.ArrowDown -> handleFocusInput(KeyStroke(KeyType.PageDown))
-                    else -> {}
-                }
+  /**
+   * Updates the stack pointer in the stack table.
+   */
+  private fun updateStackPointer() {
+    stackTable.selectedIndex = Address(
+      registers[Registers.STACK_POINTER].doubleWord.toUInt(),
+    ).getMemoryIndex()
+    stackTable.customRenderer?.highlight = stackTable.selectedIndex
+  }
 
-                // Handle main commands
-                when (keyStroke?.character) {
-                    'q', '1', '2', '3', '4', 'n', 'b', 'r' -> {
-                        when (keyStroke.character) {
-                            'q' -> window.close()
-                            '1' -> window.focusedInteractable = instructionList
-                            '2' -> window.focusedInteractable = cmdLine
-                            '3' -> window.focusedInteractable = registerTable
-                            '4' -> window.focusedInteractable = stackTable
-                            'n' -> stepForward()
-                            'b' -> stepBackward()
-                            'r' -> runUntilBreakpoint()
-                        }
+  override fun notifyRegUpdate(index: Int, oldValue: Int) {
+    if (index == Registers.STACK_POINTER) updateStackPointer()
+  }
 
-                        deliverEvent?.set(false)
-                    }
-                }
-            }
+  override fun notifyMemUpdate(address: Address, oldValue: Int) {
+  }
 
-            override fun onResized(window: Window?, oldSize: TerminalSize?, newSize: TerminalSize?) {
-                if (newSize != null) {
-                    setPreferredSizes(newSize)
-                }
-            }
-        })
+  override fun notifyPcUpdate(pc: Address) {
+    instructionListRenderer.highlight = pc()
+    instructionList.selectedIndex = pc.getMemoryIndex()
+  }
+
+  override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {
+    if (checkReturnedOs()) {
+      cmdLine.printReturnOs()
+    } else {
+      cmdLine.printChanges(executions, memory, registers)
+      cmdLine.printOutput()
     }
-
-    /**
-     * Display and run the GUI
-     */
-    fun start(stepForward: () -> Unit, stepBackward: () -> Unit) {
-        val originalOut = System.out
-        System.setOut(PrintStream(outputStream))
-
-        try {
-            this.stepForward = stepForward
-            this.stepBackward = stepBackward
-
-            displayDefault()
-            screen.startScreen()
-            textGUI.addWindowAndWait(window)
-        } catch (e: Exception) {
-            throw e
-        } finally {
-            System.setOut(originalOut)
-        }
-    }
-
-    fun runUntilBreakpoint() {
-        stepForward() // Want to take at least one step
-
-        while (!checkReturnedOs() && !instructionList.isChecked(pc().getMemoryIndex())) {
-            stepForward()
-        }
-    }
-
-    /**
-     * Sets all the components of the GUI to the default. Called in INIT and when a display REFRESH
-     * is required.
-     */
-    private fun displayDefault() {
-        registers.forEach { data -> registerTable.addItem(data) {} }
-        memory.forEach { data ->
-            instructionList.addItem(data)
-            stackTable.addItem(data) {}
-        }
-
-        // Set the stack pointer text and move to the stack pointer
-        updateStackPointer()
-    }
-
-    /**
-     * Sets the preferred sizes for all components based on the new size.
-     */
-    private fun setPreferredSizes(newSize: TerminalSize) {
-        leftSideSize = newSize.columns / 3
-        rightSideSize = newSize.columns - leftSideSize
-
-        instructionList.preferredSize = TerminalSize(leftSideSize, newSize.rows)
-        cmdLine.preferredSize = TerminalSize(rightSideSize, 5)
-
-        val leftPreferredSize = TerminalSize(leftSideSize, screen.terminalSize.rows)
-        val registerPreferredSize = TerminalSize(rightSideSize / 2 - 1, screen.terminalSize.rows - 5)
-        val stackPreferredSize = TerminalSize(rightSideSize - registerPreferredSize.columns, screen.terminalSize.rows - 5)
-
-        instructionList.preferredSize = leftPreferredSize
-        registerTable.preferredSize = registerPreferredSize
-        stackTable.preferredSize = stackPreferredSize
-    }
-
-    /**
-     * Updates the stack pointer in the stack table.
-     */
-    private fun updateStackPointer() {
-        stackTable.selectedIndex = Address(registers[Registers.STACK_POINTER].doubleWord.toUInt()).getMemoryIndex()
-        stackTable.customRenderer?.highlight = stackTable.selectedIndex
-    }
-
-    override fun notifyRegUpdate(index: Int, oldValue: Int) {
-        if (index == Registers.STACK_POINTER) updateStackPointer()
-    }
-
-    override fun notifyMemUpdate(address: Address, oldValue: Int) {
-    }
-
-    override fun notifyPcUpdate(pc: Address) {
-        instructionListRenderer.highlight = pc()
-        instructionList.selectedIndex = pc.getMemoryIndex()
-    }
-
-    override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {
-        if (checkReturnedOs()) {
-            cmdLine.printReturnOs()
-        } else {
-            cmdLine.printChanges(executions, memory, registers)
-            cmdLine.printOutput()
-        }
-    }
+  }
 }

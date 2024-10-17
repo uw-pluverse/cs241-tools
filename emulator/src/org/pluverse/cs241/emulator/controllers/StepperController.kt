@@ -25,131 +25,131 @@ import kotlin.io.path.readBytes
 
 class StepperControllerTest {
 
-    companion object {
+  companion object {
 
-        /**
-         * @params args: contains the file input path
-         *
-         */
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+    /**
+     * @params args: contains the file input path
+     *
+     */
+    @JvmStatic
+    fun main(args: Array<String>) {
+      if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
-            // Get the two integer inputs
-            print("Enter value for register 1: ")
-            val int1 = readln().toIntOrNull() ?: 0
+      // Get the two integer inputs
+      print("Enter value for register 1: ")
+      val int1 = readln().toIntOrNull() ?: 0
 
-            print("Enter value for register 2: ")
-            val int2 = readln().toIntOrNull() ?: 0
+      print("Enter value for register 2: ")
+      val int2 = readln().toIntOrNull() ?: 0
 
-            val view = CliView()
-            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
+      val view = CliView()
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
 
-            println("Running MIPS program.")
+      println("Running MIPS program.")
 
-            while (!emulator.hasReturnedOS) {
-                print("Type n, q, or r: ")
-                val input = readln()[0]
+      while (!emulator.hasReturnedOS) {
+        print("Type n, q, or r: ")
+        val input = readln()[0]
 
-                when (input) {
-                    'n' -> emulator.runFetchExecuteLoop()
-                    'r' -> emulator.reverseExecution()
-                    'q' -> break
-                    else -> println("Invalid input")
-                }
-
-                println(view.getCompletedOutput())
-            }
-
-            println(view.getCompletedOutput())
+        when (input) {
+          'n' -> emulator.runFetchExecuteLoop()
+          'r' -> emulator.reverseExecution()
+          'q' -> break
+          else -> println("Invalid input")
         }
+
+        println(view.getCompletedOutput())
+      }
+
+      println(view.getCompletedOutput())
     }
+  }
 }
 
 class StepperController {
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+  companion object {
+    @JvmStatic
+    fun main(args: Array<String>) {
+      if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
-            // Get the two integer inputs
-            print("Enter value for register 1: ")
-            val int1 = readln().toIntOrNull() ?: 0
+      // Get the two integer inputs
+      print("Enter value for register 1: ")
+      val int1 = readln().toIntOrNull() ?: 0
 
-            print("Enter value for register 2: ")
-            val int2 = readln().toIntOrNull() ?: 0
+      print("Enter value for register 2: ")
+      val int2 = readln().toIntOrNull() ?: 0
 
-            val view = GuiView()
-            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
+      val view = GuiView()
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
 
-            val stepOver: () -> Unit = {
-                if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
-            }
+      val stepOver: () -> Unit = {
+        if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
+      }
 
-            val stepBack: () -> Unit = {
-                if (emulator.numReverseExecutions() > 0) {
-                    emulator.reverseExecution()
-                }
-            }
-
-            try {
-                view.start(stepOver, stepBack)
-            } catch (e: Exception) {
-                println(e.message)
-            } finally {
-                view.screen.let {
-                    try {
-                        it.stopScreen()
-                    } catch (e: Exception) {
-                        println(e)
-                    }
-                }
-            }
+      val stepBack: () -> Unit = {
+        if (emulator.numReverseExecutions() > 0) {
+          emulator.reverseExecution()
         }
+      }
+
+      try {
+        view.start(stepOver, stepBack)
+      } catch (e: Exception) {
+        println(e.message)
+      } finally {
+        view.screen.let {
+          try {
+            it.stopScreen()
+          } catch (e: Exception) {
+            println(e)
+          }
+        }
+      }
     }
+  }
 }
 
 class StepperControllerArray {
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
+  companion object {
+    @JvmStatic
+    fun main(args: Array<String>) {
+      if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
-            // Get the length of the array
-            print("Enter length of array: ")
-            val length = readln().toInt()
+      // Get the length of the array
+      print("Enter length of array: ")
+      val length = readln().toInt()
 
-            // Get the input values for the array
-            val inputArray = Array<Int>(length) { index ->
-                print("Enter array element $index: ")
-                readln().toIntOrNull() ?: 0
-            }
-            val view = GuiView()
-            val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
+      // Get the input values for the array
+      val inputArray = Array<Int>(length) { index ->
+        print("Enter array element $index: ")
+        readln().toIntOrNull() ?: 0
+      }
+      val view = GuiView()
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
 
-            val stepOver: () -> Unit = {
-                if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
-            }
+      val stepOver: () -> Unit = {
+        if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
+      }
 
-            val stepBack: () -> Unit = {
-                if (emulator.numReverseExecutions() > 0) {
-                    emulator.reverseExecution()
-                }
-            }
-
-            try {
-                view.start(stepOver, stepBack)
-            } catch (e: Exception) {
-                println(e.message)
-            } finally {
-                view.screen.let {
-                    try {
-                        it.stopScreen()
-                    } catch (e: Exception) {
-                        println(e.message)
-                    }
-                }
-            }
+      val stepBack: () -> Unit = {
+        if (emulator.numReverseExecutions() > 0) {
+          emulator.reverseExecution()
         }
+      }
+
+      try {
+        view.start(stepOver, stepBack)
+      } catch (e: Exception) {
+        println(e.message)
+      } finally {
+        view.screen.let {
+          try {
+            it.stopScreen()
+          } catch (e: Exception) {
+            println(e.message)
+          }
+        }
+      }
     }
+  }
 }
