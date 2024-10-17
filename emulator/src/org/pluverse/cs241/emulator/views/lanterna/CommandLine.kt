@@ -74,8 +74,11 @@ open class CommandLine(
             }
         }
 
-        if (lineCount == 1) text = formattedOutput
-        else addLine(formattedOutput)
+        if (lineCount == 1) {
+            text = formattedOutput
+        } else {
+            addLine(formattedOutput)
+        }
         moveToEnd()
     }
 
@@ -90,15 +93,21 @@ open class CommandLine(
         lastOutput = output
         val formattedOutput = "STDOUT (BELOW):\n$output"
 
-        if (lineCount == 1) text = formattedOutput
-        else addLine(formattedOutput)
+        if (lineCount == 1) {
+            text = formattedOutput
+        } else {
+            addLine(formattedOutput)
+        }
         moveToEnd()
     }
 
     fun printReturnOs() {
         val output = "Returned to OS"
-        if (lineCount == 1) text = output
-        else addLine(output)
+        if (lineCount == 1) {
+            text = output
+        } else {
+            addLine(output)
+        }
         moveToEnd()
     }
 }

@@ -17,11 +17,8 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
-import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import org.pluverse.cs241.emulator.views.GuiView
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes

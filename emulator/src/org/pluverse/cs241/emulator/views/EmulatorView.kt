@@ -45,7 +45,7 @@ interface EmulatorView {
         memory: ReadonlyMemory,
         pc: () -> Address,
         executionStack: ExecutionStack,
-        checkReturnedOs: () -> Boolean
+        checkReturnedOs: () -> Boolean,
     )
 
     /**
@@ -84,7 +84,7 @@ abstract class BasicEmulatorView : EmulatorView {
         memory: ReadonlyMemory,
         pc: () -> Address,
         executionStack: ExecutionStack,
-        checkReturnedOs: () -> Boolean
+        checkReturnedOs: () -> Boolean,
     ) {
         this.registers = registers
         this.memory = memory

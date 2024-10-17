@@ -37,17 +37,17 @@ import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
 import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.Execution
 import org.pluverse.cs241.emulator.cpumodel.MemoryData
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
 import org.pluverse.cs241.emulator.cpumodel.Registers
+import org.pluverse.cs241.emulator.views.lanterna.CommandLine
 import org.pluverse.cs241.emulator.views.lanterna.DataActionListBox
 import org.pluverse.cs241.emulator.views.lanterna.HIGHLIGHT_CUSTOM_THEME
 import org.pluverse.cs241.emulator.views.lanterna.InstructionsListItemRenderer
-import org.pluverse.cs241.emulator.views.lanterna.CommandLine
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -296,7 +296,7 @@ class GuiView : BasicEmulatorView() {
             displayDefault()
             screen.startScreen()
             textGUI.addWindowAndWait(window)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             throw e
         } finally {
             System.setOut(originalOut)
