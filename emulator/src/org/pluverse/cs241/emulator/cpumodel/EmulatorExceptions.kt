@@ -28,7 +28,9 @@ open class MissingByteException : BadMipsFileException(
 open class EmulatorHasReturnedOSException : Throwable(
   "Program returned to OS, finished successfully",
 )
-open class WordWithNoInstructionException : Throwable("Executing a non-instruction is not allowed")
+open class WordWithNoInstructionException(
+  val wordInstruction: WordInstruction,
+) : Throwable("Executing a non-instruction is not allowed $wordInstruction")
 open class ReverseNoExecutionExeception : Throwable("No more instructions to reverse")
 open class NoInputToReadException : Throwable("No input to load into a word")
 open class ArrayOutsideMemoryRangeException : Throwable(

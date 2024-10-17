@@ -132,6 +132,8 @@ class CpuEmulator {
     registers[Registers.STACK_POINTER].update(MAX_ADDRESS.toInt())
   }
 
+  fun getRegisterValue(registerName: Int) = registers[registerName]
+
   /**
    * Functions for executionStack below:
    *

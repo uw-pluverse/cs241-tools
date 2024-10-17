@@ -23,4 +23,7 @@ kt_jvm_library(
         "MipsInstruction.kt",
     ],
     visibility = ["//visibility:public"],
+    deps = [
+        "//:guava",
+    ],
 )

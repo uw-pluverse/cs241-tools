@@ -16,6 +16,8 @@
  */
 package org.pluverse.cs241.emulator.cpumodel
 
+import com.google.common.base.MoreObjects
+
 /**
 An abstract class that provides functionality for an instruction based on the given doubleWord
 
@@ -56,6 +58,10 @@ abstract class MipsInstruction(val doubleWord: Int, expectedOpcode: Int?, expect
     ) {
       throw WrongMipsInstructionException()
     }
+  }
+
+  override fun toString(): String {
+    return MoreObjects.toStringHelper(this).addValue(getSyntax()).toString()
   }
 }
 
@@ -729,6 +735,6 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
     updateMem: (address: Address, value: Int) -> Unit,
     setPC: (init: (currentPC: Address) -> Address) -> Unit,
   ) {
-    throw WordWithNoInstructionException()
+    throw WordWithNoInstructionException(this)
   }
 }

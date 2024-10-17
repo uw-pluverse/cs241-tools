@@ -17,6 +17,22 @@ kt_jvm_library(
 )
 
 kt_jvm_test(
+    name = "CpuEmulatorTest",
+    srcs = [
+        "CpuEmulatorTest.kt",
+    ],
+    data = [
+        "testdata/lis.mips",
+    ],
+    deps = [
+        "//:guava",
+        "//:truth",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
+        "//emulator/src/org/pluverse/cs241/emulator/views:views_lib",
+    ],
+)
+
+kt_jvm_test(
     name = "MipsInstructionTests",
     srcs = [
         "MipsInstructionTests.kt",
