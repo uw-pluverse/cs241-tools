@@ -56,7 +56,7 @@ class MipsEmulatorMain {
 
       parser.parse(args)
 
-      val argsInput = Array<String>(1) { file }
+      val argsInput = Array(1) { file }
 
       if (array) {
         if (debug) {
