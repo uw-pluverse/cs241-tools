@@ -43,7 +43,12 @@ class StepperControllerTest {
       val int2 = readln().toIntOrNull() ?: 0
 
       val view = CliView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
+      val emulator = CpuEmulator.createTwoIntsEmulator(
+        view,
+        Path(args[0]).readBytes(),
+        register1 = int1,
+        register2 = int2,
+      )
 
       System.err.println("Running MIPS program.")
 
@@ -80,7 +85,12 @@ class StepperController {
       val int2 = readln().toIntOrNull() ?: 0
 
       val view = GuiView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
+      val emulator = CpuEmulator.createTwoIntsEmulator(
+        view,
+        Path(args[0]).readBytes(),
+        register1 = int1,
+        register2 = int2,
+      )
 
       val stepOver: () -> Unit = {
         if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
@@ -125,7 +135,11 @@ class StepperControllerArray {
         readln().toIntOrNull() ?: 0
       }
       val view = GuiView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
+      val emulator = CpuEmulator.createArrayEmulator(
+        view,
+        Path(args[0]).readBytes(),
+        inputArray,
+      )
 
       val stepOver: () -> Unit = {
         if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()

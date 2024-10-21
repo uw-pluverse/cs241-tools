@@ -50,7 +50,12 @@ class TwoIntsController {
       val register2 = readln().toIntOrNull() ?: 0
 
       val view = CliView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), register1, register2)
+      val emulator = CpuEmulator.createTwoIntsEmulator(
+        view,
+        Path(args[0]).readBytes(),
+        register1 = register1,
+        register2 = register2,
+      )
 
       System.err.println("Running MIPS program.")
 

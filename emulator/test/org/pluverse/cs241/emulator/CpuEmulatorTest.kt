@@ -47,11 +47,11 @@ class CpuEmulatorTest {
   }
 
   private fun createAndRunEmulator(mipsFile: String): CpuEmulator {
-    val emulator = CpuEmulator(
+    val emulator = CpuEmulator.createTwoIntsEmulator(
       view,
       Paths.get(mipsFile).readBytes(),
-      input1 = 1,
-      input2 = 2,
+      register1 = 1,
+      register2 = 2,
     )
     Assert.assertThrows(EmulatorHasReturnedOSException::class.java) {
       while (true) {

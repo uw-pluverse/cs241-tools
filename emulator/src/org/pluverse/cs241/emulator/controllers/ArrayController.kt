@@ -53,7 +53,7 @@ class ArrayController {
       }
 
       val view = CliView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), inputArray)
+      val emulator = CpuEmulator.createArrayEmulator(view, Path(args[0]).readBytes(), inputArray)
 
       System.err.println("Running MIPS program.")
 

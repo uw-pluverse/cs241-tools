@@ -25,21 +25,23 @@ CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retri
 Note, $30 or index 30 of the register is the stack pointer by convention.
  */
 
-class CpuEmulator {
+class CpuEmulator(
+  private val view: EmulatorView,
+  mipsInputData: ByteArray,
+) {
 
   // Define CONSTANTS
-  private val mipsInputData: ByteArray // The data from input
-  private val instructionsCount: Int // The number of instructions during init
+  // The number of instructions during init
+  private val instructionsCount: Int = mipsInputData.size / 4
 
   // Define VARIABLES
-  private val registers: Registers = Registers()
+  internal val registers: Registers = Registers()
   private val memory: RamMemory = RamMemory(MAX_ARRAY_SIZE)
 
   private var pc = Address(0u) // Start the PC at 0x0
 
   // This is used to track the execution of the program for step reversal
   private val executionStack = MutableExecutionStack()
-  private val view: EmulatorView // Used to notify view.
 
   // This tracks to ensure we haven't returned to OS yet
   val hasReturnedOS: Boolean get() = pc.address.toLong() == RETURN_OS
@@ -50,11 +52,7 @@ class CpuEmulator {
    *      Read the MIPS file and load the instructions into the memory
    *
    */
-  private constructor(view: EmulatorView, mipsInputData: ByteArray) {
-    this.mipsInputData = mipsInputData
-    this.instructionsCount = mipsInputData.size / 4
-
-    this.view = view
+  init {
     this.view.injectInitialState(registers, memory, ::pc, executionStack, ::hasReturnedOS)
 
     // Verify it has a valid number of bytes. Also, we want to ensure that
@@ -77,59 +75,18 @@ class CpuEmulator {
         ),
       )
     }
-  }
 
-  /**
-   * This constructor is used for initializing the emulator with two ints
-   *
-   */
-  constructor(
-    view: EmulatorView,
-    mipsInputData: ByteArray,
-    input1: Int,
-    input2: Int,
-  ) : this(view, mipsInputData) {
+    // Modify $31 to be return address
+    registers[Registers.JUMP_REGISTER].update(RETURN_OS.toInt())
 
-    registers[1].update(input1)
-    registers[2].update(input2)
-  }
-
-  /**
-   * Initialize the object with an array of ints
-   *
-   */
-  constructor(
-    view: EmulatorView,
-    mipsInputData: ByteArray,
-    inputArray: Array<Int>,
-  ) : this(view, mipsInputData) {
-    // Want to load it in after the instructions.
-    // Add a buffer of 2 instructions from the last instruction
-
-    var insertAddress = Address((instructionsCount.toUInt() + 8u) * 4u)
-
-    // Set Register 1 to the array start address
-    // Set Register 2 to the array length
-    registers[1].update(insertAddress.address.toInt())
-    registers[2].update(inputArray.size)
-
-    for (i in inputArray) {
-      if (insertAddress.address > MAX_ADDRESS) throw ArrayOutsideMemoryRangeException()
-
-      memory[insertAddress].update(i)
-      insertAddress += 1 // Increment it. Note it won't overflow because
-    }
+    // Set $30 - stack pointer - to be max_address
+    registers[Registers.STACK_POINTER].update(MAX_ADDRESS.toInt())
   }
 
   /**
    * Set the starting register values
    */
   init {
-    // Modify $31 to be return address
-    registers[Registers.JUMP_REGISTER].update(RETURN_OS.toInt())
-
-    // Set $30 - stack pointer - to be max_address
-    registers[Registers.STACK_POINTER].update(MAX_ADDRESS.toInt())
   }
 
   fun getRegisterValue(registerName: Int) = registers[registerName]
@@ -269,5 +226,43 @@ class CpuEmulator {
 
     const val MAX_ADDRESS: UInt = 0x01000000u // This is the max address and starting stack pointer
     const val MAX_ARRAY_SIZE: Int = 4194304 + 1 // This is MAX_ADDRESS / 4
+
+    fun createTwoIntsEmulator(
+      view: EmulatorView,
+      mipsInputData: ByteArray,
+      register1: Int,
+      register2: Int,
+    ): CpuEmulator {
+      val result = CpuEmulator(view, mipsInputData)
+      result.registers[1].update(register1)
+      result.registers[2].update(register2)
+      return result
+    }
+
+    fun createArrayEmulator(
+      view: EmulatorView,
+      mipsInputData: ByteArray,
+      inputArray: Array<Int>,
+    ): CpuEmulator {
+      val result = CpuEmulator(view, mipsInputData)
+
+      // Want to load it in after the instructions.
+      // Add a buffer of 2 instructions from the last instruction
+
+      var insertAddress = Address((result.instructionsCount.toUInt() + 8u) * 4u)
+
+      // Set Register 1 to the array start address
+      // Set Register 2 to the array length
+      result.registers[1].update(insertAddress.address.toInt())
+      result.registers[2].update(inputArray.size)
+
+      for (i in inputArray) {
+        if (insertAddress.address > MAX_ADDRESS) throw ArrayOutsideMemoryRangeException()
+
+        result.memory[insertAddress].update(i)
+        insertAddress += 1 // Increment it. Note it won't overflow because
+      }
+      return result
+    }
   }
 }

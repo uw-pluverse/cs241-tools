@@ -43,7 +43,12 @@ class StdinController {
       if (args.isEmpty() || !Path(args[0]).exists()) throw Error("Need file input")
 
       val view = CliView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), 0, 0)
+      val emulator = CpuEmulator.createTwoIntsEmulator(
+        view,
+        Path(args[0]).readBytes(),
+        register1 = 0,
+        register2 = 0,
+      )
 
       System.err.println("Running MIPS program.")
 
