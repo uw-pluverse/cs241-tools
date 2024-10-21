@@ -44,13 +44,13 @@ class TwoIntsController {
 
       // Get the two integer inputs
       print("Enter value for register 1: ")
-      val int1 = readln().toIntOrNull() ?: 0
+      val register1 = readln().toIntOrNull() ?: 0
 
       print("Enter value for register 2: ")
-      val int2 = readln().toIntOrNull() ?: 0
+      val register2 = readln().toIntOrNull() ?: 0
 
       val view = CliView()
-      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
+      val emulator = CpuEmulator(view, Path(args[0]).readBytes(), register1, register2)
 
       System.err.println("Running MIPS program.")
 
