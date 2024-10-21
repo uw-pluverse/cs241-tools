@@ -17,6 +17,8 @@
 package org.pluverse.cs241.emulator.views
 
 import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.cpumodel.Execution
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
 
@@ -48,5 +50,18 @@ class CliView : BasicEmulatorView() {
     }
 
     return ret.toString()
+  }
+
+  override fun start(emulator: CpuEmulator) {
+    System.err.println("Running MIPS program.")
+    try {
+      while (true) {
+        emulator.runFetchExecuteLoop()
+      }
+    } catch (error: EmulatorHasReturnedOSException) {
+      System.err.println(getCompletedOutput())
+    } catch (error: Exception) {
+      println(error.message)
+    }
   }
 }

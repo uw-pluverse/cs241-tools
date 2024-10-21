@@ -49,18 +49,7 @@ class StdinController {
         register1 = 0,
         register2 = 0,
       )
-
-      System.err.println("Running MIPS program.")
-
-      try {
-        while (true) {
-          emulator.runFetchExecuteLoop()
-        }
-      } catch (error: EmulatorHasReturnedOSException) {
-        System.err.println(view.getCompletedOutput())
-      } catch (error: Exception) {
-        println(error.message)
-      }
+      view.start(emulator)
     }
   }
 }

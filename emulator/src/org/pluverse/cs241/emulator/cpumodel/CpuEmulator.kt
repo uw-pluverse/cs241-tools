@@ -17,7 +17,7 @@
 package org.pluverse.cs241.emulator.cpumodel
 
 import org.pluverse.cs241.emulator.cpumodel.Execution.ExecutionType
-import org.pluverse.cs241.emulator.views.EmulatorView
+import org.pluverse.cs241.emulator.views.IEmulatorListener
 
 /**
 CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retrieves from the memory.
@@ -26,7 +26,7 @@ Note, $30 or index 30 of the register is the stack pointer by convention.
  */
 
 class CpuEmulator(
-  private val view: EmulatorView,
+  private val view: IEmulatorListener,
   mipsInputData: ByteArray,
 ) {
 
@@ -228,7 +228,7 @@ class CpuEmulator(
     const val MAX_ARRAY_SIZE: Int = 4194304 + 1 // This is MAX_ADDRESS / 4
 
     fun createTwoIntsEmulator(
-      view: EmulatorView,
+      view: IEmulatorListener,
       mipsInputData: ByteArray,
       register1: Int,
       register2: Int,
@@ -240,7 +240,7 @@ class CpuEmulator(
     }
 
     fun createArrayEmulator(
-      view: EmulatorView,
+      view: IEmulatorListener,
       mipsInputData: ByteArray,
       inputArray: Array<Int>,
     ): CpuEmulator {

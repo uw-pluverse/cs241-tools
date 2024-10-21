@@ -4,7 +4,7 @@ kt_jvm_library(
     name = "views_lib",
     srcs = [
         "CliView.kt",
-        "EmulatorView.kt",
+        "IEmulatorListener.kt",
         "GuiView.kt",
     ],
     visibility = ["//visibility:public"],

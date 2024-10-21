@@ -17,6 +17,7 @@
 package org.pluverse.cs241.emulator.views
 
 import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.Execution
 import org.pluverse.cs241.emulator.cpumodel.ExecutionStack
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
@@ -33,7 +34,7 @@ import org.pluverse.cs241.emulator.cpumodel.ReadonlyMemory
  *
  *      Functions: loadProgram, runProgram, stepProgram, resetProgram, reverseProgram
  */
-interface EmulatorView {
+interface IEmulatorListener {
 
   /**
    * Functions to inject dependencies in the CPUModel to initialize states
@@ -72,7 +73,7 @@ interface EmulatorView {
  * This class is a simple view which requires the register, memory, and pc
  *
  */
-abstract class BasicEmulatorView : EmulatorView {
+abstract class BasicEmulatorView : IEmulatorListener {
   lateinit var registers: ReadonlyMemory
   lateinit var memory: ReadonlyMemory
   lateinit var pc: () -> Address
@@ -92,4 +93,6 @@ abstract class BasicEmulatorView : EmulatorView {
     this.executionStack = executionStack
     this.checkReturnedOs = checkReturnedOs
   }
+
+  abstract fun start(emulator: CpuEmulator)
 }
