@@ -1,4 +1,5 @@
 load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
+load("//test:test.bzl", "golden_test")
 
 # kt_jvm_test cannot have resources. Have to define this library with resources.
 # {name} has to match the test class name OR define test_class parameter in kt_jvm_test.
@@ -16,22 +17,29 @@ kt_jvm_library(
     ],
 )
 
-EMULATOR_BINARY="//emulator/src/org/pluverse/cs241/emulator:emulator_bin"
+EMULATOR_BINARY = "//emulator/src/org/pluverse/cs241/emulator:emulator"
+
 genrule(
     name = "generate_test_emulator_io",
-    outs = [
-        "emulator_stdout.txt"
-    ],
     srcs = [
         "testdata/io.mips",
     ],
-    tools=[
-      EMULATOR_BINARY
+    outs = [
+        "emulator_stdout.txt",
     ],
     cmd = "$(location %s) " % EMULATOR_BINARY +
-        "$(location testdata/io.mips) " +
-        "<<< \"\"\"hello world\"\"\" > " +
-        "$(location $@)"
+          "$(location testdata/io.mips)" +
+          " -stdin " +
+          "<<< \"\"\"hello world\"\"\" > $@",
+    tools = [
+        EMULATOR_BINARY,
+    ],
+)
+
+golden_test(
+    name = "golden_test_emulator_io",
+    golden_file = "emulator_stdout.golden.txt",
+    test_file = "emulator_stdout.txt",
 )
 
 kt_jvm_test(

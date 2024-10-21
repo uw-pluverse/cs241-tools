@@ -45,7 +45,7 @@ class StepperControllerTest {
       val view = CliView()
       val emulator = CpuEmulator(view, Path(args[0]).readBytes(), int1, int2)
 
-      println("Running MIPS program.")
+      System.err.println("Running MIPS program.")
 
       while (!emulator.hasReturnedOS) {
         print("Type n, q, or r: ")
