@@ -153,17 +153,17 @@ class MipsInstructionTests {
   fun testAddInstructionRegisterUpdates() {
     run {
       val addInstruction = AddInstruction(ADD)
-      assertEquals(0, addInstruction.regS)
-      assertEquals(0, addInstruction.regT)
-      assertEquals(0, addInstruction.regD)
+      assertEquals(0, addInstruction.registerS)
+      assertEquals(0, addInstruction.registerT)
+      assertEquals(0, addInstruction.registerDestination)
       assertEquals(0b00000100000, addInstruction.operand)
       assertEquals(0b000000, addInstruction.opcode)
     }
     run {
       val addInstruction = AddInstruction(modifyInstr(ADD, 1, 2, 3))
-      assertEquals(1, addInstruction.regS)
-      assertEquals(2, addInstruction.regT)
-      assertEquals(3, addInstruction.regD)
+      assertEquals(1, addInstruction.registerS)
+      assertEquals(2, addInstruction.registerT)
+      assertEquals(3, addInstruction.registerDestination)
     }
   }
 
@@ -203,17 +203,17 @@ class MipsInstructionTests {
   fun testSubInstructionRegisterUpdates() {
     run {
       val subInstruction = SubInstruction(SUB)
-      assertEquals(0, subInstruction.regS)
-      assertEquals(0, subInstruction.regT)
-      assertEquals(0, subInstruction.regD)
+      assertEquals(0, subInstruction.registerS)
+      assertEquals(0, subInstruction.registerT)
+      assertEquals(0, subInstruction.registerDestination)
       assertEquals(0b00000100010, subInstruction.operand)
       assertEquals(0b000000, subInstruction.opcode)
     }
     run {
       val subInstruction = SubInstruction(modifyInstr(SUB, 1, 2, 3))
-      assertEquals(1, subInstruction.regS)
-      assertEquals(2, subInstruction.regT)
-      assertEquals(3, subInstruction.regD)
+      assertEquals(1, subInstruction.registerS)
+      assertEquals(2, subInstruction.registerT)
+      assertEquals(3, subInstruction.registerDestination)
     }
   }
 
@@ -236,9 +236,9 @@ class MipsInstructionTests {
 
     run {
       val multInstruction = MultiplyInstruction(MULT)
-      assertEquals(0, multInstruction.regS)
-      assertEquals(0, multInstruction.regT)
-      assertEquals(0, multInstruction.regD)
+      assertEquals(0, multInstruction.registerS)
+      assertEquals(0, multInstruction.registerT)
+      assertEquals(0, multInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011000, multInstruction.operand)
       assertEquals(0b000000, multInstruction.opcode)
     }
@@ -248,16 +248,16 @@ class MipsInstructionTests {
   fun testMultiplyInstructionRegisterUpdates() {
     run {
       val multInstruction = MultiplyInstruction(MULT)
-      assertEquals(0, multInstruction.regS)
-      assertEquals(0, multInstruction.regT)
-      assertEquals(0, multInstruction.regD)
+      assertEquals(0, multInstruction.registerS)
+      assertEquals(0, multInstruction.registerT)
+      assertEquals(0, multInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011000, multInstruction.operand)
       assertEquals(0b000000, multInstruction.opcode)
     }
     run {
       val multInstruction = MultiplyInstruction(modifyInstr(MULT, 1, 2))
-      assertEquals(1, multInstruction.regS)
-      assertEquals(2, multInstruction.regT)
+      assertEquals(1, multInstruction.registerS)
+      assertEquals(2, multInstruction.registerT)
     }
   }
 
@@ -280,9 +280,9 @@ class MipsInstructionTests {
 
     run {
       val multuInstruction = MultiplyUInstruction(MULTU)
-      assertEquals(0, multuInstruction.regS)
-      assertEquals(0, multuInstruction.regT)
-      assertEquals(0, multuInstruction.regD)
+      assertEquals(0, multuInstruction.registerS)
+      assertEquals(0, multuInstruction.registerT)
+      assertEquals(0, multuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011001, multuInstruction.operand)
       assertEquals(0b000000, multuInstruction.opcode)
     }
@@ -292,16 +292,16 @@ class MipsInstructionTests {
   fun testMultiplyUInstructionRegisterUpdates() {
     run {
       val multuInstruction = MultiplyUInstruction(MULTU)
-      assertEquals(0, multuInstruction.regS)
-      assertEquals(0, multuInstruction.regT)
-      assertEquals(0, multuInstruction.regD)
+      assertEquals(0, multuInstruction.registerS)
+      assertEquals(0, multuInstruction.registerT)
+      assertEquals(0, multuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011001, multuInstruction.operand)
       assertEquals(0b000000, multuInstruction.opcode)
     }
     run {
       val multuInstruction = MultiplyUInstruction(modifyInstr(MULTU, 1, 2))
-      assertEquals(1, multuInstruction.regS)
-      assertEquals(2, multuInstruction.regT)
+      assertEquals(1, multuInstruction.registerS)
+      assertEquals(2, multuInstruction.registerT)
     }
   }
 
@@ -324,9 +324,9 @@ class MipsInstructionTests {
 
     run {
       val divInstruction = DivideInstruction(DIV)
-      assertEquals(0, divInstruction.regS)
-      assertEquals(0, divInstruction.regT)
-      assertEquals(0, divInstruction.regD)
+      assertEquals(0, divInstruction.registerS)
+      assertEquals(0, divInstruction.registerT)
+      assertEquals(0, divInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011010, divInstruction.operand)
       assertEquals(0b000000, divInstruction.opcode)
     }
@@ -336,16 +336,16 @@ class MipsInstructionTests {
   fun testDivideInstructionRegisterUpdates() {
     run {
       val divInstruction = DivideInstruction(DIV)
-      assertEquals(0, divInstruction.regS)
-      assertEquals(0, divInstruction.regT)
-      assertEquals(0, divInstruction.regD)
+      assertEquals(0, divInstruction.registerS)
+      assertEquals(0, divInstruction.registerT)
+      assertEquals(0, divInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011010, divInstruction.operand)
       assertEquals(0b000000, divInstruction.opcode)
     }
     run {
       val divInstruction = DivideInstruction(modifyInstr(DIV, 1, 2))
-      assertEquals(1, divInstruction.regS)
-      assertEquals(2, divInstruction.regT)
+      assertEquals(1, divInstruction.registerS)
+      assertEquals(2, divInstruction.registerT)
     }
   }
 
@@ -368,9 +368,9 @@ class MipsInstructionTests {
 
     run {
       val divuInstruction = DivideUInstruction(DIVU)
-      assertEquals(0, divuInstruction.regS)
-      assertEquals(0, divuInstruction.regT)
-      assertEquals(0, divuInstruction.regD)
+      assertEquals(0, divuInstruction.registerS)
+      assertEquals(0, divuInstruction.registerT)
+      assertEquals(0, divuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011011, divuInstruction.operand)
       assertEquals(0b000000, divuInstruction.opcode)
     }
@@ -380,16 +380,16 @@ class MipsInstructionTests {
   fun testDivideUInstructionRegisterUpdates() {
     run {
       val divuInstruction = DivideUInstruction(DIVU)
-      assertEquals(0, divuInstruction.regS)
-      assertEquals(0, divuInstruction.regT)
-      assertEquals(0, divuInstruction.regD)
+      assertEquals(0, divuInstruction.registerS)
+      assertEquals(0, divuInstruction.registerT)
+      assertEquals(0, divuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000011011, divuInstruction.operand)
       assertEquals(0b000000, divuInstruction.opcode)
     }
     run {
       val divuInstruction = DivideUInstruction(modifyInstr(DIVU, 1, 2))
-      assertEquals(1, divuInstruction.regS)
-      assertEquals(2, divuInstruction.regT)
+      assertEquals(1, divuInstruction.registerS)
+      assertEquals(2, divuInstruction.registerT)
     }
   }
 
@@ -412,9 +412,9 @@ class MipsInstructionTests {
 
     run {
       val mfhiInstruction = MoveHighInstruction(MFHI)
-      assertEquals(0, mfhiInstruction.regS)
-      assertEquals(0, mfhiInstruction.regT)
-      assertEquals(0, mfhiInstruction.regD)
+      assertEquals(0, mfhiInstruction.registerS)
+      assertEquals(0, mfhiInstruction.registerT)
+      assertEquals(0, mfhiInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010000, mfhiInstruction.operand)
       assertEquals(0b000000, mfhiInstruction.opcode)
     }
@@ -424,15 +424,15 @@ class MipsInstructionTests {
   fun testMoveHighInstructionRegisterUpdates() {
     run {
       val mfhiInstruction = MoveHighInstruction(MFHI)
-      assertEquals(0, mfhiInstruction.regS)
-      assertEquals(0, mfhiInstruction.regT)
-      assertEquals(0, mfhiInstruction.regD)
+      assertEquals(0, mfhiInstruction.registerS)
+      assertEquals(0, mfhiInstruction.registerT)
+      assertEquals(0, mfhiInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010000, mfhiInstruction.operand)
       assertEquals(0b000000, mfhiInstruction.opcode)
     }
     run {
       val mfhiInstruction = MoveHighInstruction(modifyInstr(MFHI, regD = 5))
-      assertEquals(5, mfhiInstruction.regD)
+      assertEquals(5, mfhiInstruction.registerDestination)
     }
   }
 
@@ -455,9 +455,9 @@ class MipsInstructionTests {
 
     run {
       val mfloInstruction = MoveLowInstruction(MFLO)
-      assertEquals(0, mfloInstruction.regS)
-      assertEquals(0, mfloInstruction.regT)
-      assertEquals(0, mfloInstruction.regD)
+      assertEquals(0, mfloInstruction.registerS)
+      assertEquals(0, mfloInstruction.registerT)
+      assertEquals(0, mfloInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010010, mfloInstruction.operand)
       assertEquals(0b000000, mfloInstruction.opcode)
     }
@@ -467,15 +467,15 @@ class MipsInstructionTests {
   fun testMoveLowInstructionRegisterUpdates() {
     run {
       val mfloInstruction = MoveLowInstruction(MFLO)
-      assertEquals(0, mfloInstruction.regS)
-      assertEquals(0, mfloInstruction.regT)
-      assertEquals(0, mfloInstruction.regD)
+      assertEquals(0, mfloInstruction.registerS)
+      assertEquals(0, mfloInstruction.registerT)
+      assertEquals(0, mfloInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010010, mfloInstruction.operand)
       assertEquals(0b000000, mfloInstruction.opcode)
     }
     run {
       val mfloInstruction = MoveLowInstruction(modifyInstr(MFLO, regD = 5))
-      assertEquals(5, mfloInstruction.regD)
+      assertEquals(5, mfloInstruction.registerDestination)
     }
   }
 
@@ -498,9 +498,9 @@ class MipsInstructionTests {
 
     run {
       val lisInstruction = LisInstruction(LIS)
-      assertEquals(0, lisInstruction.regS)
-      assertEquals(0, lisInstruction.regT)
-      assertEquals(0, lisInstruction.regD)
+      assertEquals(0, lisInstruction.registerS)
+      assertEquals(0, lisInstruction.registerT)
+      assertEquals(0, lisInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010100, lisInstruction.operand)
       assertEquals(0b000000, lisInstruction.opcode)
     }
@@ -510,15 +510,15 @@ class MipsInstructionTests {
   fun testLisInstructionRegisterUpdates() {
     run {
       val lisInstruction = LisInstruction(LIS)
-      assertEquals(0, lisInstruction.regS)
-      assertEquals(0, lisInstruction.regT)
-      assertEquals(0, lisInstruction.regD)
+      assertEquals(0, lisInstruction.registerS)
+      assertEquals(0, lisInstruction.registerT)
+      assertEquals(0, lisInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000010100, lisInstruction.operand)
       assertEquals(0b000000, lisInstruction.opcode)
     }
     run {
       val lisInstruction = LisInstruction(modifyInstr(LIS, regD = 5))
-      assertEquals(5, lisInstruction.regD)
+      assertEquals(5, lisInstruction.registerDestination)
     }
   }
 
@@ -545,9 +545,9 @@ class MipsInstructionTests {
 
     run {
       val sltInstruction = SetLessThanInstruction(SLT)
-      assertEquals(0, sltInstruction.regS)
-      assertEquals(0, sltInstruction.regT)
-      assertEquals(0, sltInstruction.regD)
+      assertEquals(0, sltInstruction.registerS)
+      assertEquals(0, sltInstruction.registerT)
+      assertEquals(0, sltInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000101010, sltInstruction.operand)
       assertEquals(0b000000, sltInstruction.opcode)
     }
@@ -557,17 +557,17 @@ class MipsInstructionTests {
   fun testSetLessThanInstructionRegisterUpdates() {
     run {
       val sltInstruction = SetLessThanInstruction(SLT)
-      assertEquals(0, sltInstruction.regS)
-      assertEquals(0, sltInstruction.regT)
-      assertEquals(0, sltInstruction.regD)
+      assertEquals(0, sltInstruction.registerS)
+      assertEquals(0, sltInstruction.registerT)
+      assertEquals(0, sltInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000101010, sltInstruction.operand)
       assertEquals(0b000000, sltInstruction.opcode)
     }
     run {
       val sltInstruction = SetLessThanInstruction(modifyInstr(SLT, 1, 2, 3))
-      assertEquals(1, sltInstruction.regS)
-      assertEquals(2, sltInstruction.regT)
-      assertEquals(3, sltInstruction.regD)
+      assertEquals(1, sltInstruction.registerS)
+      assertEquals(2, sltInstruction.registerT)
+      assertEquals(3, sltInstruction.registerDestination)
     }
   }
 
@@ -594,9 +594,9 @@ class MipsInstructionTests {
 
     run {
       val sltuInstruction = SetLessThanUInstruction(SLTU)
-      assertEquals(0, sltuInstruction.regS)
-      assertEquals(0, sltuInstruction.regT)
-      assertEquals(0, sltuInstruction.regD)
+      assertEquals(0, sltuInstruction.registerS)
+      assertEquals(0, sltuInstruction.registerT)
+      assertEquals(0, sltuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000101011, sltuInstruction.operand)
       assertEquals(0b000000, sltuInstruction.opcode)
     }
@@ -606,17 +606,17 @@ class MipsInstructionTests {
   fun testSetLessThanUInstructionRegisterUpdates() {
     run {
       val sltuInstruction = SetLessThanUInstruction(SLTU)
-      assertEquals(0, sltuInstruction.regS)
-      assertEquals(0, sltuInstruction.regT)
-      assertEquals(0, sltuInstruction.regD)
+      assertEquals(0, sltuInstruction.registerS)
+      assertEquals(0, sltuInstruction.registerT)
+      assertEquals(0, sltuInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000101011, sltuInstruction.operand)
       assertEquals(0b000000, sltuInstruction.opcode)
     }
     run {
       val sltuInstruction = SetLessThanUInstruction(modifyInstr(SLTU, 1, 2, 3))
-      assertEquals(1, sltuInstruction.regS)
-      assertEquals(2, sltuInstruction.regT)
-      assertEquals(3, sltuInstruction.regD)
+      assertEquals(1, sltuInstruction.registerS)
+      assertEquals(2, sltuInstruction.registerT)
+      assertEquals(3, sltuInstruction.registerDestination)
     }
   }
 
@@ -639,9 +639,9 @@ class MipsInstructionTests {
 
     run {
       val jrInstruction = JumpInstruction(JR)
-      assertEquals(0, jrInstruction.regS)
-      assertEquals(0, jrInstruction.regT)
-      assertEquals(0, jrInstruction.regD)
+      assertEquals(0, jrInstruction.registerS)
+      assertEquals(0, jrInstruction.registerT)
+      assertEquals(0, jrInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000001000, jrInstruction.operand)
       assertEquals(0b000000, jrInstruction.opcode)
     }
@@ -651,15 +651,15 @@ class MipsInstructionTests {
   fun testJumpInstructionRegisterUpdates() {
     run {
       val jrInstruction = JumpInstruction(JR)
-      assertEquals(0, jrInstruction.regS)
-      assertEquals(0, jrInstruction.regT)
-      assertEquals(0, jrInstruction.regD)
+      assertEquals(0, jrInstruction.registerS)
+      assertEquals(0, jrInstruction.registerT)
+      assertEquals(0, jrInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000001000, jrInstruction.operand)
       assertEquals(0b000000, jrInstruction.opcode)
     }
     run {
       val jrInstruction = JumpInstruction(modifyInstr(JR, 1))
-      assertEquals(1, jrInstruction.regS)
+      assertEquals(1, jrInstruction.registerS)
     }
   }
 
@@ -686,9 +686,9 @@ class MipsInstructionTests {
 
     run {
       val jalrInstruction = JumpAndLinkInstruction(JALR)
-      assertEquals(0, jalrInstruction.regS)
-      assertEquals(0, jalrInstruction.regT)
-      assertEquals(0, jalrInstruction.regD)
+      assertEquals(0, jalrInstruction.registerS)
+      assertEquals(0, jalrInstruction.registerT)
+      assertEquals(0, jalrInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000001001, jalrInstruction.operand)
       assertEquals(0b000000, jalrInstruction.opcode)
     }
@@ -698,15 +698,15 @@ class MipsInstructionTests {
   fun testJumpAndLinkInstructionRegisterUpdates() {
     run {
       val jalrInstruction = JumpAndLinkInstruction(JALR)
-      assertEquals(0, jalrInstruction.regS)
-      assertEquals(0, jalrInstruction.regT)
-      assertEquals(0, jalrInstruction.regD)
+      assertEquals(0, jalrInstruction.registerS)
+      assertEquals(0, jalrInstruction.registerT)
+      assertEquals(0, jalrInstruction.registerDestination)
       assertEquals(0b00000000000000000000000000001001, jalrInstruction.operand)
       assertEquals(0b000000, jalrInstruction.opcode)
     }
     run {
       val jalrInstruction = JumpAndLinkInstruction(modifyInstr(JALR, 1))
-      assertEquals(1, jalrInstruction.regS)
+      assertEquals(1, jalrInstruction.registerS)
     }
   }
 
@@ -729,9 +729,9 @@ class MipsInstructionTests {
 
     run {
       val lwInstruction = LoadWordInstruction(LW.toInt())
-      assertEquals(0, lwInstruction.regS)
-      assertEquals(0, lwInstruction.regT)
-      assertEquals(0, lwInstruction.regD)
+      assertEquals(0, lwInstruction.registerS)
+      assertEquals(0, lwInstruction.registerT)
+      assertEquals(0, lwInstruction.registerDestination)
       assertEquals(0b100011, lwInstruction.opcode)
     }
   }
@@ -740,9 +740,9 @@ class MipsInstructionTests {
   fun testLoadInstructionRegisterUpdates() {
     run {
       val lwInstruction = LoadWordInstruction(LW.toInt())
-      assertEquals(0, lwInstruction.regS)
-      assertEquals(0, lwInstruction.regT)
-      assertEquals(0, lwInstruction.regD)
+      assertEquals(0, lwInstruction.registerS)
+      assertEquals(0, lwInstruction.registerT)
+      assertEquals(0, lwInstruction.registerDestination)
       assertEquals(0b100011, lwInstruction.opcode)
     }
     run {
@@ -752,12 +752,12 @@ class MipsInstructionTests {
 
       val lwInstruction2 =
         LoadWordInstruction(modifyInstr(LW.toInt(), 31, imm = -pow(2.0, 15.0).toInt()))
-      assertEquals(31, lwInstruction2.regS)
+      assertEquals(31, lwInstruction2.registerS)
       assertEquals(-pow(2.0, 15.0).toInt(), lwInstruction2.immediate)
 
       val lwInstructionReg = LoadWordInstruction(modifyInstr(LW.toInt(), 1, 2))
-      assertEquals(1, lwInstructionReg.regS)
-      assertEquals(2, lwInstructionReg.regT)
+      assertEquals(1, lwInstructionReg.registerS)
+      assertEquals(2, lwInstructionReg.registerT)
     }
   }
 
@@ -780,9 +780,9 @@ class MipsInstructionTests {
 
     run {
       val swInstruction = StoreWordInstruction(SW.toInt())
-      assertEquals(0, swInstruction.regS)
-      assertEquals(0, swInstruction.regT)
-      assertEquals(0, swInstruction.regD)
+      assertEquals(0, swInstruction.registerS)
+      assertEquals(0, swInstruction.registerT)
+      assertEquals(0, swInstruction.registerDestination)
       assertEquals(0b101011, swInstruction.opcode)
     }
   }
@@ -791,9 +791,9 @@ class MipsInstructionTests {
   fun testSaveInstructionRegisterUpdates() {
     run {
       val swInstruction = StoreWordInstruction(SW.toInt())
-      assertEquals(0, swInstruction.regS)
-      assertEquals(0, swInstruction.regT)
-      assertEquals(0, swInstruction.regD)
+      assertEquals(0, swInstruction.registerS)
+      assertEquals(0, swInstruction.registerT)
+      assertEquals(0, swInstruction.registerDestination)
       assertEquals(0b101011, swInstruction.opcode)
     }
     run {
@@ -803,12 +803,12 @@ class MipsInstructionTests {
 
       val swInstruction2 =
         StoreWordInstruction(modifyInstr(SW.toInt(), 31, imm = -2.0.pow(15.0).toInt()))
-      assertEquals(31, swInstruction2.regS)
+      assertEquals(31, swInstruction2.registerS)
       assertEquals(-2.0.pow(15.0).toInt(), swInstruction2.immediate)
 
       val swInstructionReg = StoreWordInstruction(modifyInstr(SW.toInt(), 1, 2))
-      assertEquals(1, swInstructionReg.regS)
-      assertEquals(2, swInstructionReg.regT)
+      assertEquals(1, swInstructionReg.registerS)
+      assertEquals(2, swInstructionReg.registerT)
     }
   }
 
@@ -836,9 +836,9 @@ class MipsInstructionTests {
 
     run {
       val beqInstruction = BranchEqualInstruction(BEQ)
-      assertEquals(0, beqInstruction.regS)
-      assertEquals(0, beqInstruction.regT)
-      assertEquals(0, beqInstruction.regD)
+      assertEquals(0, beqInstruction.registerS)
+      assertEquals(0, beqInstruction.registerT)
+      assertEquals(0, beqInstruction.registerDestination)
       assertEquals(0b000100, beqInstruction.opcode)
     }
   }
@@ -847,22 +847,22 @@ class MipsInstructionTests {
   fun testBranchEqualInstructionRegisterUpdates() {
     run {
       val beqInstruction = BranchEqualInstruction(BEQ)
-      assertEquals(0, beqInstruction.regS)
-      assertEquals(0, beqInstruction.regT)
-      assertEquals(0, beqInstruction.regD)
+      assertEquals(0, beqInstruction.registerS)
+      assertEquals(0, beqInstruction.registerT)
+      assertEquals(0, beqInstruction.registerDestination)
       assertEquals(0b000100, beqInstruction.opcode)
     }
     run {
       val beqInstruction =
         BranchEqualInstruction(modifyInstr(BEQ, 1, 2, imm = 2.0.pow(15.0).toInt() - 1))
-      assertEquals(1, beqInstruction.regS)
-      assertEquals(2, beqInstruction.regT)
+      assertEquals(1, beqInstruction.registerS)
+      assertEquals(2, beqInstruction.registerT)
       assertEquals(2.0.pow(15.0).toInt() - 1, beqInstruction.immediate)
 
       val beqInstruction2 =
         BranchEqualInstruction(modifyInstr(BEQ, 1, 2, imm = -2.0.pow(15.0).toInt()))
-      assertEquals(1, beqInstruction2.regS)
-      assertEquals(2, beqInstruction2.regT)
+      assertEquals(1, beqInstruction2.registerS)
+      assertEquals(2, beqInstruction2.registerT)
       assertEquals(-2.0.pow(15.0).toInt(), beqInstruction2.immediate)
     }
   }
@@ -891,9 +891,9 @@ class MipsInstructionTests {
 
     run {
       val bneInstruction = BranchNotEqualInstruction(BNE)
-      assertEquals(0, bneInstruction.regS)
-      assertEquals(0, bneInstruction.regT)
-      assertEquals(0, bneInstruction.regD)
+      assertEquals(0, bneInstruction.registerS)
+      assertEquals(0, bneInstruction.registerT)
+      assertEquals(0, bneInstruction.registerDestination)
       assertEquals(0b000101, bneInstruction.opcode)
     }
   }
@@ -902,22 +902,22 @@ class MipsInstructionTests {
   fun testBranchNotEqualInstructionRegisterUpdates() {
     run {
       val bneInstruction = BranchNotEqualInstruction(BNE)
-      assertEquals(0, bneInstruction.regS)
-      assertEquals(0, bneInstruction.regT)
-      assertEquals(0, bneInstruction.regD)
+      assertEquals(0, bneInstruction.registerS)
+      assertEquals(0, bneInstruction.registerT)
+      assertEquals(0, bneInstruction.registerDestination)
       assertEquals(0b000101, bneInstruction.opcode)
     }
     run {
       val bneInstruction =
         BranchNotEqualInstruction(modifyInstr(BNE, 1, 2, imm = 2.0.pow(15.0).toInt() - 1))
-      assertEquals(1, bneInstruction.regS)
-      assertEquals(2, bneInstruction.regT)
+      assertEquals(1, bneInstruction.registerS)
+      assertEquals(2, bneInstruction.registerT)
       assertEquals(2.0.pow(15.0).toInt() - 1, bneInstruction.immediate)
 
       val bneInstruction2 =
         BranchNotEqualInstruction(modifyInstr(BNE, 1, 2, imm = -2.0.pow(15.0).toInt()))
-      assertEquals(1, bneInstruction2.regS)
-      assertEquals(2, bneInstruction2.regT)
+      assertEquals(1, bneInstruction2.registerS)
+      assertEquals(2, bneInstruction2.registerT)
       assertEquals(-2.0.pow(15.0).toInt(), bneInstruction2.immediate)
     }
   }

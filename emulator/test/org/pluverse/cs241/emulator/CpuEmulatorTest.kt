@@ -16,7 +16,7 @@
  */
 package org.pluverse.cs241.emulator
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,9 +34,22 @@ class CpuEmulatorTest {
 
   @Test
   fun testLisInstructions() {
+    val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/lis.mips"
+    val emulator = createAndRunEmulator(mipsFile)
+    assertThat(emulator.getRegisterValue(1).doubleWord).isEqualTo(1)
+  }
+
+  @Test
+  fun testStdinStdout() {
+    val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/io.mips"
+    val emulator = createAndRunEmulator(mipsFile)
+    assertThat(emulator.getRegisterValue(3).doubleWord).isEqualTo(-1)
+  }
+
+  private fun createAndRunEmulator(mipsFile: String): CpuEmulator {
     val emulator = CpuEmulator(
       view,
-      Paths.get("emulator/test/org/pluverse/cs241/emulator/testdata/lis.mips").readBytes(),
+      Paths.get(mipsFile).readBytes(),
       input1 = 1,
       input2 = 2,
     )
@@ -45,6 +58,6 @@ class CpuEmulatorTest {
         emulator.runFetchExecuteLoop()
       }
     }
-    Truth.assertThat(emulator.getRegisterValue(1).doubleWord).isEqualTo(1)
+    return emulator
   }
 }

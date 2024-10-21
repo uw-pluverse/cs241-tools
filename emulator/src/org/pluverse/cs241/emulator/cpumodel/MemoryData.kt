@@ -101,8 +101,8 @@ abstract class EmulatorMemoryData(
 Class to represent a register instruction. Just a straight implementation
  */
 
-class RegisterData(private val regNumber: Int) : EmulatorMemoryData(
-  Address(regNumber.toUInt() * 4u),
+class RegisterData(private val registerName: Int) : EmulatorMemoryData(
+  Address(registerName.toUInt() * 4u),
 ) {
 
   override operator fun invoke(): Int = doubleWord
@@ -114,18 +114,18 @@ class RegisterData(private val regNumber: Int) : EmulatorMemoryData(
     get() = super.doubleWord
     set(value) {
       // Check if it's index 0
-      if (regNumber != 0) super.doubleWord = value
+      if (registerName != 0) super.doubleWord = value
     }
 
   override fun getPrefixTag(): String {
-    if (regNumber == Registers.HI_INDEX) return "\$HI"
-    if (regNumber == Registers.LO_INDEX) return "\$LO"
+    if (registerName == Registers.HI_INDEX) return "\$HI"
+    if (registerName == Registers.LO_INDEX) return "\$LO"
 
-    return "$$regNumber"
+    return "$$registerName"
   }
 
   override fun getDetails(): String {
-    return "<Register $$regNumber>${if (regNumber < 10) " " else ""} : ${getBinary()}"
+    return "<Register $$registerName>${if (registerName < 10) " " else ""} : ${getBinary()}"
   }
 }
 

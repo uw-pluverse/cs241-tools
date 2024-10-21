@@ -22,6 +22,7 @@ kt_jvm_test(
         "CpuEmulatorTest.kt",
     ],
     data = [
+        "testdata/io.mips",
         "testdata/lis.mips",
     ],
     deps = [
