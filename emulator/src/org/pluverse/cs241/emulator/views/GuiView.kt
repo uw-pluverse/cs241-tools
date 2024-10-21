@@ -38,6 +38,7 @@ import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.screen.Screen
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
 import org.pluverse.cs241.emulator.cpumodel.Address
+import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.Execution
 import org.pluverse.cs241.emulator.cpumodel.MemoryData
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
@@ -308,13 +309,17 @@ class GuiView : BasicEmulatorView() {
   /**
    * Display and run the GUI
    */
-  fun start(stepForward: () -> Unit, stepBackward: () -> Unit) {
+  override fun start(emulator: CpuEmulator) {
     val originalOut = System.out
     System.setOut(PrintStream(outputStream))
 
     try {
-      this.stepForward = stepForward
-      this.stepBackward = stepBackward
+      this.stepForward = { if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop() }
+      this.stepBackward = {
+        if (emulator.numReverseExecutions() > 0) {
+          emulator.reverseExecution()
+        }
+      }
 
       displayDefault()
       screen.startScreen()
@@ -323,6 +328,7 @@ class GuiView : BasicEmulatorView() {
       throw e
     } finally {
       System.setOut(originalOut)
+      screen.startScreen()
     }
   }
 

@@ -12,7 +12,7 @@ kt_jvm_library(
     deps = [
         "//:guava",
         "//:truth",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
         "@maven//:junit_junit",
     ],
 )
@@ -67,7 +67,7 @@ kt_jvm_test(
     deps = [
         "//:guava",
         "//:truth",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
         "@maven//:junit_junit",
     ],
 )
@@ -81,7 +81,7 @@ kt_jvm_test(
         ":TestResources",
         "//:guava",
         "//:truth",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
         "@maven//:junit_junit",
     ],
 )
@@ -94,7 +94,7 @@ kt_jvm_test(
     deps = [
         "//:guava",
         "//:truth",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
         "@maven//:junit_junit",
     ],
 )

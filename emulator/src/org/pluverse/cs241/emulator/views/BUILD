@@ -3,14 +3,14 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library"
 kt_jvm_library(
     name = "views_lib",
     srcs = [
+        "BasicEmulatorView.kt",
         "CliView.kt",
-        "IEmulatorListener.kt",
         "GuiView.kt",
     ],
     visibility = ["//visibility:public"],
     deps = [
         "//:lanterna",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
         "//emulator/src/org/pluverse/cs241/emulator/views/lanterna:components",
     ],
 )

@@ -92,29 +92,7 @@ class StepperController {
         register2 = int2,
       )
 
-      val stepOver: () -> Unit = {
-        if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
-      }
-
-      val stepBack: () -> Unit = {
-        if (emulator.numReverseExecutions() > 0) {
-          emulator.reverseExecution()
-        }
-      }
-
-      try {
-        view.start(stepOver, stepBack)
-      } catch (e: Exception) {
-        println(e.message)
-      } finally {
-        view.screen.let {
-          try {
-            it.stopScreen()
-          } catch (e: Exception) {
-            println(e)
-          }
-        }
-      }
+      view.start(emulator)
     }
   }
 }
@@ -140,30 +118,7 @@ class StepperControllerArray {
         Path(args[0]).readBytes(),
         inputArray,
       )
-
-      val stepOver: () -> Unit = {
-        if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop()
-      }
-
-      val stepBack: () -> Unit = {
-        if (emulator.numReverseExecutions() > 0) {
-          emulator.reverseExecution()
-        }
-      }
-
-      try {
-        view.start(stepOver, stepBack)
-      } catch (e: Exception) {
-        println(e.message)
-      } finally {
-        view.screen.let {
-          try {
-            it.stopScreen()
-          } catch (e: Exception) {
-            println(e.message)
-          }
-        }
-      }
+      view.start(emulator)
     }
   }
 }

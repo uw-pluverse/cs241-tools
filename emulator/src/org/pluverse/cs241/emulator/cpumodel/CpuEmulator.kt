@@ -17,7 +17,6 @@
 package org.pluverse.cs241.emulator.cpumodel
 
 import org.pluverse.cs241.emulator.cpumodel.Execution.ExecutionType
-import org.pluverse.cs241.emulator.views.IEmulatorListener
 
 /**
 CpuEmulator (Class) stores the basic registers, pc pointer, and stores and retrieves from the memory.

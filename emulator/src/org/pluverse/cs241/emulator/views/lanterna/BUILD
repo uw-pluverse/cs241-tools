@@ -10,6 +10,6 @@ kt_jvm_library(
     visibility = ["//visibility:public"],
     deps = [
         "//:lanterna",
-        "//emulator/src/org/pluverse/cs241/emulator/cpumodel:cpumodel_lib",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
     ],
 )
