@@ -16,6 +16,24 @@ kt_jvm_library(
     ],
 )
 
+EMULATOR_BINARY="//emulator/src/org/pluverse/cs241/emulator:emulator_bin"
+genrule(
+    name = "generate_test_emulator_io",
+    outs = [
+        "emulator_stdout.txt"
+    ],
+    srcs = [
+        "testdata/io.mips",
+    ],
+    tools=[
+      EMULATOR_BINARY
+    ],
+    cmd = "$(location %s) " % EMULATOR_BINARY +
+        "$(location testdata/io.mips) " +
+        "<<< \"\"\"hello world\"\"\" > " +
+        "$(location $@)"
+)
+
 kt_jvm_test(
     name = "CpuEmulatorTest",
     srcs = [
