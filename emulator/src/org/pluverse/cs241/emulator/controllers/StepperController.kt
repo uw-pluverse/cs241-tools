@@ -91,7 +91,6 @@ class StepperController {
         register1 = int1,
         register2 = int2,
       )
-
       view.start(emulator)
     }
   }
@@ -108,7 +107,7 @@ class StepperControllerArray {
       val length = readln().toInt()
 
       // Get the input values for the array
-      val inputArray = Array<Int>(length) { index ->
+      val inputArray = Array(length) { index ->
         print("Enter array element $index: ")
         readln().toIntOrNull() ?: 0
       }
