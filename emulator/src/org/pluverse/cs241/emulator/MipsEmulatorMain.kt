@@ -16,14 +16,12 @@
  */
 package org.pluverse.cs241.emulator
 
-import kotlinx.cli.ArgParser
-import kotlinx.cli.ArgType
-import kotlinx.cli.default
-import org.pluverse.cs241.emulator.controllers.ArrayController
-import org.pluverse.cs241.emulator.controllers.StdinController
-import org.pluverse.cs241.emulator.controllers.StepperController
-import org.pluverse.cs241.emulator.controllers.StepperControllerArray
-import org.pluverse.cs241.emulator.controllers.TwoIntsController
+import java.nio.file.Files
+import java.nio.file.Paths
+import kotlin.io.path.readBytes
+import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.views.CliView
+import org.pluverse.cs241.emulator.views.GuiView
 
 class MipsEmulatorMain {
 
@@ -35,43 +33,45 @@ class MipsEmulatorMain {
      */
     @JvmStatic
     fun main(args: Array<String>) {
-      /**
-       * Format for parser:
-       *
-       * ./program filename [[OPTIONAL]]: -twoints
-       *
-       */
-
-      val parser = ArgParser("MipsEmulatorMain")
-      val file by parser.argument(ArgType.String, description = "Input file")
-      val array by parser
-        .option(ArgType.Boolean, shortName = "array", description = "Array CLI")
-        .default(false)
-      val stdin by parser
-        .option(ArgType.Boolean, shortName = "stdin", description = "Stdin CLI")
-        .default(false)
-      val debug by parser
-        .option(ArgType.Boolean, shortName = "debug", description = "Debug mode")
-        .default(false)
-
-      parser.parse(args)
-
-      val argsInput = Array(1) { file }
-
-      if (array) {
-        if (debug) {
-          StepperControllerArray.main(
-            argsInput,
-          )
-        } else {
-          ArrayController.main(argsInput)
-        }
-      } else if (stdin) {
-        StdinController.main(argsInput)
-      } else {
-        // Default to twoints
-        if (debug) StepperController.main(argsInput) else TwoIntsController.main(argsInput)
+      val cmdOptions = CommandOptions(args)
+      if (cmdOptions.commandMain.help) {
+        cmdOptions.commander.usage()
+        return
       }
+      val view = if (cmdOptions.commandMain.debugging) {
+        GuiView()
+      } else {
+        CliView()
+      }
+      val emulator = when (cmdOptions.commander.parsedCommand) {
+        CommandOptions.COMMAND_TWOINTS -> {
+          val twoints = cmdOptions.commandTwoInts
+          CpuEmulator.createTwoIntsEmulator(
+            view,
+            mipsInputData = readMipsProgram(twoints.mipsFilePath),
+            register1 = twoints.register1,
+            register2 = twoints.register2
+          )
+        }
+
+        CommandOptions.COMMAND_ARRAY -> {
+          val arrayCommand = cmdOptions.commandArray
+          CpuEmulator.createArrayEmulator(
+            view,
+            mipsInputData = readMipsProgram(arrayCommand.mipsFilePath),
+            arrayCommand.elements
+          )
+        }
+        else -> error(cmdOptions.commander.parsedCommand)
+      }
+      view.start(emulator)
+    }
+
+    fun readMipsProgram(stringPath: String? ):ByteArray {
+      checkNotNull(stringPath) {"No mips program is specified."}
+      val path = Paths.get(stringPath)
+      check(Files.isRegularFile(path)) { "$path is not a regular file" }
+      return path.readBytes()
     }
   }
 }

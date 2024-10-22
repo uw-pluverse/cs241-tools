@@ -17,7 +17,6 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
-import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -47,25 +46,14 @@ class ArrayController {
       val length = readln().toInt()
 
       // Get the input values for the array
-      val inputArray = Array<Int>(length) { index ->
+      val inputArray = Array(length) { index ->
         print("Enter array element $index: ")
         readln().toIntOrNull() ?: 0
       }
 
       val view = CliView()
       val emulator = CpuEmulator.createArrayEmulator(view, Path(args[0]).readBytes(), inputArray)
-
-      System.err.println("Running MIPS program.")
-
-      try {
-        while (true) {
-          emulator.runFetchExecuteLoop()
-        }
-      } catch (error: EmulatorHasReturnedOSException) {
-        System.err.println(view.getCompletedOutput())
-      } catch (error: Exception) {
-        println(error.message)
-      }
+      view.start(emulator)
     }
   }
 }

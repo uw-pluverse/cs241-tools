@@ -17,7 +17,6 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
-import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -56,18 +55,7 @@ class TwoIntsController {
         register1 = register1,
         register2 = register2,
       )
-
-      System.err.println("Running MIPS program.")
-
-      try {
-        while (true) {
-          emulator.runFetchExecuteLoop()
-        }
-      } catch (error: EmulatorHasReturnedOSException) {
-        System.err.println(view.getCompletedOutput())
-      } catch (error: Exception) {
-        println(error.message)
-      }
+      view.start(emulator)
     }
   }
 }

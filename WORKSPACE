@@ -32,7 +32,7 @@ kotlin_lib_version = "1.9.10"
 maven_install(
     name = "maven",
     artifacts = [
-        "com.beust:jcommander:1.82",
+        "org.jcommander:jcommander:2.0",
         "com.fasterxml.jackson.core:jackson-core:%s" % jackson_version,
         "com.fasterxml.jackson.core:jackson-databind:%s" % jackson_version,
         "com.fasterxml.jackson.core:jackson-annotations:%s" % jackson_version,
