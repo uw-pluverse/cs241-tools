@@ -43,12 +43,9 @@ abstract class MipsInstruction(val word32: Int, expectedOpcode: Int?, expectedOp
   val immediate = word32.toShort().toInt()
 
   abstract fun getSyntax(): String // Returns the mips syntax for the operation
+
   abstract fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (address: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) // This will run the instruction and update memory
 
   init {
@@ -63,6 +60,15 @@ abstract class MipsInstruction(val word32: Int, expectedOpcode: Int?, expectedOp
   override fun toString(): String {
     return MoreObjects.toStringHelper(this).addValue(getSyntax()).toString()
   }
+
+  class ExecutionContext(
+    val getReg: (index: Int) -> Int,
+    val getMem: (address: Address) -> Int,
+    val updateReg: (index: Int, value: Int) -> Unit,
+    val updateMem: (address: Address, value: Int) -> Unit,
+    val setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    val stdin: AbstractMipsStdInput,
+  )
 }
 
 /**
@@ -90,15 +96,11 @@ class AddInstruction(doubleWord: Int) : ThreeRegisterInstruction(
 ) {
 
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // $d = $s + $t
-    val computedValue = getReg(registerS) + getReg(registerT)
-    updateReg(registerDestination, computedValue)
+    val computedValue = context.getReg(registerS) + context.getReg(registerT)
+    context.updateReg(registerDestination, computedValue)
   }
 
   companion object {
@@ -115,15 +117,11 @@ class SubInstruction(doubleWord: Int) : ThreeRegisterInstruction(
 ) {
 
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // $d = $s - $t
-    val computedValue = getReg(registerS) - getReg(registerT)
-    updateReg(registerDestination, computedValue)
+    val computedValue = context.getReg(registerS) - context.getReg(registerT)
+    context.updateReg(registerDestination, computedValue)
   }
 
   companion object {
@@ -140,26 +138,22 @@ class SetLessThanInstruction(doubleWord: Int) : ThreeRegisterInstruction(
 ) {
 
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // $d = 1 if $s < $t; 0 otherwise
-    val valS: Int = getReg(registerS)
-    val valT: Int = getReg(registerT)
+    val valS: Int = context.getReg(registerS)
+    val valT: Int = context.getReg(registerT)
 
     val isLessThan = 1 // Value if it's less than
     val isNotLessThan = 0
 
     if (valS < valT) {
-      updateReg(
+      context.updateReg(
         registerDestination,
         isLessThan,
       )
     } else {
-      updateReg(registerDestination, isNotLessThan)
+      context.updateReg(registerDestination, isNotLessThan)
     }
   }
 
@@ -177,27 +171,23 @@ class SetLessThanUInstruction(doubleWord: Int) : ThreeRegisterInstruction(
 ) {
 
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // $d = 1 if $s < $t; 0 otherwise
     // WE WANT ONLY THE UNSIGNED INT
-    val valS: UInt = getReg(registerS).toUInt()
-    val valT: UInt = getReg(registerT).toUInt()
+    val valS: UInt = context.getReg(registerS).toUInt()
+    val valT: UInt = context.getReg(registerT).toUInt()
 
     val isLessThan = 1 // Value if it's less than
     val isNotLessThan = 0
 
     if (valS < valT) {
-      updateReg(
+      context.updateReg(
         registerDestination,
         isLessThan,
       )
     } else {
-      updateReg(registerDestination, isNotLessThan)
+      context.updateReg(registerDestination, isNotLessThan)
     }
   }
 
@@ -243,15 +233,11 @@ class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction(
    * We want to multiply it as a long, then take the 64 bits and split them
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // hi:lo = $s * $t
-    val valS: Int = getReg(registerS)
-    val valT: Int = getReg(registerT)
+    val valS: Int = context.getReg(registerS)
+    val valT: Int = context.getReg(registerT)
 
     // HI = 32 largest bits, LO = 32 Smallest bits of product
     val product: Long = valS.toLong() * valT.toLong()
@@ -260,8 +246,8 @@ class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction(
     val hi: Int = (product shr 32).toInt() // Take 32 most significant
     val lo: Int = product.toInt() // Take 32 least significant
 
-    updateReg(Registers.HI_INDEX, hi)
-    updateReg(Registers.LO_INDEX, lo)
+    context.updateReg(Registers.HI_INDEX, hi)
+    context.updateReg(Registers.LO_INDEX, lo)
   }
 
   companion object {
@@ -283,16 +269,12 @@ class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction(
    * We want to multiply it as unsigned -> long, then take the 64 bits and split them
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     // hi:lo = $s * $t
     // ** Cast them to Unsigned prior to multiplication **
-    val valS: UInt = getReg(registerS).toUInt()
-    val valT: UInt = getReg(registerT).toUInt()
+    val valS: UInt = context.getReg(registerS).toUInt()
+    val valT: UInt = context.getReg(registerT).toUInt()
 
     // HI = 32 largest bits, LO = 32 Smallest bits of product
     val product: Long = valS.toLong() * valT.toLong()
@@ -301,8 +283,8 @@ class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction(
     val hi: Int = (product shr 32).toInt() // Take 32 most significant
     val lo: Int = product.toInt() // Take 32 least significant
 
-    updateReg(Registers.HI_INDEX, hi)
-    updateReg(Registers.LO_INDEX, lo)
+    context.updateReg(Registers.HI_INDEX, hi)
+    context.updateReg(Registers.LO_INDEX, lo)
   }
 
   companion object {
@@ -324,20 +306,16 @@ class DivideInstruction(doubleWord: Int) : TwoRegisterInstruction(
    * Store int division in lo and remainder in hi
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val valS: Int = getReg(registerS)
-    val valT: Int = getReg(registerT)
+    val valS: Int = context.getReg(registerS)
+    val valT: Int = context.getReg(registerT)
 
     val lo = valS / valT
     val hi = valS % valT
 
-    updateReg(Registers.HI_INDEX, hi)
-    updateReg(Registers.LO_INDEX, lo)
+    context.updateReg(Registers.HI_INDEX, hi)
+    context.updateReg(Registers.LO_INDEX, lo)
   }
 
   companion object {
@@ -354,22 +332,18 @@ class DivideUInstruction(doubleWord: Int) : TwoRegisterInstruction(
 ) {
 
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val valS: UInt = getReg(registerS).toUInt()
-    val valT: UInt = getReg(registerT).toUInt()
+    val valS: UInt = context.getReg(registerS).toUInt()
+    val valT: UInt = context.getReg(registerT).toUInt()
 
     // Need the UInt operations
     // Casting doesn't change the bits - only need bits
     val lo: Int = (valS / valT).toInt()
     val hi: Int = (valS % valT).toInt()
 
-    updateReg(Registers.HI_INDEX, hi)
-    updateReg(Registers.LO_INDEX, lo)
+    context.updateReg(Registers.HI_INDEX, hi)
+    context.updateReg(Registers.LO_INDEX, lo)
   }
 
   companion object {
@@ -404,16 +378,12 @@ class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleW
    * Modify the pc address
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val valS: Int = getReg(registerS)
-    val valT: Int = getReg(registerT)
+    val valS: Int = context.getReg(registerS)
+    val valT: Int = context.getReg(registerT)
 
-    setPC() { currentPC ->
+    context.setPC { currentPC ->
       if (valS == valT) (currentPC + immediate) else currentPC
     }
   }
@@ -432,16 +402,12 @@ class BranchNotEqualInstruction(doubleWord: Int) :
    * Modify the pc address
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val valS: Int = getReg(registerS)
-    val valT: Int = getReg(registerT)
+    val valS: Int = context.getReg(registerS)
+    val valT: Int = context.getReg(registerT)
 
-    setPC { currentPC ->
+    context.setPC { currentPC ->
       if (valS != valT) (currentPC + immediate) else currentPC
     }
   }
@@ -477,27 +443,23 @@ class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, O
    * Read from memory into the $t. We will add the immediate to the valS to get the memory addr.
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val baseAddress = getReg(registerS).toUInt().toLong()
+    val baseAddress = context.getReg(registerS).toUInt().toLong()
     val finalAddress = baseAddress + immediate
     // Covers edge cases - must be POS and % 4.
 
     // If it's the input address, read in the next address
     val data: Int = if (finalAddress == STD_INPUT) {
-      System.`in`.read()
+      context.stdin.read()
     } else {
       val loadAddress = Address().shiftBytes(finalAddress.toInt())
-      getMem(
+      context.getMem(
         loadAddress,
       )
     }
 
-    updateReg(registerT, data) // Mutate regT
+    context.updateReg(registerT, data) // Mutate regT
   }
 
   companion object {
@@ -516,15 +478,11 @@ class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, 
    * Load register t into memory address s + i. If address is STD_OUTPUT then print
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val baseAddress = getReg(registerS).toUInt().toLong()
+    val baseAddress = context.getReg(registerS).toUInt().toLong()
     val finalAddress = baseAddress + immediate
-    val valT = getReg(registerT)
+    val valT = context.getReg(registerT)
 
     // Covers edge cases - must be POS and % 4.
 
@@ -535,7 +493,7 @@ class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, 
     } else {
       val saveAddress = Address().shiftBytes(finalAddress.toInt())
       // Update the value at memory index
-      updateMem(saveAddress, valT)
+      context.updateMem(saveAddress, valT)
     }
   }
 
@@ -564,14 +522,10 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
    * $d = hi
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val hi = getReg(Registers.HI_INDEX)
-    updateReg(registerDestination, hi)
+    val hi = context.getReg(Registers.HI_INDEX)
+    context.updateReg(registerDestination, hi)
   }
 
   companion object {
@@ -600,14 +554,10 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
    * $d = hi
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val lo = getReg(Registers.LO_INDEX)
-    updateReg(registerDestination, lo)
+    val lo = context.getReg(Registers.LO_INDEX)
+    context.updateReg(registerDestination, lo)
   }
 
   companion object {
@@ -638,16 +588,12 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
    *
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    setPC { currentPC ->
+    context.setPC { currentPC ->
       // By the Fetch-Execute Cycle, current PC is the next instruction
-      val nextWord: Int = getMem(currentPC)
-      updateReg(registerDestination, nextWord)
+      val nextWord: Int = context.getMem(currentPC)
+      context.updateReg(registerDestination, nextWord)
 
       currentPC + 1 // Increase it by 1 * number of 4 bytes = 1
     }
@@ -675,18 +621,14 @@ class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPE
    * pc = $s
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val jumpToValue = getReg(registerS)
+    val jumpToValue = context.getReg(registerS)
 
     // The address class will verify it's divisible by four
     val jumpToAddress = Address(jumpToValue.toUInt())
 
-    setPC { jumpToAddress }
+    context.setPC { jumpToAddress }
   }
 
   companion object {
@@ -711,20 +653,16 @@ class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCO
    * temp = $s; $31 = pc; pc = temp
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
-    val jumpToValue = getReg(registerS)
+    val jumpToValue = context.getReg(registerS)
 
     // The address class will verify it's divisible by four
     val jumpToAddress = Address(jumpToValue.toUInt())
 
-    setPC { currentPC ->
+    context.setPC { currentPC ->
       // Want to link the current PC to $31
-      updateReg(Registers.JUMP_REGISTER, currentPC.getAddressBits())
+      context.updateReg(Registers.JUMP_REGISTER, currentPC.getAddressBits())
 
       jumpToAddress // Return the jumpToAddress
     }
@@ -752,11 +690,7 @@ class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null)
    * Throws an error
    */
   override fun execute(
-    getReg: (index: Int) -> Int,
-    getMem: (index: Address) -> Int,
-    updateReg: (index: Int, value: Int) -> Unit,
-    updateMem: (address: Address, value: Int) -> Unit,
-    setPC: (init: (currentPC: Address) -> Address) -> Unit,
+    context: ExecutionContext,
   ) {
     throw WordWithNoInstructionException(this)
   }

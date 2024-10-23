@@ -19,12 +19,6 @@ java_binary(
 )
 
 java_binary(
-    name = "steppers.test",
-    main_class = "org.pluverse.cs241.emulator.controllers.StepperControllerTest",
-    runtime_deps = [":controllers_lib"],
-)
-
-java_binary(
     name = "steppers",
     main_class = "org.pluverse.cs241.emulator.controllers.StepperController",
     runtime_deps = [":controllers_lib"],

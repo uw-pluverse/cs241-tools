@@ -17,6 +17,7 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.cpumodel.MipsStdInput
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -51,7 +52,8 @@ class TwoIntsController {
       val view = CliView()
       val emulator = CpuEmulator.createTwoIntsEmulator(
         view,
-        Path(args[0]).readBytes(),
+        mipsProgram = Path(args[0]).readBytes(),
+        stdin = MipsStdInput.EmptyMipsStdInput,
         register1 = register1,
         register2 = register2,
       )

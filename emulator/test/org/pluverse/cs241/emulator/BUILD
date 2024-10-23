@@ -17,20 +17,34 @@ kt_jvm_library(
     ],
 )
 
+kt_jvm_test(
+    name = "MipsStdInputTest",
+    srcs = [
+        "MipsStdInputTest.kt",
+    ],
+    deps = [
+        "//:guava",
+        "//:truth",
+        "//emulator/src/org/pluverse/cs241/emulator/cpumodel",
+    ],
+)
+
 EMULATOR_BINARY = "//emulator/src/org/pluverse/cs241/emulator:emulator"
 
 genrule(
     name = "generate_test_emulator_io",
     srcs = [
         "testdata/io.mips",
+        "stdin.txt",
     ],
     outs = [
         "emulator_stdout.txt",
     ],
     cmd = "$(location %s) " % EMULATOR_BINARY +
-          "$(location testdata/io.mips)" +
-          " -stdin " +
-          "<<< \"\"\"hello world\"\"\" > $@",
+          " --program $(location testdata/io.mips) " +
+          " --stdin-file $(location stdin.txt) " +
+          " twoints " +
+          " > $@",
     tools = [
         EMULATOR_BINARY,
     ],

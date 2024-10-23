@@ -11,8 +11,8 @@ java_binary(
 kt_jvm_library(
     name = "emulator_lib",
     srcs = [
-        "MipsEmulatorMain.kt",
         "CommandOptions.kt",
+        "MipsEmulatorMain.kt",
     ],
     deps = [
         "//:jcommander",

@@ -23,6 +23,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
+import org.pluverse.cs241.emulator.cpumodel.MipsStdInput
 import org.pluverse.cs241.emulator.views.CliView
 import java.nio.file.Paths
 import kotlin.io.path.readBytes
@@ -48,8 +49,9 @@ class CpuEmulatorTest {
 
   private fun createAndRunEmulator(mipsFile: String): CpuEmulator {
     val emulator = CpuEmulator.createTwoIntsEmulator(
-      view,
-      Paths.get(mipsFile).readBytes(),
+      view = view,
+      mipsProgram = Paths.get(mipsFile).readBytes(),
+      stdin = MipsStdInput.EmptyMipsStdInput,
       register1 = 1,
       register2 = 2,
     )

@@ -17,6 +17,7 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.cpumodel.MipsStdInput
 import org.pluverse.cs241.emulator.views.CliView
 import org.pluverse.cs241.emulator.views.GuiView
 import kotlin.io.path.Path
@@ -45,7 +46,8 @@ class StepperControllerTest {
       val view = CliView()
       val emulator = CpuEmulator.createTwoIntsEmulator(
         view,
-        Path(args[0]).readBytes(),
+        mipsProgram = Path(args[0]).readBytes(),
+        stdin = MipsStdInput.EmptyMipsStdInput,
         register1 = int1,
         register2 = int2,
       )
@@ -87,7 +89,8 @@ class StepperController {
       val view = GuiView()
       val emulator = CpuEmulator.createTwoIntsEmulator(
         view,
-        Path(args[0]).readBytes(),
+        mipsProgram = Path(args[0]).readBytes(),
+        stdin = MipsStdInput.EmptyMipsStdInput,
         register1 = int1,
         register2 = int2,
       )
@@ -114,7 +117,8 @@ class StepperControllerArray {
       val view = GuiView()
       val emulator = CpuEmulator.createArrayEmulator(
         view,
-        Path(args[0]).readBytes(),
+        mipsProgram = Path(args[0]).readBytes(),
+        stdin = MipsStdInput.EmptyMipsStdInput,
         inputArray,
       )
       view.start(emulator)

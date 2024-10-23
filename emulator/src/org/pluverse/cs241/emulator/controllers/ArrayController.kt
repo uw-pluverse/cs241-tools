@@ -17,6 +17,7 @@
 package org.pluverse.cs241.emulator.controllers
 
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.cpumodel.MipsStdInput
 import org.pluverse.cs241.emulator.views.CliView
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -52,7 +53,12 @@ class ArrayController {
       }
 
       val view = CliView()
-      val emulator = CpuEmulator.createArrayEmulator(view, Path(args[0]).readBytes(), inputArray)
+      val emulator = CpuEmulator.createArrayEmulator(
+        view,
+        mipsProgram = Path(args[0]).readBytes(),
+        stdin = MipsStdInput.EmptyMipsStdInput,
+        inputArray,
+      )
       view.start(emulator)
     }
   }

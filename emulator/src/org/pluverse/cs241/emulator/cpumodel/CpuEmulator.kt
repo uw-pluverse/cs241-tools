@@ -26,12 +26,13 @@ Note, $30 or index 30 of the register is the stack pointer by convention.
 
 class CpuEmulator(
   private val view: IEmulatorListener,
-  mipsInputData: ByteArray,
+  mipsProgram: ByteArray,
+  private val stdin: AbstractMipsStdInput,
 ) {
 
   // Define CONSTANTS
   // The number of instructions during init
-  private val instructionsCount: Int = mipsInputData.size / 4
+  private val instructionsCount: Int = mipsProgram.size / 4
 
   // Define VARIABLES
   internal val registers: Registers = Registers()
@@ -56,21 +57,21 @@ class CpuEmulator(
 
     // Verify it has a valid number of bytes. Also, we want to ensure that
     // the number of bytes won't overflow the largest address 0xffffffff (unsigned)
-    if (mipsInputData.size % 4 != 0 || mipsInputData.size > (UInt.MAX_VALUE / 4u).toInt()) {
+    if (mipsProgram.size % 4 != 0 || mipsProgram.size > (UInt.MAX_VALUE / 4u).toInt()) {
       throw InvalidAddressException()
     }
 
     // Insert the instruction into the memory
-    for (i in mipsInputData.indices step 4) {
+    for (i in mipsProgram.indices step 4) {
       val byteAddress = Address(i.toUInt())
 
       // This sets the data to the instruction
       memory.getData(byteAddress).update(
         MemoryData.convertFourByteToInteger(
-          mipsInputData[i],
-          mipsInputData[i + 1],
-          mipsInputData[i + 2],
-          mipsInputData[i + 3],
+          mipsProgram[i],
+          mipsProgram[i + 1],
+          mipsProgram[i + 2],
+          mipsProgram[i + 3],
         ),
       )
     }
@@ -160,7 +161,16 @@ class CpuEmulator(
     val instruction = data.instruction
 
     // Execute the instruction with the given functions
-    instruction.execute(::getReg, ::getMem, ::updateReg, ::updateMem, ::setPC)
+    instruction.execute(
+      MipsInstruction.ExecutionContext(
+        ::getReg,
+        ::getMem,
+        ::updateReg,
+        ::updateMem,
+        ::setPC,
+        stdin = stdin,
+      ),
+    )
 
     // Notify the view we have run an instruction
     view.notifyRunInstruction(instruction, executionStack.last()!!)
@@ -228,11 +238,12 @@ class CpuEmulator(
 
     fun createTwoIntsEmulator(
       view: IEmulatorListener,
-      mipsInputData: ByteArray,
+      mipsProgram: ByteArray,
+      stdin: AbstractMipsStdInput,
       register1: Int,
       register2: Int,
     ): CpuEmulator {
-      val result = CpuEmulator(view, mipsInputData)
+      val result = CpuEmulator(view, mipsProgram, stdin)
       result.registers[1].update(register1)
       result.registers[2].update(register2)
       return result
@@ -240,10 +251,11 @@ class CpuEmulator(
 
     fun createArrayEmulator(
       view: IEmulatorListener,
-      mipsInputData: ByteArray,
+      mipsProgram: ByteArray,
+      stdin: AbstractMipsStdInput,
       inputArray: Array<Int>,
     ): CpuEmulator {
-      val result = CpuEmulator(view, mipsInputData)
+      val result = CpuEmulator(view, mipsProgram, stdin)
 
       // Want to load it in after the instructions.
       // Add a buffer of 2 instructions from the last instruction

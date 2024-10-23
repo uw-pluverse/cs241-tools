@@ -16,12 +16,15 @@
  */
 package org.pluverse.cs241.emulator
 
-import java.nio.file.Files
-import java.nio.file.Paths
-import kotlin.io.path.readBytes
+import org.pluverse.cs241.emulator.cpumodel.AbstractMipsStdInput
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
+import org.pluverse.cs241.emulator.cpumodel.MipsStdInput
 import org.pluverse.cs241.emulator.views.CliView
 import org.pluverse.cs241.emulator.views.GuiView
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.readBytes
 
 class MipsEmulatorMain {
 
@@ -43,14 +46,17 @@ class MipsEmulatorMain {
       } else {
         CliView()
       }
+      val mipsProgram = readMipsProgram(cmdOptions.commandMain.mipsFilePath)
+      val stdin = readStdinFile(cmdOptions.commandMain.stdinFilePath)
       val emulator = when (cmdOptions.commander.parsedCommand) {
         CommandOptions.COMMAND_TWOINTS -> {
           val twoints = cmdOptions.commandTwoInts
           CpuEmulator.createTwoIntsEmulator(
             view,
-            mipsInputData = readMipsProgram(twoints.mipsFilePath),
+            mipsProgram = mipsProgram,
+            stdin,
             register1 = twoints.register1,
-            register2 = twoints.register2
+            register2 = twoints.register2,
           )
         }
 
@@ -58,17 +64,29 @@ class MipsEmulatorMain {
           val arrayCommand = cmdOptions.commandArray
           CpuEmulator.createArrayEmulator(
             view,
-            mipsInputData = readMipsProgram(arrayCommand.mipsFilePath),
-            arrayCommand.elements
+            mipsProgram = mipsProgram,
+            stdin,
+            arrayCommand.elements,
           )
         }
+
         else -> error(cmdOptions.commander.parsedCommand)
       }
       view.start(emulator)
     }
 
-    fun readMipsProgram(stringPath: String? ):ByteArray {
-      checkNotNull(stringPath) {"No mips program is specified."}
+    fun readStdinFile(path: Path?): AbstractMipsStdInput {
+      if (path == null) {
+        return MipsStdInput.EmptyMipsStdInput
+      }
+      check(Files.isRegularFile(path)) {
+        "$path is not a regular file."
+      }
+      return MipsStdInput(path)
+    }
+
+    fun readMipsProgram(stringPath: String?): ByteArray {
+      checkNotNull(stringPath) { "No mips program is specified." }
       val path = Paths.get(stringPath)
       check(Files.isRegularFile(path)) { "$path is not a regular file" }
       return path.readBytes()
