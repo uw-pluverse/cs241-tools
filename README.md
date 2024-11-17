@@ -9,15 +9,29 @@ Execute the following to obtain the single jar
 bazel build emulator/src/org/pluverse/cs241/emulator:emulator_deploy.jar
 ```
 
+or 
+```bash
+cd scripts
+./build_self_executable.sh
+```
+Then you will see a JAR file named `pluverse_emulator`. This file is a JAR file and an executable file on Linux.
+
 ## Usage
 
-```bash
-java -jar emulator_deploy.jar <input_file> [OPTIONAL] -debug -array -stdin
+Note that you need to have Java 11 on your PATH to run the emulator. You can enable the debugging mode of the emulator
+with the option `--debug true`. 
 
-# Note it defaults to twoints controller
-# array sets it to use an array for $1 and $2
-# stdin reads from stdin instead of a file
-# debug uses the ncurses-like view - a paneled and interactive debugger
+```bash
+java -jar pluverse_emulator --program <input_file> \
+    [--debug true/false]? [--stdin-file <file>]? \
+    twoints --register1 <int> --register2 <int>
+```
+
+
+```bash
+java -jar pluverse_emulator --program <input_file> \
+    [--debug true/false]? [--stdin-file <file>]? \
+    array --elements 1,2,3,4,5
 ```
 
 ## Debugger
