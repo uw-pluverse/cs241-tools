@@ -253,7 +253,7 @@ class CpuEmulator(
       view: IEmulatorListener,
       mipsProgram: ByteArray,
       stdin: AbstractMipsStdInput,
-      inputArray: Array<Int>,
+      inputArray: List<Int>,
     ): CpuEmulator {
       val result = CpuEmulator(view, mipsProgram, stdin)
 

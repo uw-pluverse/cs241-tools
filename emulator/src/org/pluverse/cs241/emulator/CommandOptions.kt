@@ -64,8 +64,8 @@ class CommandOptions(array: Array<String>) {
   @Parameters(commandDescription = "mips.array")
   class CommandArray {
 
-    @Parameter(names = ["--elements"], required = true, description = "The array elements")
-    var elements: Array<Int> = emptyArray()
+    @Parameter(names = ["--elements"], description = "The array elements")
+    var elements: List<Int> = emptyList()
   }
 
   companion object {
