@@ -58,7 +58,7 @@ class CpuEmulator(
     // Verify it has a valid number of bytes. Also, we want to ensure that
     // the number of bytes won't overflow the largest address 0xffffffff (unsigned)
     if (mipsProgram.size % 4 != 0 || mipsProgram.size > (UInt.MAX_VALUE / 4u).toInt()) {
-      throw InvalidAddressException()
+      throw InvalidAddressException("Invalid mips program size ${mipsProgram.size}")
     }
 
     // Insert the instruction into the memory
@@ -161,16 +161,25 @@ class CpuEmulator(
     val instruction = data.instruction
 
     // Execute the instruction with the given functions
-    instruction.execute(
-      MipsInstruction.ExecutionContext(
-        ::getReg,
-        ::getMem,
-        ::updateReg,
-        ::updateMem,
-        ::setPC,
-        stdin = stdin,
-      ),
-    )
+    try {
+      instruction.execute(
+        MipsInstruction.ExecutionContext(
+          ::getReg,
+          ::getMem,
+          ::updateReg,
+          ::updateMem,
+          ::setPC,
+          stdin = stdin,
+        ),
+      )
+    } catch (e: Exception) {
+      throw InstructionExecutionFailureException(
+        message = "Failed to execution an instruction",
+        instruction = instruction,
+        pc = pc,
+        cause = e,
+      )
+    }
 
     // Notify the view we have run an instruction
     view.notifyRunInstruction(instruction, executionStack.last()!!)

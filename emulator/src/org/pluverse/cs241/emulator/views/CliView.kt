@@ -61,7 +61,7 @@ class CliView : BasicEmulatorView() {
     } catch (error: EmulatorHasReturnedOSException) {
       System.err.println(getCompletedOutput())
     } catch (error: Exception) {
-      println(error.message)
+      error.printStackTrace()
     }
   }
 }

@@ -80,7 +80,9 @@ data class Address(val address: UInt = 0u) {
    */
   fun shiftBytes(numOfBytes: Int): Address {
     // Assert that we are moving it by a multiple of 4
-    if (numOfBytes % 4 != 0) throw InvalidAddressException()
+    if (numOfBytes % 4 != 0) {
+      throw InvalidAddressException("Invalid offset $numOfBytes")
+    }
 
     return this + (numOfBytes / 4)
   }
@@ -104,6 +106,8 @@ data class Address(val address: UInt = 0u) {
 
   init {
     // Ensure the address is a multiple of 4
-    if (address % 4u != 0u) throw InvalidAddressException()
+    if (address % 4u != 0u) {
+      throw InvalidAddressException("Invalid address $address")
+    }
   }
 }

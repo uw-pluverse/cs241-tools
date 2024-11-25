@@ -77,7 +77,9 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
      */
     @JvmStatic
     fun getAddress(index: Int): Address {
-      if (index < 0 || index.toUInt() > UInt.MAX_VALUE / 4u) throw InvalidAddressException()
+      if (index < 0 || index.toUInt() > UInt.MAX_VALUE / 4u) {
+        throw InvalidAddressException("Invalid offset $index")
+      }
 
       return Address(index.toUInt() * 4u)
     }
