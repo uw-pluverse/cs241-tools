@@ -35,7 +35,6 @@ import com.googlecode.lanterna.gui2.WindowBasedTextGUI
 import com.googlecode.lanterna.gui2.WindowListenerAdapter
 import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
-import com.googlecode.lanterna.screen.Screen
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
 import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
@@ -66,7 +65,7 @@ class GuiView : BasicEmulatorView() {
   /**
    * The main wrapper components for the GUI
    */
-  val screen: Screen
+  val screen = DefaultTerminalFactory().createScreen()
   private val textGUI: WindowBasedTextGUI
   private val window: BasicWindow
 
@@ -105,11 +104,11 @@ class GuiView : BasicEmulatorView() {
    * The themes for the GUI
    */
   private val mainTheme = object : SimpleTheme(
-    TextColor.RGB(192, 192, 192),
-    TextColor.ANSI.BLACK,
+    FOREGROUND_COLOR,
+    BACKGROUND_COLOR,
   ) {
     init {
-      defaultDefinition.setSelected(TextColor.RGB(192, 192, 192), TextColor.ANSI.BLUE)
+      defaultDefinition.setSelected(FOREGROUND_COLOR, BACKGROUND_COLOR)
       defaultDefinition.setCustom(
         HIGHLIGHT_CUSTOM_THEME,
         TextColor.ANSI.GREEN_BRIGHT,
@@ -128,8 +127,6 @@ class GuiView : BasicEmulatorView() {
    */
   init {
     // Create the terminal screen
-    val defaultTerminalFactory = DefaultTerminalFactory()
-    screen = defaultTerminalFactory.createScreen()
     screen.startScreen()
 
     // Create the MultiWindowTextGUI
@@ -405,5 +402,10 @@ class GuiView : BasicEmulatorView() {
       cmdLine.printChanges(executions, memory, registers)
       cmdLine.printOutput()
     }
+  }
+
+  companion object {
+    val BACKGROUND_COLOR = TextColor.ANSI.BLACK
+    val FOREGROUND_COLOR = TextColor.ANSI.WHITE
   }
 }
