@@ -149,7 +149,7 @@ class DataActionListItemRenderer(var highlight: Int? = null, var highlightText: 
     )
     val tagStyle = DefaultMutableThemeStyle(
       itemStyle,
-    ).setForeground(TextColor.Factory.fromString("#E67E22"))
+    ).setForeground(TextColor.ANSI.YELLOW_BRIGHT)
     val highlightStyle = DefaultMutableThemeStyle(
       itemStyle,
     ).setForeground(TextColor.ANSI.GREEN_BRIGHT)

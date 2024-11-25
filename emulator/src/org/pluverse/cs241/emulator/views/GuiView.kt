@@ -234,7 +234,7 @@ class GuiView : BasicEmulatorView() {
 
     bottomPanel.addComponent(
       Label("Press 'q' to quit, 'r' to run, 'n' to step, 'b' to step back, 'tab' to switch")
-        .setForegroundColor(TextColor.ANSI.RED),
+        .setForegroundColor(TextColor.ANSI.RED_BRIGHT),
     )
 
     setPreferredSizes(screen.terminalSize) // Set the sizes of all components
@@ -406,6 +406,6 @@ class GuiView : BasicEmulatorView() {
 
   companion object {
     val BACKGROUND_COLOR = TextColor.ANSI.BLACK
-    val FOREGROUND_COLOR = TextColor.ANSI.WHITE
+    val FOREGROUND_COLOR = TextColor.ANSI.WHITE_BRIGHT
   }
 }

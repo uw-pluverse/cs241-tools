@@ -110,7 +110,7 @@ class InstructionsListItemRenderer<T>(
     if (itemChecked) itemStyle.setBackground(TextColor.Factory.fromString("#992222"))
 
     val addressStyle = DefaultMutableThemeStyle(itemStyle)
-      .setForeground(TextColor.Factory.fromString("#E67E22")) // Orange
+      .setForeground(TextColor.ANSI.YELLOW_BRIGHT)
     val markerStyle = DefaultMutableThemeStyle(
       themeDefinition.normal,
     ).setForeground(TextColor.ANSI.RED_BRIGHT)
