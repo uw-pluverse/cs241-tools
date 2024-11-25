@@ -23,10 +23,11 @@ import com.googlecode.lanterna.input.KeyStroke
 import com.googlecode.lanterna.input.KeyType
 import org.pluverse.cs241.emulator.cpumodel.EmulatorMemoryData
 import org.pluverse.cs241.emulator.cpumodel.Execution
+import org.pluverse.cs241.emulator.cpumodel.InstructionExecutionFailureException
 import org.pluverse.cs241.emulator.cpumodel.ReadonlyMemory
 import java.io.ByteArrayOutputStream
 
-open class CommandLine(
+open class CommandLineTextBox(
   terminalSize: TerminalSize,
   private val outputStream: ByteArrayOutputStream,
 ) :
@@ -49,6 +50,11 @@ open class CommandLine(
     val ret = super.handleKeyStroke(keyStroke)
     isReadOnly = false
     return ret
+  }
+
+  fun printException(exception: InstructionExecutionFailureException) {
+    addLine(exception.printStackTraceToString())
+    moveToEnd()
   }
 
   fun printChanges(executions: List<Execution>, memory: ReadonlyMemory, registers: ReadonlyMemory) {

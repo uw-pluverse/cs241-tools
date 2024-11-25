@@ -16,6 +16,9 @@
  */
 package org.pluverse.cs241.emulator.cpumodel
 
+import java.io.PrintWriter
+import java.io.StringWriter
+
 open class MissingFileArgException : Exception("Missing a file argument")
 open class BadMipsFileException(details: String = "") : Exception("Bad mips file format: $details")
 open class MissingByteException : BadMipsFileException(
@@ -65,4 +68,12 @@ class InstructionExecutionFailureException(
     |Instruction=$instruction
   """.trimMargin(),
   cause,
-)
+) {
+
+  fun printStackTraceToString(): String {
+    val stringWriter = StringWriter()
+
+    printStackTrace(PrintWriter(stringWriter))
+    return stringWriter.toString()
+  }
+}

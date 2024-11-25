@@ -59,5 +59,9 @@ interface IEmulatorListener {
    */
   fun notifyPcUpdate(pc: Address)
 
-  fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>)
+  fun notifyRunInstruction(
+    instruction: MipsInstruction,
+    executions: List<Execution>,
+    error: InstructionExecutionFailureException?,
+  )
 }

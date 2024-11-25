@@ -161,7 +161,7 @@ class CpuEmulator(
     val instruction = data.instruction
 
     // Execute the instruction with the given functions
-    try {
+    val error = try {
       instruction.execute(
         MipsInstruction.ExecutionContext(
           ::getReg,
@@ -172,8 +172,9 @@ class CpuEmulator(
           stdin = stdin,
         ),
       )
+      null
     } catch (e: Exception) {
-      throw InstructionExecutionFailureException(
+      InstructionExecutionFailureException(
         message = "Failed to execution an instruction",
         instruction = instruction,
         pc = pc,
@@ -182,7 +183,7 @@ class CpuEmulator(
     }
 
     // Notify the view we have run an instruction
-    view.notifyRunInstruction(instruction, executionStack.last()!!)
+    view.notifyRunInstruction(instruction, executionStack.last()!!, error)
   }
 
   /**

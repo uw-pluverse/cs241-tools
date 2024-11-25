@@ -3,7 +3,7 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 kt_jvm_library(
     name = "components",
     srcs = [
-        "CommandLine.kt",
+        "CommandLineTextBox.kt",
         "DataActionListBox.kt",
         "InstructionsListItemRenderer.kt",
     ],

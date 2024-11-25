@@ -39,10 +39,11 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory
 import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.Execution
+import org.pluverse.cs241.emulator.cpumodel.InstructionExecutionFailureException
 import org.pluverse.cs241.emulator.cpumodel.MemoryData
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
 import org.pluverse.cs241.emulator.cpumodel.Registers
-import org.pluverse.cs241.emulator.views.lanterna.CommandLine
+import org.pluverse.cs241.emulator.views.lanterna.CommandLineTextBox
 import org.pluverse.cs241.emulator.views.lanterna.DataActionListBox
 import org.pluverse.cs241.emulator.views.lanterna.HIGHLIGHT_CUSTOM_THEME
 import org.pluverse.cs241.emulator.views.lanterna.InstructionsListItemRenderer
@@ -61,6 +62,11 @@ class GuiView : BasicEmulatorView() {
   lateinit var stepBackward: () -> Unit
 
   private val outputStream = ByteArrayOutputStream() // Used to redirect output
+
+  /**
+   * TODO(cnsun): this needs to be move to the emulator.
+   */
+  private var exception: InstructionExecutionFailureException? = null
 
   /**
    * The main wrapper components for the GUI
@@ -85,7 +91,7 @@ class GuiView : BasicEmulatorView() {
     BorderLayout(),
   ) // Right side - holds rightTop and rightBottom
 
-  private val cmdLine: CommandLine // Top Right
+  private val cmdLine: CommandLineTextBox // Top Right
   private val cmdLineBorder: Border = Borders.singleLineReverseBevel("[2]-Command Line")
 
   private val rightBottomPanel: Panel = Panel(BorderLayout()) // Bottom right - holds Reg / Stack
@@ -168,7 +174,7 @@ class GuiView : BasicEmulatorView() {
       }
     }
 
-    cmdLine = object : CommandLine(TerminalSize(rightSideSize, 5), outputStream) {
+    cmdLine = object : CommandLineTextBox(TerminalSize(rightSideSize, 5), outputStream) {
       override fun afterEnterFocus(
         direction: Interactable.FocusChangeDirection?,
         previouslyInFocus: Interactable?,
@@ -311,8 +317,12 @@ class GuiView : BasicEmulatorView() {
     System.setOut(PrintStream(outputStream))
 
     try {
-      this.stepForward = { if (!emulator.hasReturnedOS) emulator.runFetchExecuteLoop() }
-      this.stepBackward = {
+      stepForward = {
+        if (!emulator.hasReturnedOS && exception == null) {
+          emulator.runFetchExecuteLoop()
+        }
+      }
+      stepBackward = {
         if (emulator.numReverseExecutions() > 0) {
           emulator.reverseExecution()
         }
@@ -332,7 +342,10 @@ class GuiView : BasicEmulatorView() {
   fun runUntilBreakpoint() {
     stepForward() // Want to take at least one step
 
-    while (!checkReturnedOs() && !instructionList.isChecked(pc().getMemoryIndex())) {
+    while (!checkReturnedOs() &&
+      !instructionList.isChecked(pc().getMemoryIndex()) &&
+      exception == null
+    ) {
       stepForward()
     }
   }
@@ -395,9 +408,16 @@ class GuiView : BasicEmulatorView() {
     instructionList.selectedIndex = pc.getMemoryIndex()
   }
 
-  override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {
+  override fun notifyRunInstruction(
+    instruction: MipsInstruction,
+    executions: List<Execution>,
+    error: InstructionExecutionFailureException?,
+  ) {
     if (checkReturnedOs()) {
       cmdLine.printReturnOs()
+    } else if (error != null) {
+      cmdLine.printException(error)
+      exception = error
     } else {
       cmdLine.printChanges(executions, memory, registers)
       cmdLine.printOutput()

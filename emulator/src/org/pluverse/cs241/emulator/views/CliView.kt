@@ -20,6 +20,7 @@ import org.pluverse.cs241.emulator.cpumodel.Address
 import org.pluverse.cs241.emulator.cpumodel.CpuEmulator
 import org.pluverse.cs241.emulator.cpumodel.EmulatorHasReturnedOSException
 import org.pluverse.cs241.emulator.cpumodel.Execution
+import org.pluverse.cs241.emulator.cpumodel.InstructionExecutionFailureException
 import org.pluverse.cs241.emulator.cpumodel.MipsInstruction
 
 /**
@@ -33,7 +34,11 @@ class CliView : BasicEmulatorView() {
 
   override fun notifyPcUpdate(pc: Address) {}
 
-  override fun notifyRunInstruction(instruction: MipsInstruction, executions: List<Execution>) {}
+  override fun notifyRunInstruction(
+    instruction: MipsInstruction,
+    executions: List<Execution>,
+    error: InstructionExecutionFailureException?,
+  ) {}
 
   fun getCompletedOutput(): String {
     val ret: StringBuilder = StringBuilder("MIPS Program Completed\n")
