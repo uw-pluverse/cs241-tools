@@ -57,7 +57,7 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
   }
 
   fun forEach(run: (T) -> Unit) {
-    for (element in data) run(element)
+    data.forEach(run)
   }
 
   operator fun iterator(): Iterator<T> { return data.iterator() }
@@ -93,7 +93,7 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
  */
 class Registers : Memory<RegisterData>(34) {
   override val data: MutableList<RegisterData> =
-    MutableList<RegisterData>(maxSize) { index -> RegisterData(index) }
+    MutableList(maxSize) { index -> RegisterData(index) }
 
   companion object {
     const val HI_INDEX = 32
@@ -110,13 +110,10 @@ class Registers : Memory<RegisterData>(34) {
  * The RamMemory points an address to a double word. We will parse these double words into
  * readable Mips Instructions.
  */
-class RamMemory : Memory<RamMemoryData> {
-
-  constructor() : super()
-  constructor(maxSize: Int) : super(maxSize)
+class RamMemory(maxSize: Int) : Memory<RamMemoryData>(maxSize) {
 
   // Create an array of size maxSize of Mips Instructions
-  override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize) { index ->
+  override val data: MutableList<RamMemoryData> = MutableList(maxSize) { index ->
     RamMemoryData(address = getAddress(index))
   }
 }

@@ -192,7 +192,7 @@ class CpuEmulator(
    */
 
   private fun getReg(index: Int): Int {
-    return registers[index].doubleWord
+    return registers[index].word32
   }
 
   private fun updateReg(index: Int, value: Int) {
@@ -202,9 +202,9 @@ class CpuEmulator(
     executionStack.recordExecution(
       ExecutionType.REGISTER,
       Address(index.toUInt() * 4u),
-      registers[index].doubleWord,
+      registers[index].word32,
     )
-    val oldValue = registers[index].doubleWord
+    val oldValue = registers[index].word32
 
     registers[index].update(value)
 
@@ -213,13 +213,13 @@ class CpuEmulator(
   }
 
   private fun getMem(address: Address): Int {
-    return memory[address].doubleWord
+    return memory[address].word32
   }
 
   private fun updateMem(address: Address, value: Int) {
     // Record "prior" memory value
-    executionStack.recordExecution(ExecutionType.MEMORY, address, memory[address].doubleWord)
-    val oldValue = memory[address].doubleWord
+    executionStack.recordExecution(ExecutionType.MEMORY, address, memory[address].word32)
+    val oldValue = memory[address].word32
 
     memory[address].update(value)
 

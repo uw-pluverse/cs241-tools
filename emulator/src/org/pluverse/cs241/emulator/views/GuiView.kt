@@ -391,7 +391,7 @@ class GuiView : BasicEmulatorView() {
    */
   private fun updateStackPointer() {
     stackTable.selectedIndex = Address(
-      registers[Registers.STACK_POINTER].doubleWord.toUInt(),
+      registers[Registers.STACK_POINTER].word32.toUInt(),
     ).getMemoryIndex()
     stackTable.customRenderer?.highlight = stackTable.selectedIndex
   }

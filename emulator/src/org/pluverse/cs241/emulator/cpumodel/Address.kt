@@ -24,20 +24,17 @@ import kotlin.math.abs
  * @param address: UInt
  */
 data class Address(val address: UInt = 0u) {
+
+  init {
+    // Ensure the address is a multiple of 4
+    if (address % 4u != 0u) {
+      throw InvalidAddressException("Invalid address $address")
+    }
+  }
   /**
    * Gets the memory array index given this address (address / 4)
    */
-  private val index: UInt = address / 4u
-
-  /**
-   * Return the address as an int
-   */
-  fun getAddressBits(): Int = address.toInt()
-
-  fun getMemoryIndex(): Int = this()
-
-  // Returns the array index i.e. address / 4
-  operator fun invoke(): Int = index.toInt()
+  val wordIndex: Int = address.toInt() / 4
 
   /**
    * Increase number of words (4 bytes)
@@ -46,18 +43,18 @@ data class Address(val address: UInt = 0u) {
    * therefore we use long operations to verify.
    */
 
-  operator fun plus(numOfFourBytes: Int): Address {
-    if (numOfFourBytes < 0) return this - abs(numOfFourBytes)
+  operator fun plus(numOf32BitWord: Int): Address {
+    if (numOf32BitWord < 0) return this - abs(numOf32BitWord)
 
     // Check if the increase will put it fast 0xfffffffff
-    val increase = numOfFourBytes.toLong() * 4
+    val increase = numOf32BitWord.toLong() * 4
     if (increase + address.toLong() > UInt.MAX_VALUE.toLong()) throw OutsideAddressRangeException()
 
-    return Address(address + (numOfFourBytes * 4).toUInt())
+    return Address(address + (numOf32BitWord * 4).toUInt())
   }
 
   operator fun plus(other: Address): Address {
-    return this + other() // Add the index or # of 4 bytes
+    return this + other.wordIndex // Add the index or # of 4 bytes
   }
 
   operator fun minus(numOfFourBytes: Int): Address {
@@ -71,7 +68,7 @@ data class Address(val address: UInt = 0u) {
   }
 
   operator fun minus(other: Address): Address {
-    return this - other() // Add the index or # of 4 bytes
+    return this - other.wordIndex // Add the index or # of 4 bytes
   }
 
   /**
@@ -104,10 +101,4 @@ data class Address(val address: UInt = 0u) {
     return address.toString(2).padStart(Int.SIZE_BITS, '0')
   }
 
-  init {
-    // Ensure the address is a multiple of 4
-    if (address % 4u != 0u) {
-      throw InvalidAddressException("Invalid address $address")
-    }
-  }
 }

@@ -37,14 +37,14 @@ class CpuEmulatorTest {
   fun testLisInstructions() {
     val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/lis.mips"
     val emulator = createAndRunEmulator(mipsFile)
-    assertThat(emulator.getRegisterValue(1).doubleWord).isEqualTo(1)
+    assertThat(emulator.getRegisterValue(1).word32).isEqualTo(1)
   }
 
   @Test
   fun testStdinStdout() {
     val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/io.mips"
     val emulator = createAndRunEmulator(mipsFile)
-    assertThat(emulator.getRegisterValue(3).doubleWord).isEqualTo(-1)
+    assertThat(emulator.getRegisterValue(3).word32).isEqualTo(-1)
   }
 
   private fun createAndRunEmulator(mipsFile: String): CpuEmulator {

@@ -23,10 +23,10 @@ Stores general info about the register and/or mips instruction such as the detai
  */
 interface MemoryData {
 
-  val doubleWord: Int
+  val word32: Int
   val address: Address
 
-  operator fun invoke(): Any = doubleWord // Get the doubleWord
+  operator fun invoke(): Any = word32 // Get the doubleWord
   override fun toString(): String // Get the details of the object
 
   fun getBinary(): String // Get the binary printout of doubleWord
@@ -63,7 +63,7 @@ This implements similar functions from MemoryData for Mips and Register Data
 
  */
 abstract class EmulatorMemoryData(
-  override var doubleWord: Int,
+  override var word32: Int,
   override val address: Address,
 ) : MemoryData {
 
@@ -71,11 +71,11 @@ abstract class EmulatorMemoryData(
 
   // Returns a binary string, padded to 32 bits
   override fun getBinary(): String = Integer.toBinaryString(
-    doubleWord,
+    word32,
   ).padStart(Int.SIZE_BITS, '0')
 
   // Returns a hex string of the doubleWord
-  override fun getHex(): String = getHex(doubleWord)
+  override fun getHex(): String = getHex(word32)
 
   // Get the details
   override fun toString(): String = getDetails()
@@ -84,7 +84,7 @@ abstract class EmulatorMemoryData(
     // Use the custom set methods to modify it
     // This is for better semantics
 
-    this.doubleWord = doubleWord
+    this.word32 = doubleWord
   }
 
   companion object {
@@ -105,16 +105,16 @@ class RegisterData(private val registerName: Int) : EmulatorMemoryData(
   Address(registerName.toUInt() * 4u),
 ) {
 
-  override operator fun invoke(): Int = doubleWord
+  override operator fun invoke(): Int = word32
 
   /**
    * We want to only mutate doubleWord if it's a non-zero register
    */
-  override var doubleWord: Int
-    get() = super.doubleWord
+  override var word32: Int
+    get() = super.word32
     set(value) {
       // Check if it's index 0
-      if (registerName != 0) super.doubleWord = value
+      if (registerName != 0) super.word32 = value
     }
 
   override fun getPrefixTag(): String {
@@ -141,10 +141,10 @@ class RamMemoryData(
   override val address: Address,
 ) : EmulatorMemoryData(doubleWord, address) {
 
-  override var doubleWord: Int
-    get() = super.doubleWord
+  override var word32: Int
+    get() = super.word32
     set(value) {
-      super.doubleWord = value
+      super.word32 = value
       instruction = getMipsInstruction(value)
     }
 

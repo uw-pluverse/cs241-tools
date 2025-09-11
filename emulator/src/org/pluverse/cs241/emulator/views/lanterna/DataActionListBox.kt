@@ -55,7 +55,7 @@ data class DataActionItem(
   }
 
   override fun toString(): String {
-    return if (displayMode == DisplayMode.HEX) data.getHex() else data.doubleWord.toString()
+    return if (displayMode == DisplayMode.HEX) data.getHex() else data.word32.toString()
   }
 }
 
