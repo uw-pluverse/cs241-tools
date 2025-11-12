@@ -1,6 +1,7 @@
+package(default_visibility = ["//visibility:public"])
+
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 
-# Create a java_binary to run ANTLR tool with all dependencies
 java_binary(
     name = "antlr_tool_binary",
     main_class = "org.antlr.v4.Tool",
