@@ -662,7 +662,7 @@ class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCO
 
     context.setPC { currentPC ->
       // Want to link the current PC to $31
-      context.updateReg(Registers.JUMP_REGISTER, currentPC.getAddressBits())
+      context.updateReg(Registers.JUMP_REGISTER, currentPC.address.toInt())
 
       jumpToAddress // Return the jumpToAddress
     }

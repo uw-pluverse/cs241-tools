@@ -5,14 +5,13 @@ load("@rules_java//java:defs.bzl", "java_binary", "java_library")
 java_binary(
     name = "antlr_tool_binary",
     main_class = "org.antlr.v4.Tool",
-    runtime_deps = ["//:antlr_tool"],
     visibility = ["//visibility:private"],
+    runtime_deps = ["//:antlr_tool"],
 )
 
 genrule(
     name = "generate_antlr",
     srcs = ["grammar/Arm64Asm.g4"],
-    tools = [":antlr_tool_binary"],
     outs = [
         "grammar_gen/Arm64AsmLexer.java",
         "grammar_gen/Arm64AsmParser.java",
@@ -40,6 +39,7 @@ genrule(
         exit 1
       fi
     """,
+    tools = [":antlr_tool_binary"],
 )
 
 java_library(
@@ -58,4 +58,3 @@ java_binary(
     main_class = "org.pluverse.cs241.assembler.Main",
     runtime_deps = [":assembler_lib"],
 )
-
