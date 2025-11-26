@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 set -o nounset
 set -o pipefail
@@ -10,8 +11,6 @@ source "${SCRIPT_DIR}/constants.sh" || exit 1
 ./scripts/cleanup.sh || exit 1
 
 bazelisk test --test_output=errors ${ALL_BAZEL_BUILD_TARGETS_STRING} || exit 1
-
-exit 0
 
 # Run the build later, because test takes more time and needs parallelism.
 # Note that `bazelisk build` builds more targets than `bazelisk test`

@@ -343,7 +343,7 @@ class GuiView : BasicEmulatorView() {
     stepForward() // Want to take at least one step
 
     while (!checkReturnedOs() &&
-      !instructionList.isChecked(pc().getMemoryIndex()) &&
+      !instructionList.isChecked(pc().wordIndex) &&
       exception == null
     ) {
       stepForward()
@@ -392,7 +392,7 @@ class GuiView : BasicEmulatorView() {
   private fun updateStackPointer() {
     stackTable.selectedIndex = Address(
       registers[Registers.STACK_POINTER].word32.toUInt(),
-    ).getMemoryIndex()
+    ).wordIndex
     stackTable.customRenderer?.highlight = stackTable.selectedIndex
   }
 
@@ -404,8 +404,8 @@ class GuiView : BasicEmulatorView() {
   }
 
   override fun notifyPcUpdate(pc: Address) {
-    instructionListRenderer.highlight = pc()
-    instructionList.selectedIndex = pc.getMemoryIndex()
+    instructionListRenderer.highlight = pc().wordIndex
+    instructionList.selectedIndex = pc.wordIndex
   }
 
   override fun notifyRunInstruction(
