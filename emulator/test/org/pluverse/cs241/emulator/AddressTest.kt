@@ -31,20 +31,20 @@ class AddressTest {
   @Test
   fun getAddressBitsReturnsCorrectValue() {
     val address = Address(16u)
-    assertEquals(16, address.getAddressBits())
+    assertEquals(16, address.address.toInt())
   }
 
   @Test
   fun getMemoryIndexReturnsCorrectValue() {
     val address = Address(16u)
-    assertEquals(4, address.getMemoryIndex())
+    assertEquals(4, address.wordIndex)
   }
 
   @Test
   fun plusWithIntReturnsCorrectAddress() {
     val address = Address(4u)
     val result = address + 1
-    assertEquals(8, result.getAddressBits())
+    assertEquals(8, result.address.toInt())
   }
 
   @Test
@@ -52,14 +52,14 @@ class AddressTest {
     val address1 = Address(4u)
     val address2 = Address(8u)
     val result = address1 + address2
-    assertEquals(12, result.getAddressBits())
+    assertEquals(12, result.address.toInt())
   }
 
   @Test
   fun minusWithIntReturnsCorrectAddress() {
     val address = Address(8u)
     val result = address - 1
-    assertEquals(4, result.getAddressBits())
+    assertEquals(4, result.address.toInt())
   }
 
   @Test
@@ -67,14 +67,14 @@ class AddressTest {
     val address1 = Address(12u)
     val address2 = Address(4u)
     val result = address1 - address2
-    assertEquals(8, result.getAddressBits())
+    assertEquals(8, result.address.toInt())
   }
 
   @Test
   fun shiftBytesCorrectlyShiftsAddress() {
     val address = Address(4u)
     val result = address.shiftBytes(8)
-    assertEquals(12, result.getAddressBits())
+    assertEquals(12, result.address.toInt())
   }
 
   @Test
@@ -164,41 +164,41 @@ class AddressTest {
   fun plusWithNegativeIntCorrectlyDecreasesAddress() {
     val address = Address(16u)
     val result = address + (-1)
-    assertEquals(12, result.getAddressBits())
+    assertEquals(12, result.address.toInt())
   }
 
   @Test
   fun minusWithNegativeIntCorrectlyIncreasesAddress() {
     val address = Address(4u)
     val result = address - (-1)
-    assertEquals(8, result.getAddressBits())
+    assertEquals(8, result.address.toInt())
   }
 
   @Test
   fun plusWithSelfReturnsDoubledAddress() {
     val address = Address(4u)
     val result = address + address
-    assertEquals(8, result.getAddressBits())
+    assertEquals(8, result.address.toInt())
   }
 
   @Test
   fun minusWithSelfReturnsZero() {
     val address = Address(4u)
     val result = address - address
-    assertEquals(0, result.getAddressBits())
+    assertEquals(0, result.address.toInt())
   }
 
   @Test
   fun shiftBytesWithPositiveNumberCorrectlyIncreasesAddress() {
     val address = Address(4u)
     val result = address.shiftBytes(4)
-    assertEquals(8, result.getAddressBits())
+    assertEquals(8, result.address.toInt())
   }
 
   @Test
   fun shiftBytesWithNegativeNumberCorrectlyDecreasesAddress() {
     val address = Address(8u)
     val result = address.shiftBytes(-4)
-    assertEquals(4, result.getAddressBits())
+    assertEquals(4, result.address.toInt())
   }
 }

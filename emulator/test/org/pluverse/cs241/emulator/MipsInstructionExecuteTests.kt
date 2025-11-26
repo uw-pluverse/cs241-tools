@@ -56,13 +56,13 @@ class MipsInstructionExecuteTests {
   private var pc: Address = Address()
 
   private fun getReg(register: Int): Int = if (register == 0) 0 else registers[register]
-  private fun getMem(address: Address): Int = memory[address()]
+  private fun getMem(address: Address): Int = memory[address.wordIndex]
   private fun updateReg(register: Int, value: Int) {
     registers[register] = value
   }
 
   private fun updateMem(address: Address, value: Int) {
-    memory[address()] = value
+    memory[address.wordIndex] = value
   }
 
   private fun setPC(init: ((currentPC: Address) -> Address)) {

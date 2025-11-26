@@ -13,6 +13,7 @@ fi
 cd "${WORKSPACE_ROOT}"
 
 BAZEL_DIRS=(
+  "assembler"
   "copyright"
   "emulator"
   "version"

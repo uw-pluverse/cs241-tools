@@ -38,7 +38,7 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
   }
 
   fun getData(address: Address): T {
-    return getData(address())
+    return getData(address.wordIndex)
   }
 
   /**

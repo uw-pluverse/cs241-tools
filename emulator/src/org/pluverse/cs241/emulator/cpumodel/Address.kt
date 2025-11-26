@@ -31,6 +31,7 @@ data class Address(val address: UInt = 0u) {
       throw InvalidAddressException("Invalid address $address")
     }
   }
+
   /**
    * Gets the memory array index given this address (address / 4)
    */
@@ -100,5 +101,4 @@ data class Address(val address: UInt = 0u) {
   fun toBinaryString(): String {
     return address.toString(2).padStart(Int.SIZE_BITS, '0')
   }
-
 }

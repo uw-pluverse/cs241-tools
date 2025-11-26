@@ -68,7 +68,7 @@ open class CommandLineTextBox(
       formattedOutput += when (execution.type) {
         Execution.ExecutionType.REGISTER -> {
           val oldHex = EmulatorMemoryData.getHex(value)
-          "$${address.getMemoryIndex()}: $oldHex -> ${registers.getData(address).getHex()}\n"
+          "$${address.wordIndex}: $oldHex -> ${registers.getData(address).getHex()}\n"
         }
 
         Execution.ExecutionType.MEMORY -> {

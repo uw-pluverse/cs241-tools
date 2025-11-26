@@ -116,7 +116,7 @@ class CpuEmulator(
           // We want to set the register to previous value
           ExecutionType.REGISTER -> {
             registers[oldAddress].update(oldValue)
-            view.notifyRegUpdate(oldAddress(), oldValue)
+            view.notifyRegUpdate(oldAddress.wordIndex, oldValue)
           }
 
           // Restore old memory value
