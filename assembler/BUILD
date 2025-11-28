@@ -1,6 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 
 java_binary(
     name = "antlr_tool_binary",
@@ -42,10 +43,12 @@ genrule(
     tools = [":antlr_tool_binary"],
 )
 
-java_library(
+kt_jvm_library(
     name = "assembler_lib",
     srcs = [
-        "src/org/pluverse/cs241/assembler/Main.java",
+        "src/org/pluverse/cs241/assembler/Main.kt",
+        "src/org/pluverse/cs241/assembler/PrettyVisitor.kt",
+        "src/org/pluverse/cs241/assembler/CodeGenVisitor.kt",
         ":generate_antlr",
     ],
     deps = [
