@@ -47,7 +47,6 @@ kt_jvm_library(
     name = "assembler_lib",
     srcs = [
         "src/org/pluverse/cs241/assembler/Main.kt",
-        "src/org/pluverse/cs241/assembler/PrettyVisitor.kt",
         "src/org/pluverse/cs241/assembler/CodeGenVisitor.kt",
         ":generate_antlr",
     ],
