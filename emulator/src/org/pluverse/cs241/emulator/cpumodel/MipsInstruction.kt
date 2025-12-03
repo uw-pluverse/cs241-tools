@@ -19,7 +19,7 @@ package org.pluverse.cs241.emulator.cpumodel
 import com.google.common.base.MoreObjects
 
 /**
-An abstract class that provides functionality for an instruction based on the given doubleWord
+An abstract class that provides functionality for an instruction based on the given word32
 
  */
 abstract class MipsInstruction(val word32: Int, expectedOpcode: Int?, expectedOperand: Int?) {
@@ -78,19 +78,19 @@ Three register instructions below
 
 abstract class ThreeRegisterInstruction(
   val identifier: String,
-  doubleWord: Int,
+  word32: Int,
   expectedOpcode: Int,
   expectedOperand: Int?,
-) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
+) : MipsInstruction(word32, expectedOpcode, expectedOperand) {
 
   override fun getSyntax(): String {
     return "$identifier $$registerDestination, $$registerS, $$registerT"
   }
 }
 
-class AddInstruction(doubleWord: Int) : ThreeRegisterInstruction(
+class AddInstruction(word32: Int) : ThreeRegisterInstruction(
   "add",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -109,9 +109,9 @@ class AddInstruction(doubleWord: Int) : ThreeRegisterInstruction(
   }
 }
 
-class SubInstruction(doubleWord: Int) : ThreeRegisterInstruction(
+class SubInstruction(word32: Int) : ThreeRegisterInstruction(
   "sub",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -130,9 +130,9 @@ class SubInstruction(doubleWord: Int) : ThreeRegisterInstruction(
   }
 }
 
-class SetLessThanInstruction(doubleWord: Int) : ThreeRegisterInstruction(
+class SetLessThanInstruction(word32: Int) : ThreeRegisterInstruction(
   "slt",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -163,9 +163,9 @@ class SetLessThanInstruction(doubleWord: Int) : ThreeRegisterInstruction(
   }
 }
 
-class SetLessThanUInstruction(doubleWord: Int) : ThreeRegisterInstruction(
+class SetLessThanUInstruction(word32: Int) : ThreeRegisterInstruction(
   "sltu",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -205,10 +205,10 @@ Two register instructions below
 
 abstract class TwoRegisterInstruction(
   val identifier: String,
-  doubleWord: Int,
+  word32: Int,
   expectedOpcode: Int,
   expectedOperand: Int?,
-) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
+) : MipsInstruction(word32, expectedOpcode, expectedOperand) {
 
   override fun getSyntax(): String {
     return "$identifier $$registerS, $$registerT"
@@ -220,9 +220,9 @@ abstract class TwoRegisterInstruction(
   }
 }
 
-class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction(
+class MultiplyInstruction(word32: Int) : TwoRegisterInstruction(
   "mult",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -256,9 +256,9 @@ class MultiplyInstruction(doubleWord: Int) : TwoRegisterInstruction(
   }
 }
 
-class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction(
+class MultiplyUInstruction(word32: Int) : TwoRegisterInstruction(
   "multu",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -293,9 +293,9 @@ class MultiplyUInstruction(doubleWord: Int) : TwoRegisterInstruction(
   }
 }
 
-class DivideInstruction(doubleWord: Int) : TwoRegisterInstruction(
+class DivideInstruction(word32: Int) : TwoRegisterInstruction(
   "div",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -324,9 +324,9 @@ class DivideInstruction(doubleWord: Int) : TwoRegisterInstruction(
   }
 }
 
-class DivideUInstruction(doubleWord: Int) : TwoRegisterInstruction(
+class DivideUInstruction(word32: Int) : TwoRegisterInstruction(
   "divu",
-  doubleWord,
+  word32,
   OPCODE,
   OPERAND,
 ) {
@@ -360,17 +360,17 @@ Branch instructions below
 
 abstract class BranchInstruction(
   val identifier: String,
-  doubleWord: Int,
+  word32: Int,
   expectedOpcode: Int,
   expectedOperand: Int?,
-) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
+) : MipsInstruction(word32, expectedOpcode, expectedOperand) {
 
   override fun getSyntax(): String {
     return "$identifier $$registerS, $$registerT, $immediate"
   }
 }
 
-class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleWord, OPCODE, null) {
+class BranchEqualInstruction(word32: Int) : BranchInstruction("beq", word32, OPCODE, null) {
 
   /**
    * if ($s == $t) pc += i * 4
@@ -393,8 +393,8 @@ class BranchEqualInstruction(doubleWord: Int) : BranchInstruction("beq", doubleW
   }
 }
 
-class BranchNotEqualInstruction(doubleWord: Int) :
-  BranchInstruction("bne", doubleWord, OPCODE, null) {
+class BranchNotEqualInstruction(word32: Int) :
+  BranchInstruction("bne", word32, OPCODE, null) {
 
   /**
    * if ($s != $t) pc += i * 4
@@ -425,17 +425,17 @@ Load/Save Word below
 
 abstract class DataInstruction(
   val identifier: String,
-  doubleWord: Int,
+  word32: Int,
   expectedOpcode: Int,
   expectedOperand: Int?,
-) : MipsInstruction(doubleWord, expectedOpcode, expectedOperand) {
+) : MipsInstruction(word32, expectedOpcode, expectedOperand) {
 
   override fun getSyntax(): String {
     return "$identifier $$registerT, $immediate($$registerS)"
   }
 }
 
-class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, OPCODE, null) {
+class LoadWordInstruction(word32: Int) : DataInstruction("lw", word32, OPCODE, null) {
 
   /**
    * $t = MEM [$s + i]:4
@@ -470,7 +470,7 @@ class LoadWordInstruction(doubleWord: Int) : DataInstruction("lw", doubleWord, O
   }
 }
 
-class StoreWordInstruction(doubleWord: Int) : DataInstruction("sw", doubleWord, OPCODE, null) {
+class StoreWordInstruction(word32: Int) : DataInstruction("sw", word32, OPCODE, null) {
 
   /**
    * MEM [$s + i]:4 = $t
@@ -511,7 +511,7 @@ End Load/Save word instructions
 Rest of single register instructions below
  */
 
-class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
+class MoveHighInstruction(word32: Int) : MipsInstruction(word32, OPCODE, OPERAND) {
   override fun getSyntax(): String {
     return "mfhi $$registerDestination"
   }
@@ -543,7 +543,7 @@ class MoveHighInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE,
   }
 }
 
-class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
+class MoveLowInstruction(word32: Int) : MipsInstruction(word32, OPCODE, OPERAND) {
   override fun getSyntax(): String {
     return "mflo $$registerDestination"
   }
@@ -575,7 +575,7 @@ class MoveLowInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, 
   }
 }
 
-class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAND) {
+class LisInstruction(word32: Int) : MipsInstruction(word32, null, OPERAND) {
 
   override fun getSyntax(): String {
     return "lis $$registerDestination"
@@ -610,7 +610,7 @@ class LisInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, OPERAN
   }
 }
 
-class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
+class JumpInstruction(word32: Int) : MipsInstruction(word32, OPCODE, OPERAND) {
   override fun getSyntax(): String {
     return "jr $$registerS"
   }
@@ -642,7 +642,7 @@ class JumpInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPE
   }
 }
 
-class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCODE, OPERAND) {
+class JumpAndLinkInstruction(word32: Int) : MipsInstruction(word32, OPCODE, OPERAND) {
   override fun getSyntax(): String {
     return "jalr $$registerS"
   }
@@ -679,7 +679,7 @@ class JumpAndLinkInstruction(doubleWord: Int) : MipsInstruction(doubleWord, OPCO
   }
 }
 
-class WordInstruction(doubleWord: Int) : MipsInstruction(doubleWord, null, null) {
+class WordInstruction(word32: Int) : MipsInstruction(word32, null, null) {
   override fun getSyntax(): String {
     return ".word 0x${Integer.toHexString(word32).padStart(8, '0')}"
   }

@@ -26,11 +26,11 @@ interface MemoryData {
   val word32: Int
   val address: Address
 
-  operator fun invoke(): Any = word32 // Get the doubleWord
+  operator fun invoke(): Any = word32 // Get the word32
   override fun toString(): String // Get the details of the object
 
-  fun getBinary(): String // Get the binary printout of doubleWord
-  fun getHex(): String // Get the hexadecimal printout of doubleWord
+  fun getBinary(): String // Get the binary printout of word32
+  fun getHex(): String // Get the hexadecimal printout of word32
   fun getPrefixTag(): String // Used as an identifier for the MemoryData i.e. by address
   fun getDetails(): String // Print additional info and the binary and hex
 
@@ -74,24 +74,24 @@ abstract class EmulatorMemoryData(
     word32,
   ).padStart(Int.SIZE_BITS, '0')
 
-  // Returns a hex string of the doubleWord
+  // Returns a hex string of the word32
   override fun getHex(): String = getHex(word32)
 
   // Get the details
   override fun toString(): String = getDetails()
 
-  fun update(doubleWord: Int) {
+  fun update(word32: Int) {
     // Use the custom set methods to modify it
     // This is for better semantics
 
-    this.word32 = doubleWord
+    this.word32 = word32
   }
 
   companion object {
     @JvmStatic
-    fun getHex(doubleWord: Int): String {
+    fun getHex(word32: Int): String {
       return "0x${Integer.toHexString(
-        doubleWord,
+        word32,
       ).padStart(Memory.DOUBLE_WORD_HEX_LENGTH, '0')}"
     }
   }
@@ -108,7 +108,7 @@ class RegisterData(private val registerName: Int) : EmulatorMemoryData(
   override operator fun invoke(): Int = word32
 
   /**
-   * We want to only mutate doubleWord if it's a non-zero register
+   * We want to only mutate word32 if it's a non-zero register
    */
   override var word32: Int
     get() = super.word32
@@ -137,9 +137,9 @@ Note: CpuEmulator is the Controller, Memory is the Model, Views TBD.
 
  */
 class RamMemoryData(
-  doubleWord: Int,
+  word32: Int,
   override val address: Address,
-) : EmulatorMemoryData(doubleWord, address) {
+) : EmulatorMemoryData(word32, address) {
 
   override var word32: Int
     get() = super.word32
@@ -148,7 +148,7 @@ class RamMemoryData(
       instruction = getMipsInstruction(value)
     }
 
-  var instruction: MipsInstruction = getMipsInstruction(doubleWord)
+  var instruction: MipsInstruction = getMipsInstruction(word32)
     private set
 
   override operator fun invoke(): MipsInstruction = instruction
@@ -165,33 +165,33 @@ class RamMemoryData(
 
   companion object {
     /**
-     Method to filter a doubleWord and return the correct MipsInstructionData
+     Method to filter a word32 and return the correct MipsInstructionData
      */
     @JvmStatic
-    fun getMipsInstruction(doubleWord: Int): MipsInstruction {
-      val opcode: Int = (doubleWord shr 26) and MemoryData.SIX_BITS // First 6 digits
-      val operand: Int = doubleWord and MemoryData.ELEVEN_BITS // Last 11 digits
+    fun getMipsInstruction(word32: Int): MipsInstruction {
+      val opcode: Int = (word32 shr 26) and MemoryData.SIX_BITS // First 6 digits
+      val operand: Int = word32 and MemoryData.ELEVEN_BITS // Last 11 digits
 
       // these are the register values
-      val regS = (doubleWord shr 21) and MemoryData.FIVE_BITS
-      val regT = (doubleWord shr 16) and MemoryData.FIVE_BITS
-      val regD = (doubleWord shr 11) and MemoryData.FIVE_BITS
+      val regS = (word32 shr 21) and MemoryData.FIVE_BITS
+      val regT = (word32 shr 16) and MemoryData.FIVE_BITS
+      val regD = (word32 shr 11) and MemoryData.FIVE_BITS
       val defaultRegisterOpCode = 0b000000
 
       // Check edge cases first, mfhi, mflo, lis, jr, jalr
       if (opcode == MoveHighInstruction.OPCODE && regT == 0) {
         if (regS == 0) {
           if (operand == MoveHighInstruction.OPERAND) {
-            return MoveHighInstruction(doubleWord)
+            return MoveHighInstruction(word32)
           } else if (operand == MoveLowInstruction.OPERAND) {
-            return MoveLowInstruction(doubleWord)
-          } else if (operand == LisInstruction.OPERAND) return LisInstruction(doubleWord)
+            return MoveLowInstruction(word32)
+          } else if (operand == LisInstruction.OPERAND) return LisInstruction(word32)
         } else if (regD == 0) {
           if (operand == JumpInstruction.OPERAND) {
-            return JumpInstruction(doubleWord)
+            return JumpInstruction(word32)
           } else if (operand == JumpAndLinkInstruction.OPERAND) {
             return JumpAndLinkInstruction(
-              doubleWord,
+              word32,
             )
           }
         }
@@ -199,20 +199,20 @@ class RamMemoryData(
 
       return when (opcode) {
         defaultRegisterOpCode -> when (operand) {
-          AddInstruction.OPERAND -> AddInstruction(doubleWord)
-          SubInstruction.OPERAND -> SubInstruction(doubleWord)
-          MultiplyInstruction.OPERAND -> MultiplyInstruction(doubleWord)
-          MultiplyUInstruction.OPERAND -> MultiplyUInstruction(doubleWord)
-          DivideInstruction.OPERAND -> DivideInstruction(doubleWord)
-          DivideUInstruction.OPERAND -> DivideUInstruction(doubleWord)
-          SetLessThanInstruction.OPERAND -> SetLessThanInstruction(doubleWord)
-          SetLessThanUInstruction.OPERAND -> SetLessThanUInstruction(doubleWord)
-          else -> WordInstruction(doubleWord)
+          AddInstruction.OPERAND -> AddInstruction(word32)
+          SubInstruction.OPERAND -> SubInstruction(word32)
+          MultiplyInstruction.OPERAND -> MultiplyInstruction(word32)
+          MultiplyUInstruction.OPERAND -> MultiplyUInstruction(word32)
+          DivideInstruction.OPERAND -> DivideInstruction(word32)
+          DivideUInstruction.OPERAND -> DivideUInstruction(word32)
+          SetLessThanInstruction.OPERAND -> SetLessThanInstruction(word32)
+          SetLessThanUInstruction.OPERAND -> SetLessThanUInstruction(word32)
+          else -> WordInstruction(word32)
         }
-        LoadWordInstruction.OPCODE -> LoadWordInstruction(doubleWord)
-        StoreWordInstruction.OPCODE -> StoreWordInstruction(doubleWord)
-        BranchEqualInstruction.OPCODE -> BranchEqualInstruction(doubleWord)
-        BranchNotEqualInstruction.OPCODE -> BranchNotEqualInstruction(doubleWord)
+        LoadWordInstruction.OPCODE -> LoadWordInstruction(word32)
+        StoreWordInstruction.OPCODE -> StoreWordInstruction(word32)
+        BranchEqualInstruction.OPCODE -> BranchEqualInstruction(word32)
+        BranchNotEqualInstruction.OPCODE -> BranchNotEqualInstruction(word32)
         else -> WordInstruction(opcode)
       }
     }
