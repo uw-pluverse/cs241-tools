@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library", "kt_jvm_test")
 
 java_binary(
     name = "antlr_tool_binary",
@@ -59,4 +59,16 @@ java_binary(
     name = "assembler",
     main_class = "org.pluverse.cs241.assembler.Main",
     runtime_deps = [":assembler_lib"],
+)
+
+kt_jvm_test(
+    name = "CodeGenVisitorTest",
+    srcs = ["test/org/pluverse/cs241/assembler/CodeGenVisitorTest.kt"],
+    test_class = "org.pluverse.cs241.assembler.CodeGenVisitorTest",
+    deps = [
+        ":assembler_lib",
+        "//:truth",
+        "@maven//:junit_junit",
+        "//:antlr_runtime",
+    ],
 )

@@ -183,10 +183,4 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
         return null
     }
 
-    // ---------- Implement Directive (.8byte) ----------
-    override fun visitDir8Byte(ctx: Arm64AsmParser.Dir8ByteContext): Void? {
-        val val_ = parseImm(ctx.imm().text)
-        emit64(val_)
-        return null
-    }
 }
