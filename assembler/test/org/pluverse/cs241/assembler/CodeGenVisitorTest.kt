@@ -20,7 +20,10 @@ import com.google.common.truth.Truth.assertThat
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class CodeGenVisitorTest {
 
   private fun compile(asm: String): ByteArray {

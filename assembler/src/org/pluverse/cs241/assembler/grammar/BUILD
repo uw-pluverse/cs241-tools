@@ -1,7 +1,7 @@
-package(default_visibility = ["//visibility:public"])
-
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library", "kt_jvm_test")
+
+package(default_visibility = ["//visibility:public"])
 
 java_binary(
     name = "antlr_tool_binary",
@@ -12,7 +12,7 @@ java_binary(
 
 genrule(
     name = "generate_antlr",
-    srcs = ["grammar/Arm64Asm.g4"],
+    srcs = ["Arm64Asm.g4"],
     outs = [
         "grammar_gen/Arm64AsmLexer.java",
         "grammar_gen/Arm64AsmParser.java",
@@ -26,7 +26,7 @@ genrule(
       mkdir -p $(@D)/grammar_gen
 
       ANTLR_TOOL=$(location :antlr_tool_binary)
-      GRAMMAR=$(location grammar/Arm64Asm.g4)
+      GRAMMAR=$(location Arm64Asm.g4)
       OUTDIR="$(@D)/grammar_gen"
 
       # -Xexact-output-dir: make sure all generated files go to OUTDIR
@@ -44,31 +44,11 @@ genrule(
 )
 
 kt_jvm_library(
-    name = "assembler_lib",
+    name = "grammar",
     srcs = [
-        "src/org/pluverse/cs241/assembler/CodeGenVisitor.kt",
-        "src/org/pluverse/cs241/assembler/Main.kt",
         ":generate_antlr",
     ],
     deps = [
         "//:antlr_runtime",
-    ],
-)
-
-java_binary(
-    name = "assembler",
-    main_class = "org.pluverse.cs241.assembler.Main",
-    runtime_deps = [":assembler_lib"],
-)
-
-kt_jvm_test(
-    name = "CodeGenVisitorTest",
-    srcs = ["test/org/pluverse/cs241/assembler/CodeGenVisitorTest.kt"],
-    test_class = "org.pluverse.cs241.assembler.CodeGenVisitorTest",
-    deps = [
-        ":assembler_lib",
-        "//:antlr_runtime",
-        "//:truth",
-        "@maven//:junit_junit",
     ],
 )
