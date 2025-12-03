@@ -40,22 +40,6 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
     emit32((val_ ushr 32).toInt())
   }
 
-  // Helper: parse register, e.g., "x0" -> 0, "x10" -> 10
-  private fun parseReg(regName: String): Int {
-    if (regName == "xzr") return 31
-    if (regName == "sp") return 31
-    // Remove 'x' prefix and parse as integer
-    return regName.substring(1).toInt()
-  }
-
-  // Helper: parse immediate value
-  private fun parseImm(imm: String): Long {
-    if (imm.startsWith("0x") || imm.startsWith("0X")) {
-      return imm.substring(2).toLong(16)
-    }
-    return imm.toLong()
-  }
-
   // ---------- Visit Program Entry ----------
   override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Void? {
     // Visit all statements
@@ -197,5 +181,27 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
     val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
     emit32(machineCode)
     return null
+  }
+
+  companion object {
+    // TODO(add tests for those methods.)
+
+    // Helper: parse register, e.g., "x0" -> 0, "x10" -> 10
+    internal fun parseReg(regName: String): Int {
+      if (regName == "xzr") return 31
+      if (regName == "sp") return 31
+      // Remove 'x' prefix and parse as integer
+      return regName.substring(1).toInt()
+    }
+
+    // Helper: parse immediate value
+    // TODO(need to ensure an exception is thrown if the immeidate value is too large.)
+    // TODO(Do not use abbreviation. Use full names. E.g., parseImmediate, parseRegister.)
+    internal fun parseImm(imm: String): Long {
+      if (imm.startsWith("0x") || imm.startsWith("0X")) {
+        return imm.substring(2).toLong(16)
+      }
+      return imm.toLong()
+    }
   }
 }
