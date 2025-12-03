@@ -12,3 +12,12 @@ bazel build //assembler:assembler_deploy.jar
 
 ```
 java -jar bazel-bin/assembler/assembler_deploy.jar <input.asm>
+```
+
+## Test
+
+Execute the following to run the unit tests:
+
+```
+bazel test //assembler:CodeGenVisitorTest
+```
