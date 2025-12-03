@@ -46,8 +46,8 @@ genrule(
 kt_jvm_library(
     name = "assembler_lib",
     srcs = [
-        "src/org/pluverse/cs241/assembler/Main.kt",
         "src/org/pluverse/cs241/assembler/CodeGenVisitor.kt",
+        "src/org/pluverse/cs241/assembler/Main.kt",
         ":generate_antlr",
     ],
     deps = [
@@ -67,8 +67,8 @@ kt_jvm_test(
     test_class = "org.pluverse.cs241.assembler.CodeGenVisitorTest",
     deps = [
         ":assembler_lib",
+        "//:antlr_runtime",
         "//:truth",
         "@maven//:junit_junit",
-        "//:antlr_runtime",
     ],
 )

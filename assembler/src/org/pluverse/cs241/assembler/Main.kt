@@ -21,48 +21,47 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ConsoleErrorListener
 import org.antlr.v4.runtime.DiagnosticErrorListener
-import java.nio.file.Path
 import java.nio.file.Files
-import java.util.Arrays
+import java.nio.file.Path
 
 class Main {
-    companion object {
-        // ---------- I/O ----------
-        private fun openInput(arg0: String?): CharStream {
-            return if (arg0 == null || "-" == arg0) {
-                CharStreams.fromStream(System.`in`)
-            } else {
-                CharStreams.fromPath(Path.of(arg0))
-            }
-        }
-
-        // ---------- Main ----------
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val input = if (args.isNotEmpty()) args[0] else "-"
-            val cs = openInput(input)
-
-            val lexer = Arm64AsmLexer(cs)
-            val tokens = CommonTokenStream(lexer)
-            val parser = Arm64AsmParser(tokens)
-
-            parser.removeErrorListeners()
-            parser.addErrorListener(DiagnosticErrorListener(true))
-            parser.addErrorListener(ConsoleErrorListener.INSTANCE)
-
-            val tree = parser.program()
-
-            // Visit the parse tree
-            // PrettyVisitor().visit(tree)
-            val generator = CodeGenVisitor()
-            generator.visit(tree)
-            val code = generator.machineCode
-
-            // Write generated machine code to a binary file. Use second arg as output path if provided.
-            val outputPath = if (args.size > 1) args[1] else "out.bin"
-            val outPath = Path.of(outputPath)
-            Files.write(outPath, code)
-            println("Wrote ${code.size} bytes to $outputPath")
-        }
+  companion object {
+    // ---------- I/O ----------
+    private fun openInput(arg0: String?): CharStream {
+      return if (arg0 == null || "-" == arg0) {
+        CharStreams.fromStream(System.`in`)
+      } else {
+        CharStreams.fromPath(Path.of(arg0))
+      }
     }
+
+    // ---------- Main ----------
+    @JvmStatic
+    fun main(args: Array<String>) {
+      val input = if (args.isNotEmpty()) args[0] else "-"
+      val cs = openInput(input)
+
+      val lexer = Arm64AsmLexer(cs)
+      val tokens = CommonTokenStream(lexer)
+      val parser = Arm64AsmParser(tokens)
+
+      parser.removeErrorListeners()
+      parser.addErrorListener(DiagnosticErrorListener(true))
+      parser.addErrorListener(ConsoleErrorListener.INSTANCE)
+
+      val tree = parser.program()
+
+      // Visit the parse tree
+      // PrettyVisitor().visit(tree)
+      val generator = CodeGenVisitor()
+      generator.visit(tree)
+      val code = generator.machineCode
+
+      // Write generated machine code to a binary file. Use second arg as output path if provided.
+      val outputPath = if (args.size > 1) args[1] else "out.bin"
+      val outPath = Path.of(outputPath)
+      Files.write(outPath, code)
+      println("Wrote ${code.size} bytes to $outputPath")
+    }
+  }
 }
