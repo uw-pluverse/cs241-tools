@@ -3,9 +3,6 @@ grammar Arm64Asm;
 @header { package org.pluverse.cs241.assembler; }
 
 // ---------- Parser ----------
-//program
-//  : line* EOF
-//  ;
 
 program
   : line* lastline? EOF
@@ -142,7 +139,6 @@ SP   : 'sp';
 XREG : 'x' DIGIT+;
 
 // label identifiers
-//LABEL_ID : [a-zA-Z] [a-zA-Z0-9]* ; // this strictly follows course specs, which does not allow '_'
 LABEL_ID : [a-zA-Z_] [a-zA-Z0-9_]*;
 
 // immediates
