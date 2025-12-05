@@ -52,7 +52,7 @@ class Main {
       val tree = parser.program()
 
       // Visit the parse tree
-       PrettyVisitor().visit(tree)
+      PrettyVisitor().visit(tree)
 
       val generator = CodeGenVisitor()
       generator.visit(tree)
