@@ -43,9 +43,17 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
   // ---------- Visit Program Entry ----------
   override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Void? {
     // Visit all statements
-    for (st in ctx.statement()) {
-      visit(st)
+//    for (st in ctx.statement()) {
+//      visit(st)
+//    }
+//    return null
+
+    // Note: this is only to make the project compile successfully, not functional.
+    for (line in ctx.line()) {
+      visit(line)
     }
+
+    ctx.lastline()?.let { visit(it) }
     return null
   }
 
