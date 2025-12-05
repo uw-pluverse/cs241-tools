@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018-2024 University of Waterloo.
+ *
+ * This file is part of Perses.
+ *
+ * Perses is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3, or (at your option) any later version.
+ *
+ * Perses is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Perses; see the file LICENSE.  If not see <http://www.gnu.org/licenses/>.
+ */
 package org.pluverse.cs241.assembler
 
 class PrettyVisitor : Arm64AsmBaseVisitor<Void?>() {
@@ -16,7 +32,6 @@ class PrettyVisitor : Arm64AsmBaseVisitor<Void?>() {
     }
     return null
   }
-
 
   // program : line* lastline? EOF
   override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Void? {
@@ -50,7 +65,7 @@ class PrettyVisitor : Arm64AsmBaseVisitor<Void?>() {
    */
   private fun printLabelsAndStatement(
     labelsCtx: Arm64AsmParser.LabelsContext?,
-    stmtCtx: Arm64AsmParser.StatementContext?
+    stmtCtx: Arm64AsmParser.StatementContext?,
   ) {
     if (labelsCtx != null) {
       val defs = labelsCtx.labelDef()
@@ -231,7 +246,7 @@ class PrettyVisitor : Arm64AsmBaseVisitor<Void?>() {
     return when (ctx) {
       is Arm64AsmParser.AddrImmContext -> ctx.imm().text
       is Arm64AsmParser.AddrLabelContext -> ctx.LABEL_ID().text
-      else -> ctx.text  // should not reach here
+      else -> ctx.text // should not reach here
     }
   }
 

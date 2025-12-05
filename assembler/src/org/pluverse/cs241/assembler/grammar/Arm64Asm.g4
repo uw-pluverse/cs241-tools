@@ -142,8 +142,8 @@ SP   : 'sp';
 XREG : 'x' DIGIT+;
 
 // label identifiers
-LABEL_ID : [a-zA-Z] [a-zA-Z0-9]* ; // this strictly follows course specs, which does not allow '_'
-//LABEL_ID : [a-zA-Z_] [a-zA-Z0-9_]*; // replace with this line to allow '_' in labels
+//LABEL_ID : [a-zA-Z] [a-zA-Z0-9]* ; // this strictly follows course specs, which does not allow '_'
+LABEL_ID : [a-zA-Z_] [a-zA-Z0-9_]*;
 
 // immediates
 DEC_INT : '-'? DIGIT+;
