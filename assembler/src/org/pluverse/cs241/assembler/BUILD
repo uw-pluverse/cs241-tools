@@ -8,6 +8,7 @@ kt_jvm_library(
     srcs = [
         "CodeGenVisitor.kt",
         "Main.kt",
+        "PrettyVisitor.kt",
     ],
     deps = [
         "//:antlr_runtime",

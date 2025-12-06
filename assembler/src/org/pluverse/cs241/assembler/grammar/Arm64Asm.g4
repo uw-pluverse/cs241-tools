@@ -3,8 +3,26 @@ grammar Arm64Asm;
 @header { package org.pluverse.cs241.assembler; }
 
 // ---------- Parser ----------
+
 program
-  : (statement? NEWLINE)* statement? EOF
+  : line* lastline? EOF
+  ;
+
+line
+  : labels? statement? NEWLINE
+  ;
+
+lastline
+  : labels statement?
+  | statement
+  ;
+
+labels
+  : labelDef+
+  ;
+
+labelDef
+  : LABEL_ID COLON
   ;
 
 statement
@@ -19,10 +37,6 @@ statement
   | dir8
   ;
 
-// arith3
-//   : (ADD | SUB | MUL | SMULH | UMULH | SDIV | UDIV) reg COMMA reg COMMA reg
-//   ;
-
 arith3
   : ADD reg COMMA reg COMMA reg   #Add3
   | SUB reg COMMA reg COMMA reg   #Sub3
@@ -33,14 +47,9 @@ arith3
   | UDIV reg COMMA reg COMMA reg  #Udiv3
   ;
 
-
 cmp2
   : CMP reg COMMA reg #CmpInstr
   ;
-
-// mem
-//   : (LDUR | STUR) reg COMMA LBRACK reg COMMA imm RBRACK
-//   ;
 
 mem
   : LDUR reg COMMA LBRACK reg COMMA imm RBRACK #LdurMem
@@ -48,11 +57,11 @@ mem
   ;
 
 ldr_pc
-  : LDR reg COMMA imm #LdrPc
+  : LDR reg COMMA addr #LdrPc
   ;
 
 b_imm
-  : B imm #BImm
+  : B addr #BImm
   ;
 
 br_reg
@@ -65,20 +74,28 @@ blr_reg
 
 // support：b '.' cond imm  or  b cond imm
 b_cond
-  : B DOT cond imm #BCondDot
-  | B cond imm #BCondPlain
+  : B DOT cond addr #BCondDot
+  | B cond addr #BCondPlain
   ;
 
 dir8
-  : DOT8BYTE imm #Dir8Byte
+  : DOT8BYTE addr #Dir8Byte
   ;
 
+// addressing modes: immediate or label
+addr
+  : imm      #AddrImm
+  | LABEL_ID #AddrLabel
+  ;
+
+// registers
 reg
   : XZR #XzrReg
   | SP #SpReg
   | XREG #RegX
   ;
 
+// immediate values
 imm
   : DEC_INT #ImmDec
   | HEX_INT #ImmHex
@@ -121,6 +138,9 @@ XZR  : 'xzr';
 SP   : 'sp';
 XREG : 'x' DIGIT+;
 
+// label identifiers
+LABEL_ID : [a-zA-Z_] [a-zA-Z0-9_]*;
+
 // immediates
 DEC_INT : '-'? DIGIT+;
 HEX_INT : '0x' HEXDIGIT+;
@@ -129,6 +149,7 @@ HEX_INT : '0x' HEXDIGIT+;
 COMMA   : ',';
 LBRACK  : '[';
 RBRACK  : ']';
+COLON   : ':';
 
 WS      : [ \t]+ -> skip;
 NEWLINE : ('\r'? '\n')+;
@@ -137,4 +158,4 @@ LINE_COMMENT : '//' ~[\r\n]* -> skip;
 
 // fragment
 fragment DIGIT    : [0-9];
-fragment HEXDIGIT : [0-9a-f];
+fragment HEXDIGIT : [0-9a-fA-F];
