@@ -1,0 +1,200 @@
+program
+  labels: Start
+    (no instruction on this line)
+  labels: EntryPoint
+    (no instruction on this line)
+  labels: Main MainLoop
+    (no instruction on this line)
+  add
+    rd = x0
+    rn = x1
+    rm = x2
+  sub
+    rd = x3
+    rn = x4
+    rm = x5
+  mul
+    rd = x6
+    rn = x7
+    rm = x8
+  smulh
+    rd = x9
+    rn = x10
+    rm = x11
+  umulh
+    rd = x12
+    rn = x13
+    rm = x14
+  sdiv
+    rd = x15
+    rn = x16
+    rm = x17
+  udiv
+    rd = x18
+    rn = x19
+    rm = x20
+  labels: CompareBlock
+    (no instruction on this line)
+  cmp
+    rn = x21
+    rm = x22
+  labels: MemBlock1
+    (no instruction on this line)
+  ldur
+    rt  = x0
+    rn  = x1
+    imm = -8
+  stur
+    rt  = x2
+    rn  = x3
+    imm = 0
+  ldur
+    rt  = x4
+    rn  = x5
+    imm = 16
+  stur
+    rt  = x6
+    rn  = x7
+    imm = 0x20
+  labels: PCRelBlock
+    (no instruction on this line)
+  ldr (pc-relative)
+    rt   = x8
+    addr = 32
+  ldr (pc-relative)
+    rt   = x9
+    addr = JumpTable
+  b
+    addr = 16
+  b
+    addr = Loop1
+  br
+    rn = x30
+  blr
+    rn = x29
+  labels: Loop1
+    (no instruction on this line)
+  cmp
+    rn = x0
+    rm = x1
+  b.cond
+    cond = eq
+    addr = EndBlock
+  b.cond
+    cond = ne
+    addr = Loop1
+  labels: CondTest
+    (no instruction on this line)
+  cmp
+    rn = x2
+    rm = x3
+  b.cond
+    cond = hs
+    addr = GreaterOrEqual
+  b.cond
+    cond = lo
+    addr = LessThan
+  b.cond
+    cond = hi
+    addr = StrictGreater
+  b.cond
+    cond = ls
+    addr = LessOrEqual
+  b.cond
+    cond = ge
+    addr = GreaterOrEqual
+  b.cond
+    cond = lt
+    addr = LessThan
+  b.cond
+    cond = gt
+    addr = StrictGreater
+  b.cond
+    cond = le
+    addr = LessOrEqual
+  labels: GreaterOrEqual
+    (no instruction on this line)
+  add
+    rd = x0
+    rn = x0
+    rm = x1
+  b
+    addr = Done
+  labels: LessThan
+    (no instruction on this line)
+  sub
+    rd = x0
+    rn = x0
+    rm = x1
+  b
+    addr = Done
+  labels: StrictGreater
+    (no instruction on this line)
+  mul
+    rd = x0
+    rn = x0
+    rm = x1
+  b
+    addr = Done
+  labels: DataSection1
+    (no instruction on this line)
+  .8byte
+    addr = 0
+  .8byte
+    addr = -1
+  .8byte
+    addr = 0x1234ABCD
+  .8byte
+    addr = Start
+  .8byte
+    addr = JumpTable
+  labels: JumpTable
+    (no instruction on this line)
+  .8byte
+    addr = Case0
+  .8byte
+    addr = Case1
+  .8byte
+    addr = Case2
+  labels: Case0
+    (no instruction on this line)
+  add
+    rd = x1
+    rn = x1
+    rm = x1
+  b
+    addr = Done
+  labels: Case1
+    (no instruction on this line)
+  sub
+    rd = x1
+    rn = x1
+    rm = x2
+  b
+    addr = Done
+  labels: Case2
+    (no instruction on this line)
+  mul
+    rd = x1
+    rn = x1
+    rm = x2
+  b
+    addr = Done
+  labels: Loop2
+    (no instruction on this line)
+  labels: LOOP3
+    (no instruction on this line)
+  labels: Data2Section42
+    (no instruction on this line)
+  cmp
+    rn = xzr
+    rm = x0
+  b.cond
+    cond = ne
+    addr = MainLoop
+  labels: EndBlock
+    (no instruction on this line)
+  labels: Done
+    (no instruction on this line)
+  br
+    rn = x30
