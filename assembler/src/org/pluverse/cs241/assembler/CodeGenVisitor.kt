@@ -18,7 +18,7 @@ package org.pluverse.cs241.assembler
 
 import java.io.ByteArrayOutputStream
 
-class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
+class CodeGenVisitor : Arm64AsmBaseVisitor<Arm64Instruction?>() {
   // Buffer to store generated machine code bytes
   private val baos = ByteArrayOutputStream()
 
@@ -26,169 +26,107 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
   val machineCode: ByteArray
     get() = baos.toByteArray()
 
-  // Helper: write 32-bit integer in Little Endian
-  private fun emit32(val_: Int) {
-    baos.write(val_ and 0xFF)
-    baos.write((val_ shr 8) and 0xFF)
-    baos.write((val_ shr 16) and 0xFF)
-    baos.write((val_ shr 24) and 0xFF)
-  }
-
-  // Helper: write 64-bit integer in Little Endian (.8byte)
-  private fun emit64(val_: Long) {
-    emit32((val_ and 0xFFFFFFFFL).toInt())
-    emit32((val_ ushr 32).toInt())
-  }
-
   // ---------- Visit Program Entry ----------
-  override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Void? {
-    // Note: this is only to make the project compile successfully, not functional.
+  override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Arm64Instruction? {
     for (line in ctx.line()) {
-      visit(line)
+      val instr = visit(line)
+      if (instr != null) {
+        baos.write(instr.encode())
+      }
     }
 
-    ctx.lastline()?.let { visit(it) }
+    ctx.lastline()?.let { 
+      val instr = visit(it)
+      if (instr != null) {
+        baos.write(instr.encode())
+      }
+    }
     return null
   }
 
-  // ---------- Implement Instruction Encoding (Example: ADD) ----------
-  override fun visitAdd3(ctx: Arm64AsmParser.Add3Context): Void? {
+  // ---------- Visit Line and Lastline ----------
+  override fun visitLine(ctx: Arm64AsmParser.LineContext): Arm64Instruction? {
+    if (ctx.statement() != null) {
+      return visit(ctx.statement())
+    }
+    return null
+  }
+
+  override fun visitLastline(ctx: Arm64AsmParser.LastlineContext): Arm64Instruction? {
+    if (ctx.statement() != null) {
+      return visit(ctx.statement())
+    }
+    return null
+  }
+
+  override fun visitAdd3(ctx: Arm64AsmParser.Add3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10001011001 shl 21
-    val flags = 0b011000 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return AddInstruction(rd, rn, rm)
   }
 
-  override fun visitSub3(ctx: Arm64AsmParser.Sub3Context): Void? {
+  override fun visitSub3(ctx: Arm64AsmParser.Sub3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b11001011001 shl 21
-    val flags = 0b011000 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return SubInstruction(rd, rn, rm)
   }
 
-  override fun visitMul3(ctx: Arm64AsmParser.Mul3Context): Void? {
+  override fun visitMul3(ctx: Arm64AsmParser.Mul3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10011011000 shl 21
-    val flags = 0b011111 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return MulInstruction(rd, rn, rm)
   }
 
-  override fun visitSmulh3(ctx: Arm64AsmParser.Smulh3Context): Void? {
+  override fun visitSmulh3(ctx: Arm64AsmParser.Smulh3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10011011010 shl 21
-    val flags = 0b011111 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return SmulhInstruction(rd, rn, rm)
   }
 
-  override fun visitUmulh3(ctx: Arm64AsmParser.Umulh3Context): Void? {
+  override fun visitUmulh3(ctx: Arm64AsmParser.Umulh3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10011011110 shl 21
-    val flags = 0b011111 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return UmulhInstruction(rd, rn, rm)
   }
 
-  override fun visitSdiv3(ctx: Arm64AsmParser.Sdiv3Context): Void? {
+  override fun visitSdiv3(ctx: Arm64AsmParser.Sdiv3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10011010110 shl 21
-    val flags = 0b000011 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return SdivInstruction(rd, rn, rm)
   }
 
-  override fun visitUdiv3(ctx: Arm64AsmParser.Udiv3Context): Void? {
+  override fun visitUdiv3(ctx: Arm64AsmParser.Udiv3Context): Arm64Instruction? {
     val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val rm = parseReg(ctx.reg(2).text)
-
-    val opcode = 0b10011010110 shl 21
-    val flags = 0b000010 shl 10
-
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return UdivInstruction(rd, rn, rm)
   }
 
-  override fun visitCmpInstr(ctx: Arm64AsmParser.CmpInstrContext): Void? {
+  override fun visitCmpInstr(ctx: Arm64AsmParser.CmpInstrContext): Arm64Instruction? {
     val rn = parseReg(ctx.reg(0).text)
     val rm = parseReg(ctx.reg(1).text)
-    val rd = 31 // For cmp, the destination register (rd) is implicitly xzr (register 31)
-
-    val opcode = 0b11101011001 shl 21
-    val flags = 0b011000 shl 10
-
-    // Assemble the machine code by combining opcode, registers, and flags
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return CmpInstruction(rn, rm)
   }
 
-  override fun visitBrReg(ctx: Arm64AsmParser.BrRegContext): Void? {
+  override fun visitBrReg(ctx: Arm64AsmParser.BrRegContext): Arm64Instruction? {
     val rn = parseReg(ctx.reg().text)
-    val rm = 31
-    val rd = 0
-
-    val opcode = 0b11010110000 shl 21
-    val flags = 0b000000 shl 10
-
-    // Assemble the machine code by combining opcode, registers, and flags
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return BrInstruction(rn)
   }
 
-  override fun visitBlrReg(ctx: Arm64AsmParser.BlrRegContext): Void? {
+  override fun visitBlrReg(ctx: Arm64AsmParser.BlrRegContext): Arm64Instruction? {
     val rn = parseReg(ctx.reg().text)
-    val rm = 31
-    val rd = 0
-
-    val opcode = 0b11010110001 shl 21
-    val flags = 0b000000 shl 10
-
-    // Assemble the machine code by combining opcode, registers, and flags
-    val machineCode = opcode or (rm shl 16) or flags or (rn shl 5) or rd
-    emit32(machineCode)
-    return null
+    return BlrInstruction(rn)
   }
 
   companion object {
-    // TODO(add tests for those methods.)
 
-    // Helper: parse register, e.g., "x0" -> 0, "x10" -> 10
+
     internal fun parseReg(regName: String): Int {
       if (regName == "xzr") return 31
       if (regName == "sp") return 31
@@ -196,10 +134,7 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
       return regName.substring(1).toInt()
     }
 
-    // Helper: parse immediate value
-    // TODO(need to ensure an exception is thrown if the immeidate value is too large.)
-    // TODO(Do not use abbreviation. Use full names. E.g., parseImmediate, parseRegister.)
-    internal fun parseImm(imm: String): Long {
+    internal fun parseImmediate(imm: String): Long {
       if (imm.startsWith("0x") || imm.startsWith("0X")) {
         return imm.substring(2).toLong(16)
       }
