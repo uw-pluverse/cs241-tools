@@ -1,0 +1,213 @@
+/*
+ * Copyright (C) 2018-2024 University of Waterloo.
+ *
+ * This file is part of Perses.
+ *
+ * Perses is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3, or (at your option) any later version.
+ *
+ * Perses is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Perses; see the file LICENSE.  If not see <http://www.gnu.org/licenses/>.
+ */
+package org.pluverse.cs241.assembler
+
+// The visitor will now construct instruction objects rather than emitting
+// machine code bytes directly. Each instruction has an `encode32()` method
+// that returns the 32-bit machine word for that instruction.
+
+abstract class Arm64Instruction {
+  open fun encode32(): Int {
+    throw UnsupportedOperationException("encode32 not implemented")
+  }
+
+  open fun encode64(): Long {
+    throw UnsupportedOperationException("encode64 not implemented")
+  }
+}
+
+// Three-register instructions helper
+abstract class ThreeRegisterInstruction(val rd: Int, val rn: Int, val rm: Int) : Arm64Instruction()
+
+class Add3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10001011001 shl 21
+    val flags = 0b011000 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Sub3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b11001011001 shl 21
+    val flags = 0b011000 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Mul3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10011011000 shl 21
+    val flags = 0b011111 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Smulh3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10011011010 shl 21
+    val flags = 0b011111 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Umulh3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10011011110 shl 21
+    val flags = 0b011111 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Sdiv3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10011010110 shl 21
+    val flags = 0b000011 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class Udiv3Instruction(rd: Int, rn: Int, rm: Int) : ThreeRegisterInstruction(rd, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b10011010110 shl 21
+    val flags = 0b000010 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+// Compare instruction (cmp) uses rn and rm, rd is xzr(31)
+class CmpInstruction(rn: Int, rm: Int) : ThreeRegisterInstruction(31, rn, rm) {
+  override fun encode32(): Int {
+    val opcode = 0b11101011001 shl 21
+    val flags = 0b011000 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+// Branch (br) and branch-and-link (blr) register forms
+class BrRegInstruction(rn: Int) : ThreeRegisterInstruction(0, rn, 31) {
+  override fun encode32(): Int {
+    val opcode = 0b11010110000 shl 21
+    val flags = 0b000000 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class BlrRegInstruction(rn: Int) : ThreeRegisterInstruction(0, rn, 31) {
+  override fun encode32(): Int {
+    val opcode = 0b11010110001 shl 21
+    val flags = 0b000000 shl 10
+    return opcode or (rm shl 16) or flags or (rn shl 5) or rd
+  }
+}
+
+class CodeGenVisitor : Arm64AsmBaseVisitor<Arm64Instruction?>() {
+  private val instructions = mutableListOf<Arm64Instruction>()
+
+  fun getInstructions(): List<Arm64Instruction> = instructions.toList()
+
+  // Visit program and collect instruction objects
+  override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Arm64Instruction? {
+    for (st in ctx.statement()) {
+      val instr = visit(st)
+      if (instr != null) instructions.add(instr)
+    }
+    return null
+  }
+
+  override fun visitAdd3(ctx: Arm64AsmParser.Add3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Add3Instruction(rd, rn, rm)
+  }
+
+  override fun visitSub3(ctx: Arm64AsmParser.Sub3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Sub3Instruction(rd, rn, rm)
+  }
+
+  override fun visitMul3(ctx: Arm64AsmParser.Mul3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Mul3Instruction(rd, rn, rm)
+  }
+
+  override fun visitSmulh3(ctx: Arm64AsmParser.Smulh3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Smulh3Instruction(rd, rn, rm)
+  }
+
+  override fun visitUmulh3(ctx: Arm64AsmParser.Umulh3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Umulh3Instruction(rd, rn, rm)
+  }
+
+  override fun visitSdiv3(ctx: Arm64AsmParser.Sdiv3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Sdiv3Instruction(rd, rn, rm)
+  }
+
+  override fun visitUdiv3(ctx: Arm64AsmParser.Udiv3Context): Arm64Instruction? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val rm = parseReg(ctx.reg(2).text)
+    return Udiv3Instruction(rd, rn, rm)
+  }
+
+  override fun visitCmpInstr(ctx: Arm64AsmParser.CmpInstrContext): Arm64Instruction? {
+    val rn = parseReg(ctx.reg(0).text)
+    val rm = parseReg(ctx.reg(1).text)
+    return CmpInstruction(rn, rm)
+  }
+
+  override fun visitBrReg(ctx: Arm64AsmParser.BrRegContext): Arm64Instruction? {
+    val rn = parseReg(ctx.reg().text)
+    return BrRegInstruction(rn)
+  }
+
+  override fun visitBlrReg(ctx: Arm64AsmParser.BlrRegContext): Arm64Instruction? {
+    val rn = parseReg(ctx.reg().text)
+    return BlrRegInstruction(rn)
+  }
+
+  companion object {
+    // Helper: parse register, e.g., "x0" -> 0, "x10" -> 10
+    internal fun parseReg(regName: String): Int {
+      if (regName == "xzr") return 31
+      if (regName == "sp") return 31
+      return regName.substring(1).toInt()
+    }
+
+    // Helper: parse immediate value
+    internal fun parseImm(imm: String): Long {
+      if (imm.startsWith("0x") || imm.startsWith("0X")) {
+        return imm.substring(2).toLong(16)
+      }
+      return imm.toLong()
+    }
+  }
+}

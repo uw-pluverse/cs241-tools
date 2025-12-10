@@ -1,0 +1,294 @@
+commit d80e490f9553ee607960053f50a4161b89fdfaf6
+Author: Chengnian Sun <chengniansun@users.noreply.github.com>
+Date:   Thu Sep 11 15:38:34 2025 -0400
+
+    sync
+
+diff --git a/emulator/src/org/pluverse/cs241/emulator/cpumodel/Address.kt b/emulator/src/org/pluverse/cs241/emulator/cpumodel/Address.kt
+index 92ff200..86c5c4b 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/cpumodel/Address.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/cpumodel/Address.kt
+@@ -24,20 +24,17 @@ import kotlin.math.abs
+  * @param address: UInt
+  */
+ data class Address(val address: UInt = 0u) {
+-  /**
+-   * Gets the memory array index given this address (address / 4)
+-   */
+-  private val index: UInt = address / 4u
+ 
++  init {
++    // Ensure the address is a multiple of 4
++    if (address % 4u != 0u) {
++      throw InvalidAddressException("Invalid address $address")
++    }
++  }
+   /**
+-   * Return the address as an int
++   * Gets the memory array index given this address (address / 4)
+    */
+-  fun getAddressBits(): Int = address.toInt()
+-
+-  fun getMemoryIndex(): Int = this()
+-
+-  // Returns the array index i.e. address / 4
+-  operator fun invoke(): Int = index.toInt()
++  val wordIndex: Int = address.toInt() / 4
+ 
+   /**
+    * Increase number of words (4 bytes)
+@@ -46,18 +43,18 @@ data class Address(val address: UInt = 0u) {
+    * therefore we use long operations to verify.
+    */
+ 
+-  operator fun plus(numOfFourBytes: Int): Address {
+-    if (numOfFourBytes < 0) return this - abs(numOfFourBytes)
++  operator fun plus(numOf32BitWord: Int): Address {
++    if (numOf32BitWord < 0) return this - abs(numOf32BitWord)
+ 
+     // Check if the increase will put it fast 0xfffffffff
+-    val increase = numOfFourBytes.toLong() * 4
++    val increase = numOf32BitWord.toLong() * 4
+     if (increase + address.toLong() > UInt.MAX_VALUE.toLong()) throw OutsideAddressRangeException()
+ 
+-    return Address(address + (numOfFourBytes * 4).toUInt())
++    return Address(address + (numOf32BitWord * 4).toUInt())
+   }
+ 
+   operator fun plus(other: Address): Address {
+-    return this + other() // Add the index or # of 4 bytes
++    return this + other.wordIndex // Add the index or # of 4 bytes
+   }
+ 
+   operator fun minus(numOfFourBytes: Int): Address {
+@@ -71,7 +68,7 @@ data class Address(val address: UInt = 0u) {
+   }
+ 
+   operator fun minus(other: Address): Address {
+-    return this - other() // Add the index or # of 4 bytes
++    return this - other.wordIndex // Add the index or # of 4 bytes
+   }
+ 
+   /**
+@@ -104,10 +101,4 @@ data class Address(val address: UInt = 0u) {
+     return address.toString(2).padStart(Int.SIZE_BITS, '0')
+   }
+ 
+-  init {
+-    // Ensure the address is a multiple of 4
+-    if (address % 4u != 0u) {
+-      throw InvalidAddressException("Invalid address $address")
+-    }
+-  }
+ }
+diff --git a/emulator/src/org/pluverse/cs241/emulator/cpumodel/CpuEmulator.kt b/emulator/src/org/pluverse/cs241/emulator/cpumodel/CpuEmulator.kt
+index 9d825ad..0fc3366 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/cpumodel/CpuEmulator.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/cpumodel/CpuEmulator.kt
+@@ -192,7 +192,7 @@ class CpuEmulator(
+    */
+ 
+   private fun getReg(index: Int): Int {
+-    return registers[index].doubleWord
++    return registers[index].word32
+   }
+ 
+   private fun updateReg(index: Int, value: Int) {
+@@ -202,9 +202,9 @@ class CpuEmulator(
+     executionStack.recordExecution(
+       ExecutionType.REGISTER,
+       Address(index.toUInt() * 4u),
+-      registers[index].doubleWord,
++      registers[index].word32,
+     )
+-    val oldValue = registers[index].doubleWord
++    val oldValue = registers[index].word32
+ 
+     registers[index].update(value)
+ 
+@@ -213,13 +213,13 @@ class CpuEmulator(
+   }
+ 
+   private fun getMem(address: Address): Int {
+-    return memory[address].doubleWord
++    return memory[address].word32
+   }
+ 
+   private fun updateMem(address: Address, value: Int) {
+     // Record "prior" memory value
+-    executionStack.recordExecution(ExecutionType.MEMORY, address, memory[address].doubleWord)
+-    val oldValue = memory[address].doubleWord
++    executionStack.recordExecution(ExecutionType.MEMORY, address, memory[address].word32)
++    val oldValue = memory[address].word32
+ 
+     memory[address].update(value)
+ 
+diff --git a/emulator/src/org/pluverse/cs241/emulator/cpumodel/Memory.kt b/emulator/src/org/pluverse/cs241/emulator/cpumodel/Memory.kt
+index 0b87dd1..49007c0 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/cpumodel/Memory.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/cpumodel/Memory.kt
+@@ -57,7 +57,7 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
+   }
+ 
+   fun forEach(run: (T) -> Unit) {
+-    for (element in data) run(element)
++    data.forEach(run)
+   }
+ 
+   operator fun iterator(): Iterator<T> { return data.iterator() }
+@@ -93,7 +93,7 @@ abstract class Memory<out T : MemoryData>(protected val maxSize: Int = DEFAULT_M
+  */
+ class Registers : Memory<RegisterData>(34) {
+   override val data: MutableList<RegisterData> =
+-    MutableList<RegisterData>(maxSize) { index -> RegisterData(index) }
++    MutableList(maxSize) { index -> RegisterData(index) }
+ 
+   companion object {
+     const val HI_INDEX = 32
+@@ -110,13 +110,10 @@ class Registers : Memory<RegisterData>(34) {
+  * The RamMemory points an address to a double word. We will parse these double words into
+  * readable Mips Instructions.
+  */
+-class RamMemory : Memory<RamMemoryData> {
+-
+-  constructor() : super()
+-  constructor(maxSize: Int) : super(maxSize)
++class RamMemory(maxSize: Int) : Memory<RamMemoryData>(maxSize) {
+ 
+   // Create an array of size maxSize of Mips Instructions
+-  override val data: MutableList<RamMemoryData> = MutableList<RamMemoryData>(maxSize) { index ->
++  override val data: MutableList<RamMemoryData> = MutableList(maxSize) { index ->
+     RamMemoryData(address = getAddress(index))
+   }
+ }
+diff --git a/emulator/src/org/pluverse/cs241/emulator/cpumodel/MemoryData.kt b/emulator/src/org/pluverse/cs241/emulator/cpumodel/MemoryData.kt
+index 7cf19dc..bf8c2cc 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/cpumodel/MemoryData.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/cpumodel/MemoryData.kt
+@@ -23,10 +23,10 @@ Stores general info about the register and/or mips instruction such as the detai
+  */
+ interface MemoryData {
+ 
+-  val doubleWord: Int
++  val word32: Int
+   val address: Address
+ 
+-  operator fun invoke(): Any = doubleWord // Get the doubleWord
++  operator fun invoke(): Any = word32 // Get the doubleWord
+   override fun toString(): String // Get the details of the object
+ 
+   fun getBinary(): String // Get the binary printout of doubleWord
+@@ -63,7 +63,7 @@ This implements similar functions from MemoryData for Mips and Register Data
+ 
+  */
+ abstract class EmulatorMemoryData(
+-  override var doubleWord: Int,
++  override var word32: Int,
+   override val address: Address,
+ ) : MemoryData {
+ 
+@@ -71,11 +71,11 @@ abstract class EmulatorMemoryData(
+ 
+   // Returns a binary string, padded to 32 bits
+   override fun getBinary(): String = Integer.toBinaryString(
+-    doubleWord,
++    word32,
+   ).padStart(Int.SIZE_BITS, '0')
+ 
+   // Returns a hex string of the doubleWord
+-  override fun getHex(): String = getHex(doubleWord)
++  override fun getHex(): String = getHex(word32)
+ 
+   // Get the details
+   override fun toString(): String = getDetails()
+@@ -84,7 +84,7 @@ abstract class EmulatorMemoryData(
+     // Use the custom set methods to modify it
+     // This is for better semantics
+ 
+-    this.doubleWord = doubleWord
++    this.word32 = doubleWord
+   }
+ 
+   companion object {
+@@ -105,16 +105,16 @@ class RegisterData(private val registerName: Int) : EmulatorMemoryData(
+   Address(registerName.toUInt() * 4u),
+ ) {
+ 
+-  override operator fun invoke(): Int = doubleWord
++  override operator fun invoke(): Int = word32
+ 
+   /**
+    * We want to only mutate doubleWord if it's a non-zero register
+    */
+-  override var doubleWord: Int
+-    get() = super.doubleWord
++  override var word32: Int
++    get() = super.word32
+     set(value) {
+       // Check if it's index 0
+-      if (registerName != 0) super.doubleWord = value
++      if (registerName != 0) super.word32 = value
+     }
+ 
+   override fun getPrefixTag(): String {
+@@ -141,10 +141,10 @@ class RamMemoryData(
+   override val address: Address,
+ ) : EmulatorMemoryData(doubleWord, address) {
+ 
+-  override var doubleWord: Int
+-    get() = super.doubleWord
++  override var word32: Int
++    get() = super.word32
+     set(value) {
+-      super.doubleWord = value
++      super.word32 = value
+       instruction = getMipsInstruction(value)
+     }
+ 
+diff --git a/emulator/src/org/pluverse/cs241/emulator/views/GuiView.kt b/emulator/src/org/pluverse/cs241/emulator/views/GuiView.kt
+index 2e77d2d..7781dea 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/views/GuiView.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/views/GuiView.kt
+@@ -391,7 +391,7 @@ class GuiView : BasicEmulatorView() {
+    */
+   private fun updateStackPointer() {
+     stackTable.selectedIndex = Address(
+-      registers[Registers.STACK_POINTER].doubleWord.toUInt(),
++      registers[Registers.STACK_POINTER].word32.toUInt(),
+     ).getMemoryIndex()
+     stackTable.customRenderer?.highlight = stackTable.selectedIndex
+   }
+diff --git a/emulator/src/org/pluverse/cs241/emulator/views/lanterna/DataActionListBox.kt b/emulator/src/org/pluverse/cs241/emulator/views/lanterna/DataActionListBox.kt
+index 2cbc22a..53c0f36 100644
+--- a/emulator/src/org/pluverse/cs241/emulator/views/lanterna/DataActionListBox.kt
++++ b/emulator/src/org/pluverse/cs241/emulator/views/lanterna/DataActionListBox.kt
+@@ -55,7 +55,7 @@ data class DataActionItem(
+   }
+ 
+   override fun toString(): String {
+-    return if (displayMode == DisplayMode.HEX) data.getHex() else data.doubleWord.toString()
++    return if (displayMode == DisplayMode.HEX) data.getHex() else data.word32.toString()
+   }
+ }
+ 
+diff --git a/emulator/test/org/pluverse/cs241/emulator/CpuEmulatorTest.kt b/emulator/test/org/pluverse/cs241/emulator/CpuEmulatorTest.kt
+index 525cfa1..7378fac 100644
+--- a/emulator/test/org/pluverse/cs241/emulator/CpuEmulatorTest.kt
++++ b/emulator/test/org/pluverse/cs241/emulator/CpuEmulatorTest.kt
+@@ -37,14 +37,14 @@ class CpuEmulatorTest {
+   fun testLisInstructions() {
+     val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/lis.mips"
+     val emulator = createAndRunEmulator(mipsFile)
+-    assertThat(emulator.getRegisterValue(1).doubleWord).isEqualTo(1)
++    assertThat(emulator.getRegisterValue(1).word32).isEqualTo(1)
+   }
+ 
+   @Test
+   fun testStdinStdout() {
+     val mipsFile = "emulator/test/org/pluverse/cs241/emulator/testdata/io.mips"
+     val emulator = createAndRunEmulator(mipsFile)
+-    assertThat(emulator.getRegisterValue(3).doubleWord).isEqualTo(-1)
++    assertThat(emulator.getRegisterValue(3).word32).isEqualTo(-1)
+   }
+ 
+   private fun createAndRunEmulator(mipsFile: String): CpuEmulator {

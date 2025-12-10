@@ -5,13 +5,13 @@
 Execute the following to obtain the single jar
 
 ```
-bazel build //assembler:assembler_deploy.jar
+bazel build //assembler/src/org/pluverse/cs241/assembler:assembler_deploy.jar
 ```
 
 ## Usage
 
 ```
-java -jar bazel-bin/assembler/assembler_deploy.jar <input.asm>
+java -jar bazel-bin/assembler/src/org/pluverse/cs241/assembler/assembler_deploy.jar <input.asm>
 ```
 
 ## Test
@@ -19,5 +19,5 @@ java -jar bazel-bin/assembler/assembler_deploy.jar <input.asm>
 Execute the following to run the unit tests:
 
 ```
-bazel test //assembler:CodeGenVisitorTest
+bazel test //assembler/test/org/pluverse/cs241/assembler:CodeGenVisitorTest
 ```

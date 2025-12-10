@@ -6,6 +6,7 @@ package(default_visibility = ["//visibility:public"])
 kt_jvm_library(
     name = "assembler_lib",
     srcs = [
+        "Arm64Instruction.kt",
         "CodeGenVisitor.kt",
         "Main.kt",
         "PrettyVisitor.kt",
