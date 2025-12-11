@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ConsoleErrorListener
 import org.antlr.v4.runtime.DiagnosticErrorListener
+import java.nio.file.Files
 import java.nio.file.Path
 
 class Main {
@@ -58,20 +59,10 @@ class Main {
       val code = generator.machineCode
 
       // Write generated machine code to a binary file. Use second arg as output path if provided.
-      // val outputPath = if (args.size > 1) args[1] else "out.bin"
-      // val outPath = Path.of(outputPath)
-      // Files.write(outPath, code)
-      // println("Wrote ${code.size} bytes to $outputPath")
-
-      for (b in code) {
-        val binaryString = String.format(
-          "%8s",
-          Integer.toBinaryString(b.toInt() and 0xFF),
-        ).replace(' ', '0')
-        print("$binaryString ")
-        // System.out.printf("%02X ", b);
-      }
-      println()
+      val outputPath = if (args.size > 1) args[1] else "out.bin"
+      val outPath = Path.of(outputPath)
+      Files.write(outPath, code)
+      println("Wrote ${code.size} bytes to $outputPath")
     }
   }
 }
