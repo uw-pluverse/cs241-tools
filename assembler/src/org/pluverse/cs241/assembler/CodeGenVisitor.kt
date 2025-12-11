@@ -185,6 +185,82 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Void?>() {
     return null
   }
 
+
+  // ---------- Load/Store Register (LDUR, STUR) ----------
+  override fun visitLdurMem(ctx: Arm64AsmParser.LdurMemContext): Void? {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val imm = parseImm(ctx.imm().text).toInt() and 0x1FF // 9 bits
+
+    val opcode = 0b11111000010 shl 21
+    val fixedBits = 0b00 shl 10
+    val machineCode = opcode or (imm shl 12) or fixedBits or (rn shl 5) or rd
+        
+    emit32(machineCode)
+    return null
+  }
+
+  override fun visitSturMem(ctx: Arm64AsmParser.SturMemContext): Void? {
+    val rt = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val imm = parseImm(ctx.imm().text).toInt() and 0x1FF // 9 bits
+
+    val opcode = 0b11111000000 shl 21
+    val fixedBits = 0b00 shl 10
+    
+    val machineCode = opcode or (imm shl 12) or fixedBits or (rn shl 5) or rt
+    emit32(machineCode)
+    return null
+  }
+
+  // ---------- PC-relative Load (LDR literal) ----------
+  override fun visitLdrPc(ctx: Arm64AsmParser.LdrPcContext): Void? {
+    val rt = parseReg(ctx.reg().text)
+    val imm = parseImm(ctx.imm().text).toInt()
+    
+    val opcode = 0b01011000 shl 24
+    
+    val machineCode = opcode or ((imm and 0x7FFFF) shl 5) or rt
+    
+    emit32(machineCode)
+    return null
+  }
+
+  // ---------- Unconditional Branch ----------
+  override fun visitBImm(ctx: Arm64AsmParser.BImmContext): Void? {
+    val imm = (parseImm(ctx.imm().text).toInt()) / 4 // offset in words
+    val opcode = 0b000101 shl 26
+    val machineCode = opcode or imm
+    emit32(machineCode)
+    return null
+  }
+
+  // ---------- Conditional Branch ----------
+  override fun visitBCondDot(ctx: Arm64AsmParser.BCondDotContext): Void? {
+    val cond = parseCond(ctx.cond().text)
+    val imm = (parseImm(ctx.imm().text).toInt()) / 4
+    val opcode = 0b01010100 shl 24
+    val machineCode = opcode or (imm shl 5) or cond
+    emit32(machineCode)
+    return null
+  }
+
+  private fun parseCond(cond: String): Int {
+    return when (cond) {
+      "eq" -> 0b0000 // Equals
+      "ne" -> 0b0001 // Not equals
+      "cs", "hs" -> 0b0010 // Greater than or equals (unsigned)
+      "cc", "lo" -> 0b0011 // Less than (unsigned)
+      "hi" -> 0b1000 // Greater than (unsigned)
+      "ls" -> 0b1001 // Less than or equals (unsigned)
+      "ge" -> 0b1010 // Greater than or equals (signed)
+      "lt" -> 0b1011 // Less than (signed)
+      "gt" -> 0b1100 // Greater than (signed)
+      "le" -> 0b1101 // Less than or equals (signed)
+      else -> throw IllegalArgumentException("Unknown condition: $cond")
+    }
+  }
+
   companion object {
     // TODO(add tests for those methods.)
 
