@@ -57,33 +57,31 @@ abstract class ThreeRegisterInstruction(
 ) : DataProcessingInstruction(opcode, flags, rm, rn, rd)
 
 class AddInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10001011001, 0b011000, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10001011001, flags = 0b011000, rd, rn, rm)
 
 class SubInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b11001011001, 0b011000, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b11001011001, flags = 0b011000, rd, rn, rm)
 
 class MulInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10011011000, 0b011111, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10011011000, flags = 0b011111, rd, rn, rm)
 
 class SmulhInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10011011010, 0b011111, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10011011010, flags = 0b011111, rd, rn, rm)
 
 class UmulhInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10011011110, 0b011111, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10011011110, flags = 0b011111, rd, rn, rm)
 
 class SdivInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10011010110, 0b000011, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10011010110, flags = 0b000011, rd, rn, rm)
 
 class UdivInstruction(rd: Int, rn: Int, rm: Int) :
-  ThreeRegisterInstruction(0b10011010110, 0b000010, rd, rn, rm)
+  ThreeRegisterInstruction(opcode = 0b10011010110, flags = 0b000010, rd, rn, rm)
 
-// Cmp Instruction: cmp rn, rm -> subs xzr, rn, rm
 class CmpInstruction(rn: Int, rm: Int) :
-  DataProcessingInstruction(0b11101011001, 0b011000, rm, rn, 31)
+  DataProcessingInstruction(opcode = 0b11101011001, flags = 0b011000, rm, rn, rd = 31)
 
-// Branch Register Instructions
 class BrInstruction(rn: Int) :
-  DataProcessingInstruction(0b11010110000, 0b000000, 31, rn, 0)
+  DataProcessingInstruction(opcode = 0b11010110000, flags = 0b000000, rm = 31, rn, rd = 0)
 
 class BlrInstruction(rn: Int) :
-  DataProcessingInstruction(0b11010110001, 0b000000, 31, rn, 0)
+  DataProcessingInstruction(opcode = 0b11010110001, flags = 0b000000, rm = 31, rn, rd = 0)
