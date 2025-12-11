@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ConsoleErrorListener
 import org.antlr.v4.runtime.DiagnosticErrorListener
-import java.nio.file.Files
 import java.nio.file.Path
 
 class Main {
@@ -65,7 +64,10 @@ class Main {
       // println("Wrote ${code.size} bytes to $outputPath")
 
       for (b in code) {
-        val binaryString = String.format("%8s", Integer.toBinaryString(b.toInt() and 0xFF)).replace(' ', '0')
+        val binaryString = String.format(
+          "%8s",
+          Integer.toBinaryString(b.toInt() and 0xFF),
+        ).replace(' ', '0')
         print("$binaryString ")
         // System.out.printf("%02X ", b);
       }

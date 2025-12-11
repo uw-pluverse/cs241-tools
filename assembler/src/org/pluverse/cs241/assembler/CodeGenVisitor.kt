@@ -35,7 +35,7 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Arm64Instruction?>() {
       }
     }
 
-    ctx.lastline()?.let { 
+    ctx.lastline()?.let {
       val instr = visit(it)
       if (instr != null) {
         baos.write(instr.encode())
@@ -125,7 +125,6 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Arm64Instruction?>() {
   }
 
   companion object {
-
 
     internal fun parseReg(regName: String): Int {
       if (regName == "xzr") return 31
