@@ -27,6 +27,12 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Arm64Instruction?>() {
     get() = baos.toByteArray()
 
   // ---------- Visit Program Entry ----------
+  /**
+   * Note: The return type `Arm64Instruction?` is dictated by the visitor's generic type,
+   * which is configured to allow instruction-level visitors (e.g., visitAdd3) to return
+   * instruction objects. visitProgram itself does not return a single instruction 
+   * (it returns null).
+   */
   override fun visitProgram(ctx: Arm64AsmParser.ProgramContext): Arm64Instruction? {
     for (line in ctx.line()) {
       val instr = visit(line)
