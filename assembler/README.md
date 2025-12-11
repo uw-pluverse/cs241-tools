@@ -19,5 +19,5 @@ java -jar bazel-bin/assembler/src/org/pluverse/cs241/assembler/assembler_deploy.
 Execute the following to run the unit tests:
 
 ```
-bazel test //assembler/test/org/pluverse/cs241/assembler:CodeGenVisitorTest
+bazel test //assembler/...
 ```
