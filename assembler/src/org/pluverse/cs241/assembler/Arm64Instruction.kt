@@ -20,7 +20,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 abstract class Arm64Instruction {
-  abstract fun encode(): ByteArray
+  abstract fun encode(): Int
 }
 
 abstract class AbstractEncodedInstruction : Arm64Instruction() {
@@ -32,18 +32,26 @@ abstract class AbstractEncodedInstruction : Arm64Instruction() {
   }
 }
 
-// Base class for instructions with format: Opcode(11) | Rm(5) | Flags(6) | Rn(5) | Rd(5)
+/**
+ * Base class for instructions with layout: Opcode(11) | Rm(5) | Flags(6) | Rn(5) | Rd(5).
+ *
+ * @param opcode The 11-bit opcode field (bits 31..21) identifying the instruction encoding.
+ *               Use binary/hex literals to show the fixed opcode bits for each instruction class.
+ * @param flags  The 6-bit flags/sub-opcode field (bits 15..10) that differentiate variants.
+ * @param rm     The source register Rm (5 bits). 
+ * @param rn     The source register Rn (5 bits). 
+ * @param rd     The destination register Rd (5 bits). 
+ */
 abstract class DataProcessingInstruction(
   val opcode: Int,
   val flags: Int,
   val rm: Int,
   val rn: Int,
   val rd: Int,
-) : AbstractEncodedInstruction() {
+) : Arm64Instruction() { 
 
-  override fun encode(): ByteArray {
-    val machineCode = (opcode shl 21) or (rm shl 16) or (flags shl 10) or (rn shl 5) or rd
-    return intToBytes(machineCode)
+  override fun encode(): Int {
+    return (opcode shl 21) or (rm shl 16) or (flags shl 10) or (rn shl 5) or rd
   }
 }
 
