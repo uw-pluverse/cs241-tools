@@ -38,9 +38,9 @@ abstract class AbstractEncodedInstruction : Arm64Instruction() {
  * @param opcode The 11-bit opcode field (bits 31..21) identifying the instruction encoding.
  *               Use binary/hex literals to show the fixed opcode bits for each instruction class.
  * @param flags  The 6-bit flags/sub-opcode field (bits 15..10) that differentiate variants.
- * @param rm     The source register Rm (5 bits). 
- * @param rn     The source register Rn (5 bits). 
- * @param rd     The destination register Rd (5 bits). 
+ * @param rm     The source register Rm (5 bits).
+ * @param rn     The source register Rn (5 bits).
+ * @param rd     The destination register Rd (5 bits).
  */
 abstract class DataProcessingInstruction(
   val opcode: Int,
@@ -48,7 +48,7 @@ abstract class DataProcessingInstruction(
   val rm: Int,
   val rn: Int,
   val rd: Int,
-) : Arm64Instruction() { 
+) : Arm64Instruction() {
 
   override fun encode(): Int {
     return (opcode shl 21) or (rm shl 16) or (flags shl 10) or (rn shl 5) or rd
