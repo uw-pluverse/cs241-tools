@@ -130,21 +130,19 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Unit>() {
   }
 
   override fun visitSturMem(ctx: Arm64AsmParser.SturMemContext) {
-    val rt = parseReg(ctx.reg(0).text)
+    val rd = parseReg(ctx.reg(0).text)
     val rn = parseReg(ctx.reg(1).text)
     val imm = parseImmediate(ctx.imm().text).toInt()
-    instructions.add(SturInstruction(rt, rn, imm))
+    instructions.add(SturInstruction(rd, rn, imm))
   }
 
   override fun visitLdrPc(ctx: Arm64AsmParser.LdrPcContext) {
-    val rt = parseReg(ctx.reg().text)
-    // Note: ctx.addr() is used here based on PrettyVisitor structure
+    val rd = parseReg(ctx.reg().text)
     val imm = parseImmediate(ctx.addr().text).toInt()
-    instructions.add(LdrPcInstruction(rt, imm))
+    instructions.add(LdrPcInstruction(rd, imm))
   }
 
   override fun visitBImm(ctx: Arm64AsmParser.BImmContext) {
-    // Branch offset is in instructions (words), so divide by 4
     val imm = (parseImmediate(ctx.addr().text).toInt()) / 4
     instructions.add(BInstruction(imm))
   }
