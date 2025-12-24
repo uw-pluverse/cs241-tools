@@ -105,4 +105,29 @@ class CodeGenVisitorTest {
   fun testBlr() {
     assertAssembly("blr x0", "00003FD6")
   }
+
+  @Test
+  fun testLdur() {
+    assertAssembly("ldur x28, [x27, -4]", "7CC35FF8")
+  }
+
+  @Test
+  fun testStur() {
+    assertAssembly("stur x28, [x27, -4]", "7CC31FF8")
+  }
+
+  @Test
+  fun testLdrPc() {
+    assertAssembly("ldr x5, 64", "05080058")
+  }
+
+  @Test
+  fun testBImm() {
+    assertAssembly("b 128", "20000014")
+  }
+
+  @Test
+  fun testBCondDot() {
+    assertAssembly("b.ne 256", "01080054")
+  }
 }

@@ -93,3 +93,63 @@ class BrInstruction(rn: Int) :
 
 class BlrInstruction(rn: Int) :
   DataProcessingInstruction(opcode = 0b11010110001, flags = 0b000000, rm = 31, rn, rd = 0)
+
+
+
+abstract class MemInstruction(
+    val opcode: Int,
+    val fixedBits: Int, 
+    val imm: Int,
+    val rn: Int,
+    val rt: Int
+) : Arm64Instruction() {
+
+    override fun encode(): Int {
+        // Opcode is usually bits 31..21
+        // Imm is usually bits 20..12 (9 bits)
+        // FixedBits (option) usually bits 11..10
+        // Rn usually bits 9..5
+        // Rt usually bits 4..0
+        val imm9 = imm and 0x1FF
+        return (opcode shl 21) or (imm9 shl 12) or (fixedBits shl 10) or (rn shl 5) or rt
+    }
+}
+
+class LdurInstruction(rt: Int, rn: Int, imm: Int) :
+    MemInstruction(opcode = 0b11111000010, fixedBits = 0b00, imm, rn, rt)
+
+class SturInstruction(rt: Int, rn: Int, imm: Int) :
+    MemInstruction(opcode = 0b11111000000, fixedBits = 0b00, imm, rn, rt)
+
+/**
+ * Layout: Opcode(8) | Imm(19) | Rt(5)
+ */
+class LdrPcInstruction(val rt: Int, val imm: Int) : Arm64Instruction() {
+    override fun encode(): Int {
+        val opcode = 0b01011000 shl 24
+        val imm19 = imm and 0x7FFFF
+        return opcode or (imm19 shl 5) or rt
+    }
+}
+
+/**
+ * Layout: Opcode(6) | Imm(26)
+ */
+class BInstruction(val imm: Int) : Arm64Instruction() {
+    override fun encode(): Int {
+        val opcode = 0b000101 shl 26
+        val imm26 = imm and 0x3FFFFFF
+        return opcode or imm26
+    }
+}
+
+/**
+ * Layout: Opcode(8) | Imm(19) | 0(1) | Cond(4)
+ */
+class BCondInstruction(val cond: Int, val imm: Int) : Arm64Instruction() {
+    override fun encode(): Int {
+        val opcode = 0b01010100 shl 24
+        val imm19 = imm and 0x7FFFF
+        return opcode or (imm19 shl 5) or cond
+    }
+}
