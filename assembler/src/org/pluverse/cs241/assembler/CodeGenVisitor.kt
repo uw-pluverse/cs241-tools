@@ -122,7 +122,62 @@ class CodeGenVisitor : Arm64AsmBaseVisitor<Unit>() {
     instructions.add(BlrInstruction(rn))
   }
 
+  override fun visitLdurMem(ctx: Arm64AsmParser.LdurMemContext) {
+    val rd = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val imm = parseImmediate(ctx.imm().text).toInt()
+    instructions.add(LdurInstruction(rd, rn, imm))
+  }
+
+  override fun visitSturMem(ctx: Arm64AsmParser.SturMemContext) {
+    val rt = parseReg(ctx.reg(0).text)
+    val rn = parseReg(ctx.reg(1).text)
+    val imm = parseImmediate(ctx.imm().text).toInt()
+    instructions.add(SturInstruction(rt, rn, imm))
+  }
+
+  override fun visitLdrPc(ctx: Arm64AsmParser.LdrPcContext) {
+    val rt = parseReg(ctx.reg().text)
+    // Note: ctx.addr() is used here based on PrettyVisitor structure
+    val imm = parseImmediate(ctx.addr().text).toInt()
+    instructions.add(LdrPcInstruction(rt, imm))
+  }
+
+  override fun visitBImm(ctx: Arm64AsmParser.BImmContext) {
+    // Branch offset is in instructions (words), so divide by 4
+    val imm = (parseImmediate(ctx.addr().text).toInt()) / 4
+    instructions.add(BInstruction(imm))
+  }
+
+  override fun visitBCondDot(ctx: Arm64AsmParser.BCondDotContext) {
+    val cond = parseCond(ctx.cond().text)
+    val imm = (parseImmediate(ctx.addr().text).toInt()) / 4
+    instructions.add(BCondInstruction(cond, imm))
+  }
+
+  private fun parseCond(cond: String): Int {
+    return when (cond) {
+      "eq" -> 0b0000
+      "ne" -> 0b0001
+      "cs", "hs" -> 0b0010
+      "cc", "lo" -> 0b0011
+      "mi" -> 0b0100
+      "pl" -> 0b0101
+      "vs" -> 0b0110
+      "vc" -> 0b0111
+      "hi" -> 0b1000
+      "ls" -> 0b1001
+      "ge" -> 0b1010
+      "lt" -> 0b1011
+      "gt" -> 0b1100
+      "le" -> 0b1101
+      "al" -> 0b1110
+      else -> throw IllegalArgumentException("Unknown condition: $cond")
+    }
+  }
+
   companion object {
+
 
     internal fun parseReg(regName: String): Int {
       if (regName == "xzr") return 31
