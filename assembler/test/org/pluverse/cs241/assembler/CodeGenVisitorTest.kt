@@ -31,7 +31,7 @@ class CodeGenVisitorTest {
     val lexer = Arm64AsmLexer(charStream)
     val tokens = CommonTokenStream(lexer)
     val parser = Arm64AsmParser(tokens)
-    parser.removeErrorListeners()
+    //parser.removeErrorListeners()
 
     val tree = parser.program()
     val visitor = CodeGenVisitor()
@@ -130,4 +130,44 @@ class CodeGenVisitorTest {
   fun testBCondDot() {
     assertAssembly("b.ne 256", "01080054")
   }
+  @Test
+  fun testBWithLabelForward() {
+    assertAssembly(
+      """
+      b .L1
+      add x0, x0, x0
+      .L1:
+      add x1, x1, x1
+      """.trimIndent(),
+      "020000140060208B2160218B"
+    )
+}
+
+  @Test
+  fun testBWithLabelBackward() {
+    assertAssembly(
+      """
+      .L0:
+      add x0, x0, x0
+      b .L0
+      """.trimIndent(),
+      "0060208BFFFFFF17"
+    )
+  }
+
+
+  @Test
+fun testBCondWithLabel() {
+  assertAssembly(
+    """
+    cmp x0, x1
+    b.ne .fail
+    add x2, x2, x2
+    .fail:
+    add x3, x3, x3
+    """.trimIndent(),
+    "1F6021EB410000544260228B6360238B"
+  )
+}
+
 }

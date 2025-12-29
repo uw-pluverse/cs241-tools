@@ -22,7 +22,7 @@ labels
   ;
 
 labelDef
-  : LABEL_ID COLON
+  : DOT? LABEL_ID COLON
   ;
 
 statement
@@ -85,7 +85,7 @@ dir8
 // addressing modes: immediate or label
 addr
   : imm      #AddrImm
-  | LABEL_ID #AddrLabel
+  | DOT? LABEL_ID #AddrLabel
   ;
 
 // registers
