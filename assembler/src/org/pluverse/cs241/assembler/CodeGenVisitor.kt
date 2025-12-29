@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2018-2024 University of Waterloo.
+ *
+ * This file is part of Perses.
+ *
+ * Perses is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3, or (at your option) any later version.
+ *
+ * Perses is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * Perses; see the file LICENSE.  If not see <http://www.gnu.org/licenses/>.
+ */
+
 package org.pluverse.cs241.assembler
 
 import java.nio.ByteBuffer
@@ -88,117 +105,95 @@ override fun visitLine(ctx: Arm64AsmParser.LineContext) {
 
   override fun visitAdd3(ctx: Arm64AsmParser.Add3Context) {
     if (!pass1) {
-      instructions.add(
-        AddInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(AddInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitSub3(ctx: Arm64AsmParser.Sub3Context) {
     if (!pass1) {
-      instructions.add(
-        SubInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(SubInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitMul3(ctx: Arm64AsmParser.Mul3Context) {
     if (!pass1) {
-      instructions.add(
-        MulInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(MulInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitSmulh3(ctx: Arm64AsmParser.Smulh3Context) {
     if (!pass1) {
-      instructions.add(
-        SmulhInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(SmulhInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitUmulh3(ctx: Arm64AsmParser.Umulh3Context) {
     if (!pass1) {
-      instructions.add(
-        UmulhInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(UmulhInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitSdiv3(ctx: Arm64AsmParser.Sdiv3Context) {
     if (!pass1) {
-      instructions.add(
-        SdivInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(SdivInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitUdiv3(ctx: Arm64AsmParser.Udiv3Context) {
     if (!pass1) {
-      instructions.add(
-        UdivInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text),
-          parseReg(ctx.reg(2).text)
-        )
-      )
+      val rd = parseReg(ctx.reg(0).text)
+      val rn = parseReg(ctx.reg(1).text)
+      val rm = parseReg(ctx.reg(2).text)
+      instructions.add(UdivInstruction(rd, rn, rm))
     }
     pc += 4
   }
 
   override fun visitCmpInstr(ctx: Arm64AsmParser.CmpInstrContext) {
     if (!pass1) {
-      instructions.add(
-        CmpInstruction(
-          parseReg(ctx.reg(0).text),
-          parseReg(ctx.reg(1).text)
-        )
-      )
+      val rn = parseReg(ctx.reg(0).text)
+      val rm = parseReg(ctx.reg(1).text)
+      instructions.add(CmpInstruction(rn, rm))
     }
     pc += 4
   }
 
   override fun visitBrReg(ctx: Arm64AsmParser.BrRegContext) {
     if (!pass1) {
-      instructions.add(BrInstruction(parseReg(ctx.reg().text)))
+      val rn = parseReg(ctx.reg().text)
+      instructions.add(BrInstruction(rn))
     }
     pc += 4
   }
 
   override fun visitBlrReg(ctx: Arm64AsmParser.BlrRegContext) {
     if (!pass1) {
-      instructions.add(BlrInstruction(parseReg(ctx.reg().text)))
+      val rn = parseReg(ctx.reg().text)
+      instructions.add(BlrInstruction(rn))
     }
     pc += 4
   }
